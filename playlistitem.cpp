@@ -88,21 +88,23 @@ FileHandle PlaylistItem::file() const
     return d->fileHandle;
 }
 
-K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalGenericImage, (SmallIcon("image-x-generic")))
+/* This will create a static pointer to a QPixmap at app runtime. The icon 
+ * path will be searched for ${name}.png e.g. "playing.png". The install
+ * process should create these icons at install time. See class KIconLoader.
+ */
+K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalCheckboxOnImage, (SmallIcon("checkbox-on")))
+K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalCheckboxOffImage, (SmallIcon("checkbox-off")))
 K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalPlayingImage, (UserIcon("playing")))
 
 const QPixmap *PlaylistItem::pixmap(int column) const
 {
     int offset = playlist()->columnOffset();
 
-    // Don't use hasCover here because that may dig into the track itself.
-    // Besides, we really just want to know if the cover manager has a cover
-    // for the track.
-
-    if((column - offset) == CoverColumn &&
-        d->fileHandle.coverInfo()->coverId() != CoverManager::NoMatch)
+    if((column - offset) == CoverColumn) 
     {
-        return globalGenericImage;
+        // coverInfo is already cached in RAM, so this call is not expensive
+        bool b = d->fileHandle.coverInfo()->hasCover();
+        return (b) ? globalCheckboxOnImage : globalCheckboxOffImage;
     }
 
     if(column == playlist()->leftColumn() &&

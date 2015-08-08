@@ -1532,6 +1532,9 @@ void Playlist::slotInitialize()
     addColumn(i18n("File Name"));
     addColumn(i18n("File Name (full path)"));
 
+    setColumnAlignment(3, Qt::AlignHCenter);    // Cover
+    setColumnAlignment(4, Qt::AlignHCenter);    // Track #
+
     setRenameable(PlaylistItem::TrackColumn, true);
     setRenameable(PlaylistItem::ArtistColumn, true);
     setRenameable(PlaylistItem::AlbumColumn, true);
