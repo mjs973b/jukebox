@@ -88,6 +88,21 @@ CoverInfo::CoverInfo(const FileHandle &file) :
 
 }
 
+/**
+ * Determine if a cover image is available for this track filename.
+ *
+ * A track image may be present in up to three places:
+ * 1. In the Cover Manager, which keeps a cached copy of the image
+ *    in the local file system.
+ * 2. As an embedded image property in the .mp3 file.
+ * 3. As a separate "Folder.jpg" file in the same file system directory as 
+ *    the .mp3 file.
+ *
+ * We search for an image in this order, stopping when a positive match is
+ * found. The search results are cached in this object.
+ *
+ * @return true if an image is found, false if not.
+ */
 bool CoverInfo::hasCover() const
 {
     if(m_haveCheckedForCover)
@@ -104,8 +119,13 @@ bool CoverInfo::hasCover() const
     // that due to the way the CoverManager is structured, we should have a
     // cover if we have a cover key.  If we don't then either there's a logic
     // error, or the user has been mucking around where they shouldn't.
-    if(m_coverKey != CoverManager::NoMatch)
+    if(m_coverKey != CoverManager::NoMatch) {
         m_hasCover = CoverManager::hasCover(m_coverKey);
+        if (m_hasCover) {
+            // for better speed, avoid doing additional checks
+            return true;
+        }
+    }
 
     // Check if it's embedded in the file itself.
 
@@ -124,6 +144,10 @@ bool CoverInfo::hasCover() const
     return m_hasCover;
 }
 
+/**
+ * Remove the current cover from the Cover Manager database and clear any 
+ * cached state in this object.
+ */
 void CoverInfo::clearCover()
 {
     m_hasCover = false;
