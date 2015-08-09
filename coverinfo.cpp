@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2004 Nathan Toone <nathan@toonetown.com>
  * Copyright (C) 2005, 2008 Michael Pyne <mpyne@kde.org>
+ * Copyright (C) 2015 Michael Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -134,9 +135,8 @@ bool CoverInfo::hasCover() const
     if(m_hasAttachedCover)
         return true;
 
-    // Look for cover.jpg or cover.png in the directory.
-    if(QFile::exists(m_file.fileInfo().absolutePath() + "/cover.jpg") ||
-       QFile::exists(m_file.fileInfo().absolutePath() + "/cover.png"))
+    // Look for cover.jpg in the directory.
+    if(QFile::exists(m_file.fileInfo().absolutePath() + "/cover.jpg"))
     {
         m_hasCover = true;
     }
@@ -248,10 +248,7 @@ QPixmap CoverInfo::pixmap(CoverSize size) const
         QString fileName = m_file.fileInfo().absolutePath() + "/cover.jpg";
 
         if(!cover.load(fileName)) {
-            fileName = m_file.fileInfo().absolutePath() + "/cover.png";
-
-            if(!cover.load(fileName))
-                return QPixmap();
+            return QPixmap();
         }
     }
 
@@ -269,6 +266,7 @@ QPixmap CoverInfo::pixmap(CoverSize size) const
     return QPixmap::fromImage(cover);
 }
 
+/* TODO: this is not called from anywhere (mjs) */
 QString CoverInfo::localPathToCover(const QString &fallbackFileName) const
 {
     if(m_coverKey != CoverManager::NoMatch) {
@@ -291,8 +289,6 @@ QString CoverInfo::localPathToCover(const QString &fallbackFileName) const
     QString basePath = m_file.fileInfo().absolutePath();
     if(QFile::exists(basePath + "/cover.jpg"))
         return basePath + "/cover.jpg";
-    else if(QFile::exists(basePath + "/cover.png"))
-        return basePath + "/cover.png";
 
     return QString();
 }
