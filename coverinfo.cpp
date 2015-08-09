@@ -135,8 +135,8 @@ bool CoverInfo::hasCover() const
     if(m_hasAttachedCover)
         return true;
 
-    // Look for cover.jpg in the directory.
-    if(QFile::exists(m_file.fileInfo().absolutePath() + "/cover.jpg"))
+    // Look for Folder.jpg in the directory.
+    if(QFile::exists(m_file.fileInfo().absolutePath() + "/Folder.jpg"))
     {
         m_hasCover = true;
     }
@@ -245,7 +245,7 @@ QPixmap CoverInfo::pixmap(CoverSize size) const
 
     // If m_hasCover is still true we must have a directory cover image.
     if(m_hasCover) {
-        QString fileName = m_file.fileInfo().absolutePath() + "/cover.jpg";
+        QString fileName = m_file.fileInfo().absolutePath() + "/Folder.jpg";
 
         if(!cover.load(fileName)) {
             return QPixmap();
@@ -287,8 +287,8 @@ QString CoverInfo::localPathToCover(const QString &fallbackFileName) const
     }
 
     QString basePath = m_file.fileInfo().absolutePath();
-    if(QFile::exists(basePath + "/cover.jpg"))
-        return basePath + "/cover.jpg";
+    if(QFile::exists(basePath + "/Folder.jpg"))
+        return basePath + "/Folder.jpg";
 
     return QString();
 }
