@@ -231,10 +231,12 @@ QPixmap CoverInfo::pixmap(CoverSize size) const
         }
     }
 
-    // If we get here, see if there is an embedded cover.
-    cover = embeddedAlbumArt();
-    if(!cover.isNull() && size == Thumbnail)
-        cover = scaleCoverToThumbnail(cover);
+    if (cover.isNull()) {
+        // If we get here, see if there is an embedded cover.
+        cover = embeddedAlbumArt();
+        if(!cover.isNull() && size == Thumbnail)
+            cover = scaleCoverToThumbnail(cover);
+    }
 
     if(cover.isNull()) {
         return QPixmap();
