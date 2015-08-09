@@ -18,17 +18,18 @@
 #define JUK_H
 
 #include <kxmlguiwindow.h>
+#include <ksystemtrayicon.h>
 
 #include "playermanager.h"
+#include "tag.h"
 #include <QKeyEvent>
-
 
 class KToggleAction;
 class KGlobalAccel;
 
 class SliderAction;
 class StatusLabel;
-class SystemTray;
+//class SystemTray;
 class PlayerManager;
 class PlaylistSplitter;
 class Scrobbler;
@@ -81,11 +82,12 @@ private slots:
     void slotCheckAlbumNextAction(bool albumRandomEnabled);
     void slotProcessArgs();
     void slotClearOldCovers();
+    void slotPlayTrack();
 
 private:
     PlaylistSplitter *m_splitter;
     StatusLabel *m_statusLabel;
-    SystemTray *m_systemTray;
+    KSystemTrayIcon *m_systemTray;
 
     KToggleAction *m_randomPlayAction;
     KToggleAction *m_toggleSystemTrayAction;

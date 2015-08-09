@@ -41,6 +41,7 @@
 #include <QTime>
 #include <QTimer>
 #include <QDesktopWidget>
+#include <QMenu>
 
 #include "slideraction.h"
 #include "statuslabel.h"
@@ -184,6 +185,9 @@ void JuK::setupLayout()
             m_statusLabel, SLOT(updateData()));
     statusBar()->addWidget(m_statusLabel, 1);
     m_player->setStatusLabel(m_statusLabel);
+
+    // PlayerManager will emit signal each time a new track starts
+    connect(m_player, SIGNAL(signalPlay()), this, SLOT(slotPlayTrack()));
 
     m_splitter->setFocus();
 
@@ -340,13 +344,38 @@ void JuK::setupActions()
         action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
+/* called when a new song starts playing. Show a popup with Artist and 
+ * Track Title for about 8 seconds.
+ */
+void JuK::slotPlayTrack()
+{
+    if (m_systemTray && m_player) {
+        const Tag *tag  = m_player->playingFile().tag();
+        m_systemTray->showMessage(tag->artist(), tag->title(),
+          QSystemTrayIcon::Information, 8*1000);
+    }
+}
+
 void JuK::slotSetupSystemTray()
 {
     if(m_toggleSystemTrayAction && m_toggleSystemTrayAction->isChecked()) {
         kDebug() << "Setting up systray";
         QTime stopwatch; stopwatch.start();
+#if 0
+        /* constructing the SystemTray object hangs the whole app for 25 sec
+         * at startup. Env is kde 4.10.5 with pulse audio disabled (mjs) */
         m_systemTray = new SystemTray(m_player, this);
         m_systemTray->setObjectName( QLatin1String("systemTray" ));
+#else
+        /* this starts instantly */
+        m_systemTray = new KSystemTrayIcon(this);
+        m_systemTray->setIcon(KIcon("juk.png"));
+        m_systemTray->setToolTip(QString("Juk audio player"));
+        QMenu *cm = m_systemTray->contextMenu();
+        cm->addAction( action("playPause") );
+        cm->addAction( action("forward") );
+        m_systemTray->show();
+#endif
 
         m_toggleDockOnCloseAction->setEnabled(true);
         m_togglePopupsAction->setEnabled(true);
