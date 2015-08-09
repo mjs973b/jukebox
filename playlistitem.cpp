@@ -92,10 +92,11 @@ FileHandle PlaylistItem::file() const
  * path will be searched for ${name}.png e.g. "playing.png". The install
  * process should create these icons at install time. See class KIconLoader.
  */
-K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalCheckboxOnImage, (SmallIcon("checkbox-on")))
-K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalCheckboxOffImage, (SmallIcon("checkbox-off")))
+K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalCheckboxOnImage, (SmallIcon("cb-on")))
+K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalCheckboxOffImage, (SmallIcon("cb-off")))
 K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalPlayingImage, (UserIcon("playing")))
 
+// FIXME: this method is called way too often (mjs)
 const QPixmap *PlaylistItem::pixmap(int column) const
 {
     int offset = playlist()->columnOffset();
