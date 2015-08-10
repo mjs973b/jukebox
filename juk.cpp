@@ -536,8 +536,23 @@ void JuK::saveConfig()
     KGlobal::config()->sync();
 }
 
+/**
+ * The KApp framework is asking if OK to destroy this window.
+ * This method is called when the [X] in window frame is clicked. This is the 
+ * place to save any app state. If the user selected Quit from File menu or 
+ * system tray menu, then the m_shuttingDown variable is true.
+ * If we return true, KApp framework will invoke methods to Quit the app.
+ * If we return false, the Quit methods are not called.
+ */
 bool JuK::queryClose()
 {
+    // save app configuration data
+    m_startDocked = false;
+    saveConfig();
+
+    /* check if we should minimize to system tray rather than really quit.
+     * kapp->sessionSaving() is true if kde is shutting down desktop e.g.
+     * the user is logging out. */
     if(!m_shuttingDown &&
        !kapp->sessionSaving() &&
        m_systemTray &&
@@ -557,9 +572,6 @@ bool JuK::queryClose()
         if(m_player->playing())
             m_player->stop();
 
-        // Save configuration data.
-        m_startDocked = !isVisible();
-        saveConfig();
         return true;
     }
 }
@@ -576,6 +588,9 @@ void JuK::slotShowHide()
 void JuK::slotAboutToQuit()
 {
     m_shuttingDown = true;
+
+    // save various state and stop media player
+    this->queryClose();
 
     deleteAndClear(m_systemTray);
     deleteAndClear(m_splitter);
