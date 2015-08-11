@@ -45,7 +45,7 @@ LyricsWidget::LyricsWidget(QWidget* parent): QTextBrowser(parent),
     connect(show, SIGNAL(toggled(bool)), this, SLOT(setShown(bool)));
 
     KConfigGroup config(KGlobal::config(), "LyricsWidget");
-    bool shown = config.readEntry("Show", true);
+    bool shown = config.readEntry("Show", false);
     show->setChecked(shown);
     setVisible(shown);
 }
