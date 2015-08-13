@@ -526,7 +526,7 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
         // in case we really did abruptly stop, handle that case in a couple of seconds.
         QTimer::singleShot(2000, this, SLOT(slotUpdateGuiIfStopped()));
 
-        JuK::JuKInstance()->setWindowTitle(i18n("JuK"));
+        JuK::JuKInstance()->setWindowTitle(i18n("Jukebox"));
 
         emit signalStop();
     }
@@ -543,7 +543,7 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
 
         JuK::JuKInstance()->setWindowTitle(i18nc(
             "%1 is the artist and %2 is the title of the currently playing track.", 
-            "%1 - %2 :: JuK",
+            "%1 - %2 :: Jukebox",
             m_file.tag()->artist(),
             m_file.tag()->title()));
 

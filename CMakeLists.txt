@@ -136,7 +136,11 @@ kde4_add_ui_files(juk_SRCS
 )
 
 kde4_add_app_icon(juk_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/hi*-app-juk.png")
+
 kde4_add_executable(juk ${juk_SRCS})
+
+# name our executable 'jukebox'
+set_target_properties(juk PROPERTIES OUTPUT_NAME jukebox)
 
 if(NOT MSVC AND NOT ( WIN32 AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel" ) )
     set( LIBMATH m )
@@ -153,7 +157,7 @@ install(TARGETS juk  ${INSTALL_TARGETS_DEFAULT_ARGS} )
 
 ########### install files ###############
 
-install( PROGRAMS juk.desktop  DESTINATION  ${XDG_APPS_INSTALL_DIR} )
+install( PROGRAMS jukebox.desktop  DESTINATION  ${XDG_APPS_INSTALL_DIR} )
 install( FILES juk.notifyrc jukui.rc jukui-rtl.rc  DESTINATION  ${DATA_INSTALL_DIR}/juk )
 install( FILES juk.appdata.xml DESTINATION ${SHARE_INSTALL_PREFIX}/appdata )
 install( FILES jukservicemenu.desktop  DESTINATION
