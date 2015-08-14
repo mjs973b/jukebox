@@ -231,7 +231,7 @@ public:
      * Returns the KActionMenu that allows this to be embedded in menus outside
      * of the playlist.
      */
-    KActionMenu *columnVisibleAction() const { return m_columnVisibleAction; }
+    //KActionMenu *columnVisibleAction() const;
 
     /**
      * Set item to be the playing item.  If \a item is null then this will clear
@@ -704,9 +704,13 @@ private:
     QString m_playlistName;
     QString m_fileName;
 
+    /* popup menu for track items */
     KMenu *m_rmbMenu;
-    KMenu *m_headerMenu;
-    KActionMenu *m_columnVisibleAction;
+
+    /* popup menu for table header */
+    static KMenu *m_headerMenu;
+    static KActionMenu *m_columnVisibleAction;
+
     PlaylistToolTip *m_toolTip;
 
     /**

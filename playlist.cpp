@@ -82,6 +82,12 @@
 
 using namespace ActionCollection;
 
+/* ptr to the right-click menu for View|Show Columns and the header on the
+ * table. This KMenu object is shared by all Playlist Widgets.
+ */
+KMenu *       Playlist::m_headerMenu;
+KActionMenu * Playlist::m_columnVisibleAction;
+
 /**
  * Used to give every track added in the program a unique identifier. See
  * PlaylistItem
@@ -1558,22 +1564,31 @@ void Playlist::slotInitialize()
 #endif
     /* m_headerMenu->insertTitle(i18n("Show")); */
 
-    QAction *showAction;
-
-    for(int i = 0; i < header()->count(); ++i) {
-        if(i - columnOffset() == PlaylistItem::FileNameColumn)
-            m_headerMenu->addSeparator();
-
-        showAction = new QAction(header()->label(i), m_headerMenu);
-        showAction->setData(i);
-        showAction->setCheckable(true);
-        showAction->setChecked(true);
-        m_headerMenu->addAction(showAction);
-
-        adjustColumn(i);
+    /* we only add items to the menu once, and we do it the first
+     * time this method is called. All Playlist Widgets will share this
+     * menu. KMenu *m_headerMenu has already been created in this->setup().
+     */
+    int menuItemCount = m_headerMenu->actions().size();
+    if (menuItemCount == 0) {
+        QAction *showAction;
+        for(int i = 0; i < header()->count(); ++i) {
+            if(i - columnOffset() == PlaylistItem::FileNameColumn) {
+                m_headerMenu->addSeparator();
+            }
+    
+            showAction = new QAction(header()->label(i), m_headerMenu);
+            showAction->setData(i);
+            showAction->setCheckable(true);
+            showAction->setChecked(true);
+            m_headerMenu->addAction(showAction);
+        }
+        connect(m_headerMenu, SIGNAL(triggered(QAction*)), 
+                this, SLOT(slotToggleColumnVisible(QAction*)));
     }
 
-    connect(m_headerMenu, SIGNAL(triggered(QAction*)), this, SLOT(slotToggleColumnVisible(QAction*)));
+    for(int i = 0; i < header()->count(); ++i) {
+        adjustColumn(i);
+    }
 
     connect(this, SIGNAL(contextMenuRequested(Q3ListViewItem*,QPoint,int)),
             this, SLOT(slotShowRMBMenu(Q3ListViewItem*,QPoint,int)));
@@ -1701,12 +1716,16 @@ void Playlist::setup()
 
     setSorting(1);
 
-    // This apparently must be created very early in initialization for other
-    // Playlist code requiring m_headerMenu.
-    m_columnVisibleAction = new KActionMenu(i18n("&Show Columns"), this);
-    ActionCollection::actions()->addAction("showColumns", m_columnVisibleAction);
+    /* This apparently must be created very early in initialization for other
+     * Playlist code requiring m_headerMenu. m_columnVisibleAction and 
+     * m_headerMenu are both class static variables.  */
+    if (!m_columnVisibleAction) {
+        // lazy create, then shared by all instances of Playlist
+        m_columnVisibleAction = new KActionMenu(i18n("&Show Columns"), this);
+        ActionCollection::actions()->addAction("showColumns", m_columnVisibleAction);
 
-    m_headerMenu = m_columnVisibleAction->menu();
+        m_headerMenu = m_columnVisibleAction->menu();
+    }
 
     // TODO: Determine if other stuff in setup must happen before slotInitialize().
 
