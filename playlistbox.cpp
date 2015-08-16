@@ -679,7 +679,7 @@ void PlaylistBox::slotPlaylistChanged()
         if(playlists.front() == upcomingPlaylist())
             action("deleteItemPlaylist")->setText(i18n("Hid&e"));
         else
-            action("deleteItemPlaylist")->setText(i18n("R&emove"));
+            action("deleteItemPlaylist")->setText(i18n("R&emove Playlist..."));
     }
     else if(!playlists.isEmpty())
         createDynamicPlaylist(playlists);

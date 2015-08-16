@@ -939,21 +939,48 @@ PlaylistCollection::ActionHandler::ActionHandler(PlaylistCollection *collection)
     createAction(i18n("Play First Track"),SLOT(slotPlayFirst()),     "playFirst");
     createAction(i18n("Play Next Album"), SLOT(slotPlayNextAlbum()), "forwardAlbum", "go-down-search");
 
-    KStandardAction::open(this, SLOT(slotOpen()), actions());
-    KStandardAction::save(this, SLOT(slotSave()), actions());
-    KStandardAction::saveAs(this, SLOT(slotSaveAs()), actions());
+    KAction *act;
 
-    createAction(i18n("Manage &Folders..."),  SLOT(slotManageFolders()),    "openDirectory", "folder-new");
-    createAction(i18n("&Rename..."),      SLOT(slotRename()),       "renamePlaylist", "edit-rename");
-    createAction(i18nc("verb, copy the playlist", "D&uplicate..."),
+    act = createAction(i18n("Import Playlist..."), SLOT(slotOpen()), "file_open");
+    act->setStatusTip(i18n("Import m3u playlists or individual tracks"));
+
+    act = createAction(i18n("Save Playlist"), SLOT(slotSave()), "file_save");
+    act->setStatusTip(i18n("Write m3u playlist to disk"));
+
+    act = createAction(i18n("Save Playlist As..."), SLOT(slotSaveAs()), "file_save_as");
+    act->setStatusTip(i18n("Write m3u playlist to disk"));
+
+    act = createAction(i18n("Manage &Folders..."),  SLOT(slotManageFolders()),    "openDirectory", "folder-new");
+    act->setStatusTip(i18n("Specify folders to scan for Collection List"));
+
+    act = createAction(i18n("&Rename Playlist..."),      SLOT(slotRename()),       "renamePlaylist", "edit-rename");
+    act->setStatusTip(i18n("Relabel playlist in app, disk file name unchanged"));
+
+    act = createAction(i18nc("verb, copy the playlist", "D&uplicate Playlist..."),
                  SLOT(slotDuplicate()),    "duplicatePlaylist", "edit-copy");
-    createAction(i18n("R&emove"),         SLOT(slotRemove()),       "deleteItemPlaylist", "user-trash");
-    createAction(i18n("Reload"),          SLOT(slotReload()),       "reloadPlaylist", "view-refresh");
-    createAction(i18n("Edit Search..."),  SLOT(slotEditSearch()),   "editSearch");
+    act->setStatusTip(i18n("Copy an existing playlist"));
 
-    createAction(i18n("&Delete"),         SLOT(slotRemoveItems()),  "removeItem", "edit-delete");
-    createAction(i18n("Refresh"),         SLOT(slotRefreshItems()), "refresh", "view-refresh");
-    createAction(i18n("&Rename File"),    SLOT(slotRenameItems()),  "renameFile", "document-save-as", KShortcut(Qt::CTRL + Qt::Key_R));
+    /* if text label is modified, a 2nd occurance in playlistbox.cpp must 
+     * be kept in sync. */
+    act = createAction(i18n("R&emove Playlist..."), SLOT(slotRemove()),
+                "deleteItemPlaylist", "user-trash");
+    act->setStatusTip(i18n("Delete playlist in app, ask about disk file"));
+
+    act = createAction(i18n("Reload Playlist"),          SLOT(slotReload()),       "reloadPlaylist", "view-refresh");
+    act->setStatusTip(i18n("Re-read playlist from disk"));
+
+    act = createAction(i18n("Edit Search..."),  SLOT(slotEditSearch()),   "editSearch");
+    act->setStatusTip(i18n("Modify an existing Search Playlist"));
+
+    act = createAction(i18n("&Delete Tracks..."), SLOT(slotRemoveItems()), "removeItem", "edit-delete");
+    act->setStatusTip(i18n("Delete selected track from playlist, ask about disk file"));
+
+    act = createAction(i18n("Refresh Track Tags"), SLOT(slotRefreshItems()), "refresh", "view-refresh");
+    act->setStatusTip(i18n("Re-read the disk file tags of selected track"));
+
+    act = createAction(i18n("&Rename File..."),    SLOT(slotRenameItems()),  "renameFile", "document-save-as", KShortcut(Qt::CTRL + Qt::Key_R));
+    act->setStatusTip(i18n("Change file name of selected track"));
+
 
     menu = new KActionMenu(i18n("Cover Manager"), actions());
     actions()->addAction("coverManager", menu);
