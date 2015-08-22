@@ -100,6 +100,12 @@ PlaylistInterface *PlaylistSplitter::playlist() const
     return m_playlistBox;
 }
 
+void PlaylistSplitter::savePlaylistsToDisk(bool bDialogOK) {
+    if (m_playlistBox) {
+        m_playlistBox->savePlaylistsToDisk(bDialogOK);
+    }
+}
+
 bool PlaylistSplitter::eventFilter(QObject *, QEvent *event)
 {
     if(event->type() == FocusUpEvent::id) {

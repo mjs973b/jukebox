@@ -56,6 +56,8 @@ void FolderPlaylist::slotReload()
 {
     if(!m_folder.isEmpty())
         addFiles(QStringList(m_folder));
+
+    setFileListChanged(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

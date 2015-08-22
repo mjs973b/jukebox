@@ -413,6 +413,25 @@ public slots:
 
     virtual void dataChanged();
 
+    /**
+     * Force the state of the FileListChanged flag.
+     */
+    void setFileListChanged(bool b);
+
+    /**
+     * Determine if any modifications were made to the file names 
+     * after this playlist was created or loaded from disk.
+     */
+    bool hasFileListChanged() const;
+
+    /**
+     * The actual file-writing routine.
+     * @param bDialogOk  true if showing dialog and blocking UI is Ok, false
+     * if not.
+     * @return true on successful write, false on error.
+     */
+    bool saveFile(bool bDialogOk);
+
 protected:
     /**
      * Remove \a items from the playlist and disk.  This will ignore items that
@@ -722,6 +741,12 @@ private:
     static int m_leftColumn;
     static QVector<PlaylistItem *> m_backMenuItems;
 
+    /** dirty bit for the list of filenames. Used to determine if add/remove
+     *  was done after m3u file was read from disk, or was newly created..
+     */
+    bool m_bFileListChanged;
+
+    /** when true, do not issue dataChanged() calls */
     bool m_blockDataChanged;
 };
 

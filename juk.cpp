@@ -112,7 +112,7 @@ JuK::JuK(QWidget *parent) :
     if(QApplication::isRightToLeft())
         setupGUI(defaultSize, ToolBar | Save | Create, "jukui-rtl.rc");
     else
-        setupGUI(defaultSize, ToolBar | Save | Create);
+        setupGUI(defaultSize, ToolBar | Save | Create, "jukeboxui.rc");
 
     // Center the GUI if this is our first run ever.
 
@@ -572,6 +572,11 @@ bool JuK::queryClose()
         if(m_player->playing())
             m_player->stop();
 
+        if (m_splitter) {
+            // save modified playlists
+            bool bDialogOk = !kapp->sessionSaving();
+            m_splitter->savePlaylistsToDisk(bDialogOk);
+        }
         return true;
     }
 }

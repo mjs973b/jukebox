@@ -174,7 +174,7 @@ PlaylistBox::~PlaylistBox()
 {
     PlaylistList l;
     CollectionList *collection = CollectionList::instance();
-    for(Q3ListViewItem *i = firstChild(); i; i = i->nextSibling()) {
+    for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
         Item *item = static_cast<Item *>(i);
         if(item->playlist() && item->playlist() != collection)
             l.append(item->playlist());
@@ -409,19 +409,78 @@ void PlaylistBox::setDynamicListsFrozen(bool frozen)
     }
 }
 
-void PlaylistBox::slotSavePlaylists()
+/**
+ * This writes the 'playlists' cache file in the kde4 dir.
+ *
+ * For the special playlists like History, Play Queue, Folder or Search,
+ * this is the only place they are written to disk. The user's regular .m3u 
+ * playlists are also saved, but it's not clear why since the data is 
+ * immediately discarded after it is read at app startup.
+ */
+void PlaylistBox::slotSavePlaylistsToCache()
 {
     kDebug() << "Auto-saving playlists.\n";
 
-    PlaylistList l;
+    PlaylistList list;
+    Playlist *pl;
     CollectionList *collection = CollectionList::instance();
-    for(Q3ListViewItem *i = firstChild(); i; i = i->nextSibling()) {
+    for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
         Item *item = static_cast<Item *>(i);
-        if(item->playlist() && item->playlist() != collection)
-            l.append(item->playlist());
+        pl = item->playlist();
+        if(pl && pl != collection) {
+            list.append(pl);
+        }
     }
 
-    Cache::savePlaylists(l);
+    // re-write the cache file
+    Cache::savePlaylists(list);
+}
+
+/* Write any modified User playlists to disk. Skip Playlist Objects which 
+ * are read-only or is the CollectionList. If bDialogOk allows, prompt for 
+ * whether or not to save; for a newly-created playlist, prompt for 
+ * filename.
+ *
+ * If dialogs are suppressed, then our policy is to assume a "Yes" 
+ * response, and not report any errors..
+ */
+void PlaylistBox::savePlaylistsToDisk(bool bDialogOk)
+{
+    Playlist *pl;
+    CollectionList *collection = CollectionList::instance();
+    for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
+        Item *item = static_cast<Item *>(i);
+        pl = item->playlist();
+        if(pl && pl != collection && !pl->readOnly() && 
+           pl->hasFileListChanged()) {
+           
+            int retval;
+            if (bDialogOk) {
+                retval = KMessageBox::questionYesNo(
+                    this,
+                    i18n("Playlist '%1' has changed. Save to disk?", pl->name()),
+                    QString(),                      // Caption
+                    KStandardGuiItem::save(),       // Yes
+                    KStandardGuiItem::dontSave()    // No
+                );
+            } else {
+                retval = KMessageBox::Yes;
+            }
+
+            if (retval == KMessageBox::Yes) {
+                bool bSaved = pl->saveFile(bDialogOk);
+
+                if (!bSaved && bDialogOk) {
+                    /* we get here if playlist is newly created (no filename),
+                     * or if the specified .m3u file is read-only. If this 2nd 
+                     * write attempt also fails, just continue. The user may
+                     * have pressed Cancel on the SaveAs Dialog.
+                     */
+                    pl->saveAs();
+                }
+            }
+        }
+    }
 }
 
 void PlaylistBox::slotShowDropTarget()
@@ -756,7 +815,7 @@ void PlaylistBox::slotLoadCachedPlaylists()
     m_savePlaylistTimer = new QTimer(this);
     m_savePlaylistTimer->setInterval(3000); // 3 seconds with no change? -> commit
     m_savePlaylistTimer->setSingleShot(true);
-    connect(m_savePlaylistTimer, SIGNAL(timeout()), SLOT(slotSavePlaylists()));
+    connect(m_savePlaylistTimer, SIGNAL(timeout()), SLOT(slotSavePlaylistsToCache()));
 
     clearSelection();
     setSelected(m_playlistDict[CollectionList::instance()], true);

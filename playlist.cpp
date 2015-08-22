@@ -348,6 +348,7 @@ Playlist::Playlist(PlaylistCollection *collection, const QString &name,
     m_playlistName(name),
     m_rmbMenu(0),
     m_toolTip(0),
+    m_bFileListChanged(false),
     m_blockDataChanged(false)
 {
     setup();
@@ -371,6 +372,7 @@ Playlist::Playlist(PlaylistCollection *collection, const PlaylistItemList &items
     m_playlistName(name),
     m_rmbMenu(0),
     m_toolTip(0),
+    m_bFileListChanged(false),
     m_blockDataChanged(false)
 {
     setup();
@@ -395,6 +397,7 @@ Playlist::Playlist(PlaylistCollection *collection, const QFileInfo &playlistFile
     m_fileName(playlistFile.canonicalFilePath()),
     m_rmbMenu(0),
     m_toolTip(0),
+    m_bFileListChanged(false),
     m_blockDataChanged(false)
 {
     setup();
@@ -417,6 +420,7 @@ Playlist::Playlist(PlaylistCollection *collection, bool delaySetup, int extraCol
     m_lastSelected(0),
     m_rmbMenu(0),
     m_toolTip(0),
+    m_bFileListChanged(false),
     m_blockDataChanged(false)
 {
     for(int i = 0; i < extraColumns; ++i) {
@@ -555,40 +559,74 @@ void Playlist::setName(const QString &n)
     emit signalNameChanged(m_playlistName);
 }
 
-void Playlist::save()
+bool Playlist::saveFile(bool bDialogOk)
 {
-    if(m_fileName.isEmpty())
-        return saveAs();
+    if(m_fileName.isEmpty()) {
+        return false;
+    }
 
     QFile file(m_fileName);
 
-    if(!file.open(QIODevice::WriteOnly))
-        return KMessageBox::error(this, i18n("Could not save to file %1.", m_fileName));
+    // TODO: write to temp file first before corrupting the original
+    if(!file.open(QIODevice::WriteOnly)) {
+        if (bDialogOk) {
+            KMessageBox::error(this, i18n("Could not save to file %1.",
+                m_fileName));
+        }
+        return false;
+    }
 
     QTextStream stream(&file);
 
-    QStringList fileList = files();
+    stream.setCodec("UTF-8");
 
-    foreach(const QString &file, fileList)
+    QStringList fileList = this->files();
+
+    foreach(const QString &file, fileList) {
         stream << file << endl;
+    }
 
     file.close();
+
+    m_bFileListChanged = false;
+
+    return true;
 }
 
+/* called initiated from File Menu. Ok to show dialog to user. */
+void Playlist::save()
+{
+    if(m_fileName.isEmpty()) {
+        saveAs();
+        return;
+    }
+    // will show dialog on failure
+    saveFile(true);
+}
+
+/* called initiated from File Menu. Persistently modifies the disk file name.
+ * Ok to show dialog to user.
+ */
 void Playlist::saveAs()
 {
     m_collection->removeFileFromDict(m_fileName);
 
     m_fileName = MediaFiles::savePlaylistDialog(name(), this);
 
-    if(!m_fileName.isEmpty()) {
-        m_collection->addFileToDict(m_fileName);
-
-        // If there's no playlist name set, use the file name.
-        if(m_playlistName.isEmpty())
-            emit signalNameChanged(name());
-        save();
+    if(m_fileName.isEmpty()) {
+        // user cancelled the dialog
+        return;
     }
+
+    m_collection->addFileToDict(m_fileName);
+
+    // If there's no playlist name set, use the file name.
+    if(m_playlistName.isEmpty()) {
+        emit signalNameChanged(name());
+    }
+
+    // will show dialog on failure
+    saveFile(true);
 }
 
 void Playlist::updateDeletedItem(PlaylistItem *item)
@@ -606,6 +644,8 @@ void Playlist::clearItem(PlaylistItem *item)
     // Automatically updates internal structs via updateDeletedItem
     delete item;
 
+    m_bFileListChanged = true;
+
     dataChanged();
 }
 
@@ -613,6 +653,8 @@ void Playlist::clearItems(const PlaylistItemList &items)
 {
     foreach(PlaylistItem *item, items)
         delete item;
+
+    m_bFileListChanged = true;
 
     dataChanged();
 }
@@ -808,6 +850,9 @@ void Playlist::slotRenameFile()
 
     m_blockDataChanged = true;
     renamer.rename(items);
+
+    m_bFileListChanged = true;
+
     m_blockDataChanged = false;
     dataChanged();
 
@@ -1368,6 +1413,10 @@ void Playlist::addFiles(const QStringList &files, PlaylistItem *after)
     foreach(const QString &file, files)
         addFile(file, queue, true, &after);
 
+    if (queue.size() > 0) {
+        m_bFileListChanged = true;
+    }
+
     addFileHelper(queue, &after, true);
 
     m_blockDataChanged = false;
@@ -1658,6 +1707,15 @@ CollectionListItem *Playlist::collectionListItem(const FileHandle &file)
     return item;
 }
 
+void Playlist::setFileListChanged(bool b) {
+    m_bFileListChanged = b;
+}
+
+bool Playlist::hasFileListChanged() const
+{
+    return m_bFileListChanged;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // protected slots
 ////////////////////////////////////////////////////////////////////////////////
@@ -1773,6 +1831,9 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
     m_blockDataChanged = false;
 
     file.close();
+
+    // this playlist content matches the disk file
+    m_bFileListChanged = false;
 
     dataChanged();
 

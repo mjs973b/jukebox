@@ -70,6 +70,14 @@ public:
 
     void setupPlaylist(Playlist *playlist, const QString &iconName, Item *parentItem = 0);
 
+    /**
+     * Write modified playlists to disk.
+     *
+     * @param bDialogOK set to true if the call is permitted to show a
+     * dialog, set to false if save must not block the UI (e.g. logging out).
+     */
+    void savePlaylistsToDisk(bool bDialogOK);
+
 public slots:
     void paste();
     void clear() {}
@@ -120,7 +128,7 @@ private slots:
     void slotDoubleClicked(Q3ListViewItem *);
     void slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int);
     void slotSetViewMode(int index);
-    void slotSavePlaylists();
+    void slotSavePlaylistsToCache();
     void slotShowDropTarget();
 
     void slotPlaylistItemsDropped(Playlist *p);

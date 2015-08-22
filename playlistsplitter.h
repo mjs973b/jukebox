@@ -50,6 +50,13 @@ public:
 
     PlaylistInterface *playlist() const;
 
+    /**
+     * Save all modified playlists to disk.
+     * @param bDialogOk  set to true if call can show a dialog box, set
+     * to false to not block the UI.
+     */
+    void savePlaylistsToDisk(bool bDialogOK);
+
     virtual bool eventFilter(QObject *watched, QEvent *event);
 
 signals:
