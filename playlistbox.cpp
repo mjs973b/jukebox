@@ -313,6 +313,10 @@ void PlaylistBox::saveConfig()
     KGlobal::config()->sync();
 }
 
+/**
+ * Remove selected playlists. Prompt the user whether to remove the .m3u 
+ * file from disk too.
+ */
 void PlaylistBox::remove()
 {
     ItemList items = selectedBoxItems();
@@ -370,7 +374,7 @@ void PlaylistBox::remove()
     for(ItemList::ConstIterator it = items.constBegin(); it != items.constEnd(); ++it) {
         if(*it != Item::collectionItem() &&
            (*it)->playlist() &&
-           (!(*it)->playlist()->readOnly()))
+           ((*it)->playlist()->canDelete()))
         {
             removeQueue.append((*it)->playlist());
         }
@@ -451,7 +455,7 @@ void PlaylistBox::savePlaylistsToDisk(bool bDialogOk)
     for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
         Item *item = static_cast<Item *>(i);
         pl = item->playlist();
-        if(pl && pl != collection && !pl->readOnly() && 
+        if(pl && pl != collection && pl->canModifyContent() && 
            pl->hasFileListChanged()) {
            
             int retval;
@@ -505,10 +509,17 @@ void PlaylistBox::slotRemoveItem(const QString &tag, unsigned column)
         (*it)->removeItem(tag, column);
 }
 
+/**
+ * Handle the "Drop" part of Drag/Drop. 'this' points to the playlist
+ * which is being dropped onto. The QMimeData contains a list of absolute 
+ * filename(s).
+ */
 void PlaylistBox::decode(const QMimeData *s, Item *item)
 {
-    if(!s || (item && item->playlist() && item->playlist()->readOnly()))
+    if(!s || 
+       (item && item->playlist() && !item->playlist()->canModifyContent())) {
         return;
+    }
 
     const KUrl::List urls = KUrl::List::fromMimeData(s);
 
@@ -571,7 +582,7 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
 
     if(target) {
 
-        if(target->playlist() && target->playlist()->readOnly())
+        if(target->playlist() && !target->playlist()->canModifyContent())
             return;
 
         // This is a semi-dirty hack to check if the items are coming from within
@@ -707,10 +718,19 @@ void PlaylistBox::slotPlaylistChanged()
 
     bool singlePlaylist = playlists.count() == 1;
 
+    bool bReadOnly = false;
+    if (singlePlaylist) {
+        Playlist *pl = playlists.front();
+        /* for now, we exactly re-create the behavior of Playlist::readOnly().
+         * Only the HistoryPlaylist class will evaluate to true.
+         */
+        bReadOnly = !pl->canDelete() && !pl->canModifyContent() && !pl->canRename(); 
+    }
+
     if(playlists.isEmpty() ||
        (singlePlaylist &&
         (playlists.front() == CollectionList::instance() ||
-         playlists.front()->readOnly())))
+         bReadOnly)))
     {
         action("file_save")->setEnabled(false);
         action("file_save_as")->setEnabled(false);

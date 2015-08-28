@@ -292,14 +292,31 @@ public:
     virtual int columnOffset() const { return 0; }
 
     /**
-     * Some subclasses of Playlist will be "read only" lists (i.e. the history
-     * playlist).  This is a way for those subclasses to indicate that to the
-     * Playlist internals.
+     * Report whether the content of this playlist is permitted to be 
+     * modified i.e. whether .mp3 files can be added, deleted or renamed 
+     * for this .m3u playlist BY USER ACTION. The default is true, but it 
+     * can be changed by a subclass.
      */
-    virtual bool readOnly() const { return false; }
+    virtual bool canModifyContent() const { return true; }
 
     /**
-     * Returns true if it's possible to reload this playlist.
+     * Report whether the label on this playlist is permiteed to be 
+     * changed BY USER ACTION. The default is true, but it can be changed 
+     * by a subclass.
+     */
+    virtual bool canRename() const { return true; }
+
+    /**
+     * Report whether this playlist is permitted to be deleted (both in 
+     * RAM and on disk) BY USER ACTION. The default is true, but it be 
+     * changed by a subclass.
+     */
+    virtual bool canDelete() const { return true; }
+
+    /**
+     * Returns true if it's permitted to reread this playlist from
+     * disk. This method does not verify the underlying file still
+     * exists.
      */
     virtual bool canReload() const { return !m_fileName.isEmpty(); }
 

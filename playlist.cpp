@@ -2206,7 +2206,7 @@ void Playlist::slotShowRMBMenu(Q3ListViewItem *item, const QPoint &point, int co
             i18n("Add to Play Queue"), this, SLOT(slotAddToUpcoming()));
         m_rmbMenu->addSeparator();
 
-        if(!readOnly()) {
+        if(!this->canModifyContent()) {
             m_rmbMenu->addAction( action("edit_cut") );
             m_rmbMenu->addAction( action("edit_copy") );
             m_rmbMenu->addAction( action("edit_paste") );
