@@ -32,6 +32,9 @@ public:
     void setFolder(const QString &s);
 
     virtual bool canReload() const { return true; }
+    virtual bool canDelete() const { return true; }
+    virtual bool canModifyContent() const { return false; }
+    virtual bool canRename() const { return true; }
 
 public slots:
     virtual void slotReload();

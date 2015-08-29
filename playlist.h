@@ -314,9 +314,9 @@ public:
     virtual bool canDelete() const { return true; }
 
     /**
-     * Returns true if it's permitted to reread this playlist from
-     * disk. This method does not verify the underlying file still
-     * exists.
+     * Returns true if it's ok to reread/regenerate this playlist
+     * BY USER ACTION. Default is True if a filename() is defined for 
+     * this playlist, but it can be changed by a subclass.
      */
     virtual bool canReload() const { return !m_fileName.isEmpty(); }
 

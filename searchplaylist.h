@@ -33,6 +33,11 @@ public:
     void setPlaylistSearch(const PlaylistSearch &s, bool update = true);
     virtual bool searchIsEditable() const { return true; }
 
+    virtual bool canReload() const { return true; }
+    virtual bool canDelete() const { return true; }
+    virtual bool canModifyContent() const { return false; }
+    virtual bool canRename() const { return true; }
+
 protected:
     /**
      * Runs the search to update the current items.

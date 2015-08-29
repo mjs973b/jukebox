@@ -48,6 +48,8 @@ public:
                                             bool emitChanged = true);
     virtual void createItems(const PlaylistItemList &siblings);
     virtual int columnOffset() const { return 1; }
+
+    virtual bool canReload() const { return false; }
     virtual bool canDelete() const { return false; }
     virtual bool canModifyContent() const { return false; }
     virtual bool canRename() const { return false; }

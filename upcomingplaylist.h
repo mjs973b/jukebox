@@ -102,6 +102,11 @@ public:
 
     bool active() const { return m_active; }
 
+    virtual bool canReload() const { return false; }
+    virtual bool canDelete() const { return false; }
+    virtual bool canModifyContent() const { return true; }
+    virtual bool canRename() const { return false; }
+
 private:
 
     /**

@@ -42,6 +42,9 @@ public:
     virtual ~DynamicPlaylist();
 
     virtual bool canReload() const { return false; }
+    virtual bool canDelete() const { return false; }
+    virtual bool canModifyContent() const { return false; }
+    virtual bool canRename() const { return false; }
 
     void setPlaylists(const PlaylistList &playlists);
 
