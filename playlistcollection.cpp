@@ -435,9 +435,9 @@ void PlaylistCollection::save()
     visiblePlaylist()->save();
 }
 
-void PlaylistCollection::saveAs()
+void PlaylistCollection::exportFile()
 {
-    visiblePlaylist()->saveAs();
+    visiblePlaylist()->exportFile();
 }
 
 void PlaylistCollection::reload()
@@ -947,7 +947,7 @@ PlaylistCollection::ActionHandler::ActionHandler(PlaylistCollection *collection)
     act = createAction(i18n("Save Playlist"), SLOT(slotSave()), "file_save");
     act->setStatusTip(i18n("Write m3u playlist to disk"));
 
-    act = createAction(i18n("Save Playlist As..."), SLOT(slotSaveAs()), "file_save_as");
+    act = createAction(i18n("Export Playlist..."), SLOT(slotExportFile()), "file_save_as");
     act->setStatusTip(i18n("Write m3u playlist to disk"));
 
     act = createAction(i18n("Manage &Folders..."),  SLOT(slotManageFolders()),    "openDirectory", "folder-new");

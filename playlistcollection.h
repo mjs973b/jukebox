@@ -90,7 +90,7 @@ public:
     virtual void rename();
     virtual void duplicate();
     virtual void save();
-    virtual void saveAs();
+    virtual void exportFile();
     virtual void remove() = 0;
     virtual void reload();
     virtual void editSearch();
@@ -255,7 +255,7 @@ private slots:
     void slotRename()       { m_collection->rename(); }
     void slotDuplicate()    { m_collection->duplicate(); }
     void slotSave()         { m_collection->save(); }
-    void slotSaveAs()       { m_collection->saveAs(); }
+    void slotExportFile()   { m_collection->exportFile(); }
     void slotReload()       { m_collection->reload(); }
     void slotRemove()       { m_collection->remove(); }
     void slotEditSearch()   { m_collection->editSearch(); }
