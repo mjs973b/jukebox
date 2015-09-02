@@ -107,9 +107,14 @@ public:
 
     /**
      * Standard "save as".  Prompts the user for a location where to save the
-     * playlist to.
+     * playlist to, and updates fileName() for a normal playlist.
      */
     virtual void saveAs();
+
+    /**
+     * Write a .m3u to user-specified location, but do not update fileName().
+     */
+    virtual bool exportFile();
 
     /**
      * Removes \a item from the Playlist, but not from the disk.
@@ -447,7 +452,7 @@ public slots:
      * if not.
      * @return true on successful write, false on error.
      */
-    bool saveFile(bool bDialogOk);
+    bool saveFile(const QString& fileName, bool bDialogOk);
 
 protected:
     /**

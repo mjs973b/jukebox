@@ -472,7 +472,7 @@ void PlaylistBox::savePlaylistsToDisk(bool bDialogOk)
             }
 
             if (retval == KMessageBox::Yes) {
-                bool bSaved = pl->saveFile(bDialogOk);
+                bool bSaved = pl->saveFile(pl->fileName(), bDialogOk);
 
                 if (!bSaved && bDialogOk) {
                     /* we get here if playlist is newly created (no filename),

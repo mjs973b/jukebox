@@ -559,19 +559,19 @@ void Playlist::setName(const QString &n)
     emit signalNameChanged(m_playlistName);
 }
 
-bool Playlist::saveFile(bool bDialogOk)
+bool Playlist::saveFile(const QString& fileName, bool bDialogOk)
 {
-    if(m_fileName.isEmpty()) {
+    if(fileName.isEmpty()) {
         return false;
     }
 
-    QFile file(m_fileName);
+    QFile file(fileName);
 
     // TODO: write to temp file first before corrupting the original
     if(!file.open(QIODevice::WriteOnly)) {
         if (bDialogOk) {
             KMessageBox::error(this, i18n("Could not save to file %1.",
-                m_fileName));
+                fileName));
         }
         return false;
     }
@@ -593,40 +593,70 @@ bool Playlist::saveFile(bool bDialogOk)
     return true;
 }
 
-/* called initiated from File Menu. Ok to show dialog to user. */
+/* call initiated from File Menu. Ok to show dialog to user. If fileName
+ * is not set, then invoke saveAs().
+ */
 void Playlist::save()
 {
     if(m_fileName.isEmpty()) {
         saveAs();
         return;
     }
-    // will show dialog on failure
-    saveFile(true);
+    // will show error dialog on failure
+    if(!saveFile(m_fileName, true)) {
+        // let the user try a new name
+        saveAs();
+    }
 }
 
-/* called initiated from File Menu. Persistently modifies the disk file name.
- * Ok to show dialog to user.
+/* Save a m3u playlist to a user-specified file name.
+ * Call initiated from File Menu. On successful write, set the disk file 
+ * name only if this is a Normal Playlist. It is Ok to show a dialog to 
+ * the user.
  */
 void Playlist::saveAs()
 {
-    m_collection->removeFileFromDict(m_fileName);
+    QString fileName = MediaFiles::savePlaylistDialog(name(), this);
 
-    m_fileName = MediaFiles::savePlaylistDialog(name(), this);
-
-    if(m_fileName.isEmpty()) {
+    if(fileName.isEmpty()) {
         // user cancelled the dialog
         return;
     }
 
-    m_collection->addFileToDict(m_fileName);
+    // will show error dialog on failure
+    bool bSuccess = saveFile(fileName, true);
 
-    // If there's no playlist name set, use the file name.
-    if(m_playlistName.isEmpty()) {
-        emit signalNameChanged(name());
+    // TODO: we need a better way to do this
+    bool bIsNormal = this->canRename() && this->canModifyContent() && 
+                     this->canDelete();
+
+    if (bSuccess && bIsNormal) {
+
+        m_collection->removeFileFromDict(m_fileName);
+
+        m_fileName = fileName;
+    
+        m_collection->addFileToDict(fileName);
+
+        // If there's no playlist name set, use the file name.
+        if(m_playlistName.isEmpty()) {
+            emit signalNameChanged( this->name() );
+        }
+    }
+}
+
+/* Write .m3u, but do not update m_fileName */
+bool Playlist::exportFile()
+{
+    QString fileName = MediaFiles::savePlaylistDialog(name(), this);
+
+    if(fileName.isEmpty()) {
+        // user cancelled the dialog
+        return false;
     }
 
-    // will show dialog on failure
-    saveFile(true);
+    // will show error dialog on failure
+    return saveFile(fileName, true);
 }
 
 void Playlist::updateDeletedItem(PlaylistItem *item)
