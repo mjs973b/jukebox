@@ -703,56 +703,72 @@ void PlaylistBox::slotPlaylistChanged()
     ItemList items = selectedBoxItems();
     m_hasSelection = !items.isEmpty();
 
-    bool allowReload = false;
+    /* set the enable/disable state of the menu items */
+
+    bool bCanReload = true;
+    bool bCanDelete = true;     /* the .m3u playlist */
+    bool bCanRename = true;
+    bool bCanEditSearch = true;
+    bool bCanSave = true;
 
     PlaylistList playlists;
+
+    /* for multi-selection, all selected items must allow the operation
+     * for the Menu item to get enabled.
+     */
     for(ItemList::ConstIterator it = items.constBegin(); it != items.constEnd(); ++it) {
 
         Playlist *p = (*it)->playlist();
         if(p) {
-            if(p->canReload())
-                allowReload = true;
+            if(!p->canReload()) {
+                bCanReload = false;
+            }
+            if(!p->canDelete()) {
+                bCanDelete = false;
+            }
+            if(!p->canRename()) {
+                bCanRename = false;
+            }
+            if(!p->canModifyContent() || !p->hasFileListChanged()) {
+                bCanSave = false;
+            }
+            if(!p->searchIsEditable()) {
+                bCanEditSearch = false;
+            }
             playlists.append(p);
         }
     }
 
-    bool singlePlaylist = playlists.count() == 1;
+    bool bCanDuplicate = false;
+    bool bCanExport = false;
+    int selectCnt = playlists.count();
 
-    bool bReadOnly = false;
-    if (singlePlaylist) {
-        Playlist *pl = playlists.front();
-        /* for now, we exactly re-create the behavior of Playlist::readOnly().
-         * Only the HistoryPlaylist class will evaluate to true.
-         */
-        bReadOnly = !pl->canDelete() && !pl->canModifyContent() && !pl->canRename(); 
+    if (selectCnt == 0) {
+        bCanReload = false;
+        bCanDelete = false;
+        bCanRename = false;
+        bCanEditSearch = false;
+        bCanSave = false;
+    } else if (selectCnt == 1) {
+        bCanDuplicate = playlists.front()->count() > 0;
+        bCanExport = bCanDuplicate;
+    } else if (selectCnt > 1) {
+        bCanRename = false;
+        bCanEditSearch = false;
     }
 
-    if(playlists.isEmpty() ||
-       (singlePlaylist &&
-        (playlists.front() == CollectionList::instance() ||
-         bReadOnly)))
-    {
-        action("file_save")->setEnabled(false);
-        action("file_save_as")->setEnabled(false);
-        action("renamePlaylist")->setEnabled(false);
-        action("deleteItemPlaylist")->setEnabled(false);
-    }
-    else {
-        action("file_save")->setEnabled(true);
-        action("file_save_as")->setEnabled(true);
-        action("renamePlaylist")->setEnabled(playlists.count() == 1);
-        action("deleteItemPlaylist")->setEnabled(true);
-    }
-    action("reloadPlaylist")->setEnabled(allowReload);
-    action("duplicatePlaylist")->setEnabled(!playlists.isEmpty());
+    action("file_save"         )->setEnabled(bCanSave);
+    action("file_save_as"      )->setEnabled(bCanExport);
+    action("renamePlaylist"    )->setEnabled(bCanRename);
+    action("deleteItemPlaylist")->setEnabled(bCanDelete);
+    action("reloadPlaylist"    )->setEnabled(bCanReload);
+    action("duplicatePlaylist" )->setEnabled(bCanDuplicate);
+    action("editSearch"        )->setEnabled(bCanEditSearch);
 
     if(m_k3bAction)
-        m_k3bAction->setEnabled(!playlists.isEmpty());
+        m_k3bAction->setEnabled(selectCnt > 0);
 
-    action("editSearch")->setEnabled(singlePlaylist &&
-                                     playlists.front()->searchIsEditable());
-
-    if(singlePlaylist) {
+    if(selectCnt == 1) {
         PlaylistCollection::raise(playlists.front());
 
         if(playlists.front() == upcomingPlaylist())
@@ -760,7 +776,7 @@ void PlaylistBox::slotPlaylistChanged()
         else
             action("deleteItemPlaylist")->setText(i18n("R&emove Playlist..."));
     }
-    else if(!playlists.isEmpty())
+    else if(selectCnt > 1)
         createDynamicPlaylist(playlists);
 }
 
