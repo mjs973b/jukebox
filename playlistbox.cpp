@@ -91,18 +91,14 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     K3bPlaylistExporter *exporter = new K3bPlaylistExporter(this);
     m_k3bAction = exporter->action();
 
-    m_contextMenu->addAction( action("file_new") );
+    m_contextMenu->addAction( action("file_save") );
+    m_contextMenu->addSeparator();
     m_contextMenu->addAction( action("renamePlaylist") );
     m_contextMenu->addAction( action("editSearch") );
     m_contextMenu->addAction( action("duplicatePlaylist") );
-    m_contextMenu->addAction( action("reloadPlaylist") );
-    m_contextMenu->addAction( action("deleteItemPlaylist") );
-    m_contextMenu->addAction( action("file_save") );
-    m_contextMenu->addAction( action("file_save_as") );
+
     if(m_k3bAction)
         m_contextMenu->addAction( m_k3bAction );
-
-    m_contextMenu->addSeparator();
 
     // add the view modes stuff
 
@@ -130,7 +126,6 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     TrackSequenceManager::instance()->setCurrentPlaylist(CollectionList::instance());
     raise(CollectionList::instance());
 
-    m_contextMenu->addAction( viewModeAction );
     connect(viewModeAction, SIGNAL(triggered(int)), this, SLOT(slotSetViewMode(int)));
 
     connect(this, SIGNAL(selectionChanged()),
