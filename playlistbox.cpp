@@ -715,7 +715,11 @@ void PlaylistBox::slotPlaylistChanged()
 
         Playlist *p = (*it)->playlist();
         if(p) {
+            // the canXYZ() methods are class policy, not mutable state
+            bool isNormal = p->canDelete() && p->canRename() && p->canModifyContent();
             if(!p->canReload()) {
+                bCanReload = false;
+            } else if(isNormal && p->fileName().isEmpty()) {
                 bCanReload = false;
             }
             if(!p->canDelete()) {
@@ -736,6 +740,7 @@ void PlaylistBox::slotPlaylistChanged()
 
     bool bCanDuplicate = false;
     bool bCanExport = false;
+    bool bCanImport = false;
     int selectCnt = playlists.count();
 
     if (selectCnt == 0) {
@@ -747,11 +752,13 @@ void PlaylistBox::slotPlaylistChanged()
     } else if (selectCnt == 1) {
         bCanDuplicate = playlists.front()->count() > 0;
         bCanExport = bCanDuplicate;
+        bCanImport = true;
     } else if (selectCnt > 1) {
         bCanRename = false;
         bCanEditSearch = false;
     }
 
+    action("file_open"         )->setEnabled(bCanImport);
     action("file_save"         )->setEnabled(bCanSave);
     action("file_save_as"      )->setEnabled(bCanExport);
     action("renamePlaylist"    )->setEnabled(bCanRename);
