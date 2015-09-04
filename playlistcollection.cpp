@@ -343,7 +343,7 @@ void PlaylistCollection::open(const QStringList &l)
     bool justPlaylists = true;
 
     for(QStringList::ConstIterator it = files.constBegin(); it != files.constEnd() && justPlaylists; ++it)
-        justPlaylists = !MediaFiles::isPlaylistFile(*it);
+        justPlaylists = MediaFiles::isPlaylistFile(*it);
 
     if(visiblePlaylist() == CollectionList::instance() || justPlaylists ||
        KMessageBox::questionYesNo(
