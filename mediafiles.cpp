@@ -98,10 +98,16 @@ QStringList MediaFiles::openDialog(QWidget *parent)
 
     dialog->setOperationMode(KFileDialog::Opening);
 
-    dialog->setCaption(i18nc("open audio file", "Open"));
+    dialog->setCaption(i18nc("import audio file", "Import"));
     dialog->setMode(KFile::Files | KFile::LocalOnly);
     // dialog.ops->clearHistory();
-    dialog->setMimeFilter(mimeTypes());
+    //dialog->setMimeFilter(mimeTypes());
+    dialog->setFilter(
+        "*.m3u|Audio Playlist (*.m3u)\n"
+        "*.mp3|Audio File (*.mp3)\n"
+        "*.ogg *.oga|Audio File (*.ogg)\n"
+        "*|All Files (*.*)"
+        );
 
     dialog->exec();
 
