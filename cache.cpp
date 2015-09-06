@@ -155,15 +155,26 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                 default:
                     Playlist *p = new Playlist(collection, true);
                     createdPlaylists.append(p);
+                    // adds name and filename to hash tables
                     s >> *p;
+
+#if 0
+                    /* the following chunk of code is wrong for two reasons:
+                     * First, fileName is added to the hash by the operator>>
+                     * line immediately above.
+                     * Second, the folder scanner has not run yet.
+                     * So what this code *actually* does is to discard any 
+                     * cached playlist info which has a filename. This
+                     * is not the behavior what we need. (mjs 2015-09-06)
+                     */
 
                     // We may have already read this playlist from the folder
                     // scanner, if an .m3u playlist
-                    if(collection->containsPlaylistFile(p->fileName())) {
-                        delete p;
-                        p = 0;
-                    }
-
+                    //if(collection->containsPlaylistFile(p->fileName())) {
+                    //    delete p;
+                    //    p = 0;
+                    //}
+#endif
                     playlist = p;
                     break;
                 } // switch
