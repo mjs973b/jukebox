@@ -1341,6 +1341,8 @@ void Playlist::read(QDataStream &s)
     s >> m_playlistName
       >> m_fileName;
 
+    kDebug() << m_fileName;
+
     // m_fileName is probably empty.
     if(m_playlistName.isEmpty())
         throw BICStreamException();
@@ -2494,6 +2496,7 @@ void Playlist::slotPlayCurrent()
 
 QDataStream &operator<<(QDataStream &s, const Playlist &p)
 {
+    qDebug() << "Playlist::operator<<: Write " << p.name();
     s << p.name();
     s << p.fileName();
     s << p.files();
