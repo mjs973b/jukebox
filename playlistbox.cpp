@@ -325,13 +325,14 @@ void PlaylistBox::remove()
     foreach(Item *item, items) {
         if(item && item->playlist())
         {
-           if (!item->playlist()->fileName().isEmpty() &&
-               QFileInfo(item->playlist()->fileName()).exists())
+           Playlist *pl = item->playlist();
+           if (!pl->fileName().isEmpty() &&
+               QFileInfo(pl->fileName()).exists())
            {
-            files.append(item->playlist()->fileName());
+            files.append(pl->fileName());
            }
 
-           names.append(item->playlist()->name());
+           names.append(pl->name());
         }
     }
 
@@ -352,7 +353,7 @@ void PlaylistBox::remove()
         else if(remove == KMessageBox::Cancel)
             return;
     }
-    else if(items.count() > 1 || items.front()->playlist() != upcomingPlaylist()) {
+    else if (names.size() > 0) {
         if(KMessageBox::warningContinueCancelList(this,
                                                   i18n("Are you sure you want to remove these "
                                                        "playlists from your collection?"),
@@ -389,12 +390,7 @@ void PlaylistBox::remove()
     }
 
     for(PlaylistList::ConstIterator it = removeQueue.constBegin(); it != removeQueue.constEnd(); ++it) {
-        if(*it != upcomingPlaylist())
-            delete *it;
-        else {
-            action<KToggleAction>("showUpcoming")->setChecked(false);
-            setUpcomingPlaylistEnabled(false);
-        }
+        delete *it;
     }
 }
 
@@ -772,11 +768,6 @@ void PlaylistBox::slotPlaylistChanged()
 
     if(selectCnt == 1) {
         PlaylistCollection::raise(playlists.front());
-
-        if(playlists.front() == upcomingPlaylist())
-            action("deleteItemPlaylist")->setText(i18n("Hid&e"));
-        else
-            action("deleteItemPlaylist")->setText(i18n("R&emove Playlist..."));
     }
     else if(selectCnt > 1)
         createDynamicPlaylist(playlists);
