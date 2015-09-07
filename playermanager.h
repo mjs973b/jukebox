@@ -136,15 +136,27 @@ private slots:
     void slotVolumeChanged(qreal);
 
 private:
+    // the current song
     FileHandle m_file;
+    // interface to list of songs
     PlaylistInterface *m_playlistInterface;
+    // used to display song artist/title/timeMM:SS
     StatusLabel *m_statusLabel;
+    // current user-set volume (0.0 - 1.0)
+    float m_curVolume;
+    // vol written during PlayState
+    bool  m_outputVolumeSet[2];
+    // current mute state
     bool m_muted;
+    // true when gui setup is complete
     bool m_setup;
+    // configure whether crossfade between songs is active
     bool m_crossfadeTracks;
 
+    // milliseconds
     static const int m_pollInterval = 800;
 
+    // used for crossfading, which briefly requires 2 playing songs
     int m_curOutputPath; ///< Either 0 or 1 depending on which output path is in use.
     Phonon::AudioOutput *m_output[2];
     Phonon::Path m_audioPath[2];

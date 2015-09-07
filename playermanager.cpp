@@ -2,6 +2,7 @@
  * Copyright (C) 2004 Scott Wheeler <wheeler@kde.org>
  * Copyright (C) 2007 Matthias Kretz <kretz@kde.org>
  * Copyright (C) 2008, 2009 Michael Pyne <mpyne@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -58,16 +59,12 @@ PlayerManager::PlayerManager() :
     QObject(),
     m_playlistInterface(0),
     m_statusLabel(0),
+    m_curVolume(1.0),
+    m_muted(false),
     m_setup(false),
     m_crossfadeTracks(true),
     m_curOutputPath(0)
 {
-// This class is the first thing constructed during program startup, and
-// therefore has no access to the widgets needed by the setup() method.
-// Since the setup() method will be called indirectly by the player() method
-// later, just disable it here. -- mpyne
-//    setup();
-    new PlayerAdaptor( this );
 }
 
 PlayerManager::~PlayerManager()
@@ -106,10 +103,7 @@ bool PlayerManager::muted() const
 
 float PlayerManager::volume() const
 {
-    if(!m_setup)
-        return 1.0;
-
-    return m_output[m_curOutputPath]->volume();
+    return m_curVolume;
 }
 
 int PlayerManager::status() const
@@ -311,22 +305,44 @@ void PlayerManager::stop()
     }
 }
 
+/* set volume on current output path. if not currently in the PlayingState, 
+ * we'll cache the value for later use. Either way, volumeChanged() signal
+ * is emitted.
+ */
 void PlayerManager::setVolume(float volume)
 {
     if(!m_setup)
         setup();
 
-    m_output[0]->setVolume(volume);
-    m_output[1]->setVolume(volume);
+    kDebug() << "new volume = " << volume;
+    m_curVolume = volume;
+    m_outputVolumeSet[0] = false;
+    m_outputVolumeSet[1] = false;
+
+    // if in PlayingState, apply new volume to AudioOutput
+    Phonon::MediaObject *media = m_media[m_curOutputPath];
+    Phonon::AudioOutput *out = m_output[m_curOutputPath];
+    if (out && media && media->state() == Phonon::PlayingState ) {
+        m_outputVolumeSet[m_curOutputPath] = true;
+        out->setVolume(volume);
+        // AudioOutput will emit volumeChanged() signal
+    } else {
+        emit volumeChanged(volume);
+    }
 }
 
+/* seekTime in milliseconds */
 void PlayerManager::seek(int seekTime)
 {
+    kDebug() << "seekTime=" << seekTime;
+
     if(!m_setup || m_media[m_curOutputPath]->currentTime() == seekTime)
         return;
 
-    kDebug() << "Stopping crossfade to seek from" << m_media[m_curOutputPath]->currentTime()
+    if (m_crossfadeTracks) {
+        kDebug() << "Stopping crossfade to seek from" << m_media[m_curOutputPath]->currentTime()
              << "to" << seekTime;
+    }
     stopCrossfade();
     m_media[m_curOutputPath]->seek(seekTime);
     emit seeked(seekTime);
@@ -363,6 +379,7 @@ void PlayerManager::playPause()
 
 void PlayerManager::forward()
 {
+    // advance cursor to next song
     m_playlistInterface->playNext();
     FileHandle file = m_playlistInterface->currentFile();
 
@@ -374,6 +391,7 @@ void PlayerManager::forward()
 
 void PlayerManager::back()
 {
+    // move cursor to previous song
     m_playlistInterface->playPrevious();
     FileHandle file = m_playlistInterface->currentFile();
 
@@ -401,6 +419,7 @@ void PlayerManager::volumeDown()
 
 void PlayerManager::setMuted(bool m)
 {
+    kDebug() << " new mute value is " << m;
     if(!m_setup)
         return;
 
@@ -478,6 +497,7 @@ void PlayerManager::slotTick(qint64 msec)
     emit tick(msec);
 }
 
+/* called when either MediaObject changes state */
 void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldstate)
 {
     // Use sender() since either media object may have sent the signal.
@@ -533,7 +553,18 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
     else if(newstate == Phonon::PausedState) {
         emit signalPause();
     }
-    else { // PlayingState or BufferingState
+    else if (newstate == Phonon::PlayingState) {
+
+        /* For versions of Phonon earlier than 4.7, AudioOutput::setVolume() 
+         * is ignored if we are in the stopped state.
+         * So we must set it after we reach PlayingState. 
+         * See disucssion in bugs.kde.org #321172.
+         */
+        if (!m_outputVolumeSet[m_curOutputPath]) {
+            m_outputVolumeSet[m_curOutputPath] = true;
+            m_output[m_curOutputPath]->setVolume( m_curVolume );
+        }
+
         action("pause")->setEnabled(true);
         action("stop")->setEnabled(true);
         action("forward")->setEnabled(true);
@@ -549,6 +580,8 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
 
         emit signalPlay();
     }
+    // else {    /* Buffering State */
+    //}
 }
 
 void PlayerManager::slotSeekableChanged(bool isSeekable)
@@ -576,8 +609,11 @@ void PlayerManager::slotMutedChanged(bool muted)
     emit mutedChanged(muted);
 }
 
+/* called when AudioOutput volume changes */
 void PlayerManager::slotVolumeChanged(qreal volume)
 {
+    kDebug() << " new volume " << volume;
+
     // Use sender() since either output object may have sent the signal.
     Phonon::AudioOutput *output = qobject_cast<Phonon::AudioOutput *>(sender());
     if(!output)
