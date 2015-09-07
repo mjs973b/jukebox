@@ -50,7 +50,7 @@ static const char sho[]         = I18N_NOOP("MPRIS2 Interface implementation.");
 
 int main(int argc, char *argv[])
 {
-    KAboutData aboutData("juk", 0, ki18n("Jukebox"),
+    KAboutData aboutData("jukebox", 0, ki18n("Jukebox"),
                          "3.12", ki18n(description), KAboutData::License_GPL,
                          ki18n("© 2002–2014, Scott Wheeler, Michael Pyne, and others"),
                          KLocalizedString(),

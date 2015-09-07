@@ -158,8 +158,8 @@ install(TARGETS juk  ${INSTALL_TARGETS_DEFAULT_ARGS} )
 ########### install files ###############
 
 install( PROGRAMS jukebox.desktop  DESTINATION  ${XDG_APPS_INSTALL_DIR} )
-install( FILES juk.notifyrc jukui.rc jukui-rtl.rc  DESTINATION  ${DATA_INSTALL_DIR}/juk )
-install( FILES juk.appdata.xml DESTINATION ${SHARE_INSTALL_PREFIX}/appdata )
+install( FILES jukebox.notifyrc jukeboxui.rc jukui-rtl.rc  DESTINATION  ${DATA_INSTALL_DIR}/jukebox )
+install( FILES jukebox.appdata.xml DESTINATION ${SHARE_INSTALL_PREFIX}/appdata )
 install( FILES jukservicemenu.desktop  DESTINATION
 ${SERVICES_INSTALL_DIR}/ServiceMenus )
 install( FILES org.kde.juk.collection.xml org.kde.juk.player.xml org.kde.juk.search.xml DESTINATION ${DBUS_INTERFACES_INSTALL_DIR} )

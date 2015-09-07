@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <component type="desktop">
-  <id>juk.desktop</id>
+  <id>jukebox.desktop</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0+</project_license>
-  <name>JuK</name>
-  <name xml:lang="ast">JuK</name>
-  <name xml:lang="bg">JuK</name>
-  <name xml:lang="bs">JuK</name>
-  <name xml:lang="ca">JuK</name>
-  <name xml:lang="cs">JuK</name>
-  <name xml:lang="da">JuK</name>
-  <name xml:lang="de">JuK</name>
-  <name xml:lang="el">JuK</name>
-  <name xml:lang="en-GB">JuK</name>
-  <name xml:lang="es">JuK</name>
-  <name xml:lang="et">JuK</name>
-  <name xml:lang="fi">JuK</name>
-  <name xml:lang="hu">JuK</name>
-  <name xml:lang="ia">JuK</name>
-  <name xml:lang="it">JuK</name>
-  <name xml:lang="ko">JuK</name>
-  <name xml:lang="nds">JuK</name>
-  <name xml:lang="nl">JuK</name>
-  <name xml:lang="pl">JuK</name>
-  <name xml:lang="pt">JuK</name>
-  <name xml:lang="pt-BR">JuK</name>
-  <name xml:lang="sk">JuK</name>
-  <name xml:lang="sl">JuK</name>
+  <name>Jukebox</name>
+  <name xml:lang="ast">Jukebox</name>
+  <name xml:lang="bg">Jukebox</name>
+  <name xml:lang="bs">Jukebox</name>
+  <name xml:lang="ca">Jukebox</name>
+  <name xml:lang="cs">Jukebox</name>
+  <name xml:lang="da">Jukebox</name>
+  <name xml:lang="de">Jukebox</name>
+  <name xml:lang="el">Jukebox</name>
+  <name xml:lang="en-GB">Jukebox</name>
+  <name xml:lang="es">Jukebox</name>
+  <name xml:lang="et">Jukebox</name>
+  <name xml:lang="fi">Jukebox</name>
+  <name xml:lang="hu">Jukebox</name>
+  <name xml:lang="ia">Jukebox</name>
+  <name xml:lang="it">Jukebox</name>
+  <name xml:lang="ko">Jukebox</name>
+  <name xml:lang="nds">Jukebox</name>
+  <name xml:lang="nl">Jukebox</name>
+  <name xml:lang="pl">Jukebox</name>
+  <name xml:lang="pt">Jukebox</name>
+  <name xml:lang="pt-BR">Jukebox</name>
+  <name xml:lang="sk">Jukebox</name>
+  <name xml:lang="sl">Jukebox</name>
   <name xml:lang="sr">Џук</name>
-  <name xml:lang="sr-Latn">Juk</name>
+  <name xml:lang="sr-Latn">Jukebox</name>
   <name xml:lang="sr-ijekavian">Џук</name>
-  <name xml:lang="sr-ijekavianlatin">Juk</name>
-  <name xml:lang="sv">Juk</name>
-  <name xml:lang="tr">JuK</name>
-  <name xml:lang="uk">JuK</name>
-  <name xml:lang="x-test">xxJuKxx</name>
-  <name xml:lang="zh-TW">音樂播放_Juk</name>
+  <name xml:lang="sr-ijekavianlatin">Jukebox</name>
+  <name xml:lang="sv">Jukebox</name>
+  <name xml:lang="tr">Jukebox</name>
+  <name xml:lang="uk">Jukebox</name>
+  <name xml:lang="x-test">xxJukeboxxx</name>
+  <name xml:lang="zh-TW">音樂播放_Jukebox</name>
   <summary>Music Player</summary>
   <summary xml:lang="bg">Програма за изпълнение на музика</summary>
   <summary xml:lang="bs">Muzički plejer</summary>
@@ -68,33 +68,33 @@
   <summary xml:lang="x-test">xxMusic Playerxx</summary>
   <summary xml:lang="zh-TW">音樂播放器</summary>
   <description>
-    <p>JuK is an audio jukebox application, supporting collections of MP3, Ogg Vorbis, and FLAC audio files. It allows you to edit the "tags" of your audio files, and manage your collection and playlists. It's main focus, in fact, is on music management.</p>
-    <p xml:lang="bs">JuK je audio džuboks aplikacija, podržavajući kolekcije MP3, Ogg Vorbis, FLAC i audio datoteka. To vam omogućava da izmijenite "etiketa" vaših audio datoteka, i upravljate kolekcijama i listama izvođenja. Njegov je glavni fokus, u stvari, je na muzičkom menadžmentu.</p>
-    <p xml:lang="ca">El JuK és una aplicació de màquina de discos musicals, que accepta col·leccions de fitxers d'àudio MP3, Ogg Vorbis, i FLAC. Permet editar les "etiquetes" dels fitxers d'àudio, i gestionar les col·leccions i les llistes de reproducció. De fet, els seu focus principal és en la gestió de la música.</p>
-    <p xml:lang="da">JuK er et lydjukebox-program, som understøtter samlinger af MP3-, Ogg Vorbis- og FLAC-lydfiler. Den lader dig redigere "mærkerne" i dine lydfiler og håndtere din samling og spillelister. Dens hovedfokus er faktisk på musikhåndtering.</p>
-    <p xml:lang="el">Το JuK είναι μια εφαρμογή μουσικού κουτιού, που υποστηρίζει συλλογές MP3, Ogg Vorbis, και FLAC αρχεία ήχου. Σας επιτρέπει να επεξεργαστείτε τις "ετικέτες" των αρχείων ήχου σας, και να διαχειριστείτε τις συλλογές και τις λίστες αναπαραγωγής. Εστιάζει κυρίως στη διαχείριση μουσικής.</p>
-    <p xml:lang="en-GB">JuK is an audio jukebox application, supporting collections of MP3, Ogg Vorbis, and FLAC audio files. It allows you to edit the "tags" of your audio files, and manage your collection and playlists. It's main focus, in fact, is on music management.</p>
-    <p xml:lang="es">JuK es una aplicación jukebox de audio, que soporta colecciones de archivos MP3, Ogg Vorbis y FLAC. Le permite editar los "tags" de sus archivos de audio, y administrar sus colecciones y listas de reproducción. Su principal cometido, de hecho, es administrar la música.</p>
-    <p xml:lang="et">JuK on helifailide muusikamängija, mis toetab MP3, Ogg Vorbise ja FLAC-i vormingut. See võimaldab muuta helifailide "silte" ning hallata muusikakogusid ja esitusnimekirju. Õigupoolest ongi rakenduse rõhk eelkõige muusika haldamisel.</p>
-    <p xml:lang="hu">A JuK egy zenedoboz alkalmazás, amely támogatja MP3, Ogg Vorbis és FLAC hangfájlok gyűjteményeit. Lehetővé teszi a hangfájlok „címkéinek” szerkesztését, és a gyűjtemények, illetve lejátszólisták kezelését. A fő célja valójában a zenekezelés.</p>
-    <p xml:lang="it">JuK è un'applicazione jukebox, che supporta raccolte di file audio MP3, Ogg Vorbis e FLAC. Permette di modificare le etichette dei file audio, e gestire raccolte e scalette. Il suo scopo primario è la gestione della musica.</p>
-    <p xml:lang="ko">JuK는 MP3, Ogg Vorbis, FLAC 오디오 파일 모음집을 지원하는 주크박스 프로그램입니다. 오디오 파일의 태그를 편집할 수 있으며, 모음집과 재생 목록을 관리할 수 있습니다.</p>
-    <p xml:lang="nds">JuK is en Musikkist-Programm, dat Sammeln vun MP3-, Ogg-Vorbis- un FLAC-Klangdateien bruken kann. Du kannst dor de Slötelwöör („Tags“) vun Dien Dateien mit bewerken un Dien Sammeln un Afspeellisten mit plegen. Egens liggt em sien Fokus redig op de Musikpleeg.</p>
-    <p xml:lang="nl">JuK is een jukebox toepassing voor geluid, die verzamelingen van MP3, Ogg Vorbis en FLAC geluidsbestanden ondersteunt. Het stelt u in staat om de "tags" van uw geluidsbestanden te bewerken en uw verzameling en afspeellijsten te beheren. De focus is in feite op beheer van muziek.</p>
-    <p xml:lang="pl">JuK jest programem szafy grającej, obsługującym zbiory MP3, Ogg Vorbis oraz pliki dźwiękowe FLAC. Umożliwia edytowanie "znaczników" plików dźwiękowych i zarządzanie zbiorami oraz listami odtwarzania. Jednak jego głównym celem jest zarządzanie muzyką.</p>
-    <p xml:lang="pt">O JuK é uma aplicação de reprodução de música, suportando colecções de ficheiros de áudio em MP3, Ogg Vorbis e FLAC. Permite-lhe editar as "marcas" dos seus ficheiros de áudio, gerir a sua colecção e as suas listas de reprodução. O seu foco principal é, de facto, a gestão de música.</p>
-    <p xml:lang="pt-BR">JuK é um aplicativo para reprodução de músicas, com suporte a coleções de arquivos de áudio MP3, Ogg Vorbis e FLAC. Permite-lhe editar as etiquetas "tags" dos seus arquivos de áudio, gerenciar sua coleção e suas listas de músicas. Seu foco principal é, de fato, o gerenciamento de músicas.</p>
-    <p xml:lang="sk">JuK je aplikácia hudobného jukeboxu, podporujúca kolekcie MP3, Ogg Vorbis a FLAC audio súborov. Umožní vám upraviť tagy vašich audio súborov a spravovať vašu kolekciu a zoznamy skladieb. Jeho hlavné zameranie je správa hudby.</p>
-    <p xml:lang="sl">JuK je predvajalnik glasbe, ki podpira zbirke zvočnih datotek MP3, Ogg Vorbis in FLAC. Omogoča urejanje "oznak" vaših zvočnih datotek ter upravljanje zbirk in seznamov predvajanj. Glavni name programa je upravljanje glasbe.</p>
+    <p>Jukebox is an audio jukebox application, supporting collections of MP3, Ogg Vorbis, and FLAC audio files. It allows you to edit the "tags" of your audio files, and manage your collection and playlists. It's main focus, in fact, is on music management.</p>
+    <p xml:lang="bs">Jukebox je audio džuboks aplikacija, podržavajući kolekcije MP3, Ogg Vorbis, FLAC i audio datoteka. To vam omogućava da izmijenite "etiketa" vaših audio datoteka, i upravljate kolekcijama i listama izvođenja. Njegov je glavni fokus, u stvari, je na muzičkom menadžmentu.</p>
+    <p xml:lang="ca">El Jukebox és una aplicació de màquina de discos musicals, que accepta col·leccions de fitxers d'àudio MP3, Ogg Vorbis, i FLAC. Permet editar les "etiquetes" dels fitxers d'àudio, i gestionar les col·leccions i les llistes de reproducció. De fet, els seu focus principal és en la gestió de la música.</p>
+    <p xml:lang="da">Jukebox er et lydjukebox-program, som understøtter samlinger af MP3-, Ogg Vorbis- og FLAC-lydfiler. Den lader dig redigere "mærkerne" i dine lydfiler og håndtere din samling og spillelister. Dens hovedfokus er faktisk på musikhåndtering.</p>
+    <p xml:lang="el">Το Jukebox είναι μια εφαρμογή μουσικού κουτιού, που υποστηρίζει συλλογές MP3, Ogg Vorbis, και FLAC αρχεία ήχου. Σας επιτρέπει να επεξεργαστείτε τις "ετικέτες" των αρχείων ήχου σας, και να διαχειριστείτε τις συλλογές και τις λίστες αναπαραγωγής. Εστιάζει κυρίως στη διαχείριση μουσικής.</p>
+    <p xml:lang="en-GB">Jukebox is an audio jukebox application, supporting collections of MP3, Ogg Vorbis, and FLAC audio files. It allows you to edit the "tags" of your audio files, and manage your collection and playlists. It's main focus, in fact, is on music management.</p>
+    <p xml:lang="es">Jukebox es una aplicación jukebox de audio, que soporta colecciones de archivos MP3, Ogg Vorbis y FLAC. Le permite editar los "tags" de sus archivos de audio, y administrar sus colecciones y listas de reproducción. Su principal cometido, de hecho, es administrar la música.</p>
+    <p xml:lang="et">Jukebox on helifailide muusikamängija, mis toetab MP3, Ogg Vorbise ja FLAC-i vormingut. See võimaldab muuta helifailide "silte" ning hallata muusikakogusid ja esitusnimekirju. Õigupoolest ongi rakenduse rõhk eelkõige muusika haldamisel.</p>
+    <p xml:lang="hu">A Jukebox egy zenedoboz alkalmazás, amely támogatja MP3, Ogg Vorbis és FLAC hangfájlok gyűjteményeit. Lehetővé teszi a hangfájlok „címkéinek” szerkesztését, és a gyűjtemények, illetve lejátszólisták kezelését. A fő célja valójában a zenekezelés.</p>
+    <p xml:lang="it">Jukebox è un'applicazione jukebox, che supporta raccolte di file audio MP3, Ogg Vorbis e FLAC. Permette di modificare le etichette dei file audio, e gestire raccolte e scalette. Il suo scopo primario è la gestione della musica.</p>
+    <p xml:lang="ko">Jukebox는 MP3, Ogg Vorbis, FLAC 오디오 파일 모음집을 지원하는 주크박스 프로그램입니다. 오디오 파일의 태그를 편집할 수 있으며, 모음집과 재생 목록을 관리할 수 있습니다.</p>
+    <p xml:lang="nds">Jukebox is en Musikkist-Programm, dat Sammeln vun MP3-, Ogg-Vorbis- un FLAC-Klangdateien bruken kann. Du kannst dor de Slötelwöör („Tags“) vun Dien Dateien mit bewerken un Dien Sammeln un Afspeellisten mit plegen. Egens liggt em sien Fokus redig op de Musikpleeg.</p>
+    <p xml:lang="nl">Jukebox is een jukebox toepassing voor geluid, die verzamelingen van MP3, Ogg Vorbis en FLAC geluidsbestanden ondersteunt. Het stelt u in staat om de "tags" van uw geluidsbestanden te bewerken en uw verzameling en afspeellijsten te beheren. De focus is in feite op beheer van muziek.</p>
+    <p xml:lang="pl">Jukebox jest programem szafy grającej, obsługującym zbiory MP3, Ogg Vorbis oraz pliki dźwiękowe FLAC. Umożliwia edytowanie "znaczników" plików dźwiękowych i zarządzanie zbiorami oraz listami odtwarzania. Jednak jego głównym celem jest zarządzanie muzyką.</p>
+    <p xml:lang="pt">O Jukebox é uma aplicação de reprodução de música, suportando colecções de ficheiros de áudio em MP3, Ogg Vorbis e FLAC. Permite-lhe editar as "marcas" dos seus ficheiros de áudio, gerir a sua colecção e as suas listas de reprodução. O seu foco principal é, de facto, a gestão de música.</p>
+    <p xml:lang="pt-BR">Jukebox é um aplicativo para reprodução de músicas, com suporte a coleções de arquivos de áudio MP3, Ogg Vorbis e FLAC. Permite-lhe editar as etiquetas "tags" dos seus arquivos de áudio, gerenciar sua coleção e suas listas de músicas. Seu foco principal é, de fato, o gerenciamento de músicas.</p>
+    <p xml:lang="sk">Jukebox je aplikácia hudobného jukeboxu, podporujúca kolekcie MP3, Ogg Vorbis a FLAC audio súborov. Umožní vám upraviť tagy vašich audio súborov a spravovať vašu kolekciu a zoznamy skladieb. Jeho hlavné zameranie je správa hudby.</p>
+    <p xml:lang="sl">Jukebox je predvajalnik glasbe, ki podpira zbirke zvočnih datotek MP3, Ogg Vorbis in FLAC. Omogoča urejanje "oznak" vaših zvočnih datotek ter upravljanje zbirk in seznamov predvajanj. Glavni name programa je upravljanje glasbe.</p>
     <p xml:lang="sr">Џук је програм за виртуелни џубокс. Подржава збирке МП3, ОГГ, ворбис и ФЛАЦ аудио фајлова. Даје вам да уређујете „ознаке“ аудио фајлова, и управљате збиркама и листама нумера. Тежиште му је, у ствари, на управљању музиком.</p>
-    <p xml:lang="sr-Latn">Juk je program za virtuelni džuboks. Podržava zbirke MP3, OGG, Vorbis i FLAC audio fajlova. Daje vam da uređujete „oznake“ audio fajlova, i upravljate zbirkama i listama numera. Težište mu je, u stvari, na upravljanju muzikom.</p>
+    <p xml:lang="sr-Latn">Jukebox je program za virtuelni džuboks. Podržava zbirke MP3, OGG, Vorbis i FLAC audio fajlova. Daje vam da uređujete „oznake“ audio fajlova, i upravljate zbirkama i listama numera. Težište mu je, u stvari, na upravljanju muzikom.</p>
     <p xml:lang="sr-ijekavian">Џук је програм за виртуелни џубокс. Подржава збирке МП3, ОГГ, ворбис и ФЛАЦ аудио фајлова. Даје вам да уређујете „ознаке“ аудио фајлова, и управљате збиркама и листама нумера. Тежиште му је, у ствари, на управљању музиком.</p>
-    <p xml:lang="sr-ijekavianlatin">Juk je program za virtuelni džuboks. Podržava zbirke MP3, OGG, Vorbis i FLAC audio fajlova. Daje vam da uređujete „oznake“ audio fajlova, i upravljate zbirkama i listama numera. Težište mu je, u stvari, na upravljanju muzikom.</p>
-    <p xml:lang="sv">Juk är ett Jukebox-program, som stöder samlingar av MP3, Ogg Vorbis och FLAC ljudfiler. Det låter dig redigera "taggarna" i ljudfilerna, och hantera samlingen och spellistor. Dess huvudfokus är just musikhantering.</p>
-    <p xml:lang="tr">JuK, MP3, Ogg Vorbis, ve FLAC ses dosyalarını destekleyen bir müzik kutusu uygulamasıdır. Ses dosyalarının "etiketlerini" düzenlemenize ve koleksiyon ve çalma listelerini yönetmenize izin verir. Ana odak noktası müzik yönetimidir.</p>
-    <p xml:lang="uk">JuK — програма для відтворення музики, у якій передбачено підтримку роботи зі звуковими файлами у форматах MP3, Ogg Vorbis та FLAC. Програма допоможе вам у редагуванні міток ваших звукових файлів, керуванні вашою збіркою та списками відтворення. Основним її призначенням, фактично, є керування музичними даними.</p>
-    <p xml:lang="x-test">xxJuK is an audio jukebox application, supporting collections of MP3, Ogg Vorbis, and FLAC audio files. It allows you to edit the "tags" of your audio files, and manage your collection and playlists. It's main focus, in fact, is on music management.xx</p>
-    <p xml:lang="zh-TW">Juk 是一套類似自動唱機的應用程式，支援收藏 MP3，Ogg Vorbis 與 FLAC 音效檔。它能讓您編輯您的音效檔的「標籤」，並管理您的收藏與播放清單。它主要的焦點，在音樂管理。</p>
+    <p xml:lang="sr-ijekavianlatin">Jukebox je program za virtuelni džuboks. Podržava zbirke MP3, OGG, Vorbis i FLAC audio fajlova. Daje vam da uređujete „oznake“ audio fajlova, i upravljate zbirkama i listama numera. Težište mu je, u stvari, na upravljanju muzikom.</p>
+    <p xml:lang="sv">Jukebox är ett Jukebox-program, som stöder samlingar av MP3, Ogg Vorbis och FLAC ljudfiler. Det låter dig redigera "taggarna" i ljudfilerna, och hantera samlingen och spellistor. Dess huvudfokus är just musikhantering.</p>
+    <p xml:lang="tr">Jukebox, MP3, Ogg Vorbis, ve FLAC ses dosyalarını destekleyen bir müzik kutusu uygulamasıdır. Ses dosyalarının "etiketlerini" düzenlemenize ve koleksiyon ve çalma listelerini yönetmenize izin verir. Ana odak noktası müzik yönetimidir.</p>
+    <p xml:lang="uk">Jukebox — програма для відтворення музики, у якій передбачено підтримку роботи зі звуковими файлами у форматах MP3, Ogg Vorbis та FLAC. Програма допоможе вам у редагуванні міток ваших звукових файлів, керуванні вашою збіркою та списками відтворення. Основним її призначенням, фактично, є керування музичними даними.</p>
+    <p xml:lang="x-test">xxJukebox is an audio jukebox application, supporting collections of MP3, Ogg Vorbis, and FLAC audio files. It allows you to edit the "tags" of your audio files, and manage your collection and playlists. It's main focus, in fact, is on music management.xx</p>
+    <p xml:lang="zh-TW">Jukebox 是一套類似自動唱機的應用程式，支援收藏 MP3，Ogg Vorbis 與 FLAC 音效檔。它能讓您編輯您的音效檔的「標籤」，並管理您的收藏與播放清單。它主要的焦點，在音樂管理。</p>
     <p>Features:</p>
     <p xml:lang="bg">Възможности:</p>
     <p xml:lang="bs">Svojstva:</p>
@@ -374,8 +374,7 @@
       <li xml:lang="zh-TW">標籤讀取與編輯支援許多格式，包括 ID3v1, ID3v2 與 Ogg Vorbis 等</li>
     </ul>
   </description>
-  <url type="homepage">http://juk.kde.org/</url>
-  <url type="bugtracker">https://bugs.kde.org/enter_bug.cgi?format=guided&amp;product=juk</url>
+  <url type="homepage">https://github.com/mjs973b/jukebox/</url>
   <url type="help">http://docs.kde.org/stable/en/kdemultimedia/juk/index.html</url>
   <screenshots>
     <screenshot type="default">
@@ -384,6 +383,6 @@
   </screenshots>
   <project_group>KDE</project_group>
   <provides>
-    <binary>juk</binary>
+    <binary>jukebox</binary>
   </provides>
 </component>
