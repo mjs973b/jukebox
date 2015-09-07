@@ -95,9 +95,9 @@ CoverInfo::CoverInfo(const FileHandle &file) :
  * A track image may be present in up to three places:
  * 1. In the Cover Manager, which keeps a cached copy of the image
  *    in the local file system.
- * 2. As an embedded image property in the .mp3 file.
- * 3. As a separate "Folder.jpg" file in the same file system directory as 
+ * 2. As a separate "Folder.jpg" file in the same file system directory as 
  *    the .mp3 file.
+ * 3. As an embedded image property in the .mp3 file.
  *
  * We search for an image in this order, stopping when a positive match is
  * found. The search results are cached in this object.
@@ -128,16 +128,19 @@ bool CoverInfo::hasCover() const
         }
     }
 
+    // Look for Folder.jpg in the same directory
+
+    QString imgFile = m_file.fileInfo().absolutePath() + "/Folder.jpg";
+    if(QFile::exists(imgFile)) {
+        m_hasCover = true;
+        return true;
+    }
+
     // Check if it's embedded in the file itself.
 
     m_hasAttachedCover = hasEmbeddedAlbumArt();
 
-    if(m_hasAttachedCover)
-        return true;
-
-    // Look for Folder.jpg in the directory.
-    if(QFile::exists(m_file.fileInfo().absolutePath() + "/Folder.jpg"))
-    {
+    if(m_hasAttachedCover) {
         m_hasCover = true;
     }
 
@@ -243,20 +246,22 @@ QPixmap CoverInfo::pixmap(CoverSize size) const
 
     QImage cover;
 
-    // If m_hasCover is still true we must have a directory cover image.
+    // if m_hasCover is true we might have a directory cover image
     if(m_hasCover) {
         QString fileName = m_file.fileInfo().absolutePath() + "/Folder.jpg";
 
-        if(!cover.load(fileName)) {
-            return QPixmap();
+        if (QFile::exists(fileName)) {
+            // try to read it
+            cover.load(fileName);
         }
-    }
 
-    if (cover.isNull()) {
-        // If we get here, see if there is an embedded cover.
-        cover = embeddedAlbumArt();
-        if(!cover.isNull() && size == Thumbnail)
-            cover = scaleCoverToThumbnail(cover);
+        if (cover.isNull()) {
+            // If we get here, see if there is an embedded cover.
+            cover = embeddedAlbumArt();
+            if(!cover.isNull() && size == Thumbnail) {
+                cover = scaleCoverToThumbnail(cover);
+            }
+        }
     }
 
     if(cover.isNull()) {
