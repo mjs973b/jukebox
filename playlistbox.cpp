@@ -309,88 +309,104 @@ void PlaylistBox::saveConfig()
 }
 
 /**
- * Remove selected playlists. Prompt the user whether to remove the .m3u 
- * file from disk too.
+ * This is called by the 'File|Remove Playlists...' menu item. Remove selected 
+ * playlists where canDelete() is true. 
+ * Prompt the user whether to remove the .m3u file from disk too. If it happens that 
+ * there are no disk files, then prompt with the playlist names which will be deleted.
+ * If user selects Cancel, then delete neither the playlist objects or the disk files.
  */
 void PlaylistBox::remove()
 {
     ItemList items = selectedBoxItems();
 
-    if(items.isEmpty())
-        return;
-
     QStringList files;
     QStringList names;
-
-    foreach(Item *item, items) {
-        if(item && item->playlist())
-        {
-           Playlist *pl = item->playlist();
-           if (!pl->fileName().isEmpty() &&
-               QFileInfo(pl->fileName()).exists())
-           {
-            files.append(pl->fileName());
-           }
-
-           names.append(pl->name());
-        }
-    }
-
-    if(!files.isEmpty()) {
-        int remove = KMessageBox::warningYesNoCancelList(
-            this, i18n("Do you want to delete these files from the disk as well?"), files, QString(), KStandardGuiItem::del(), KGuiItem(i18n("Keep")));
-
-        if(remove == KMessageBox::Yes) {
-            QStringList couldNotDelete;
-            for(QStringList::ConstIterator it = files.constBegin(); it != files.constEnd(); ++it) {
-                if(!QFile::remove(*it))
-                    couldNotDelete.append(*it);
-            }
-
-            if(!couldNotDelete.isEmpty())
-                KMessageBox::errorList(this, i18n("Could not delete these files."), couldNotDelete);
-        }
-        else if(remove == KMessageBox::Cancel)
-            return;
-    }
-    else if (names.size() > 0) {
-        if(KMessageBox::warningContinueCancelList(this,
-                                                  i18n("Are you sure you want to remove these "
-                                                       "playlists from your collection?"),
-                                                  names,
-                                                  i18n("Remove Items?"),
-                                                  KGuiItem(i18n("&Remove"), "user-trash")) == KMessageBox::Cancel)
-        {
-            return;
-        }
-    }
-
     PlaylistList removeQueue;
 
-    for(ItemList::ConstIterator it = items.constBegin(); it != items.constEnd(); ++it) {
-        if(*it != Item::collectionItem() &&
-           (*it)->playlist() &&
-           ((*it)->playlist()->canDelete()))
-        {
-            removeQueue.append((*it)->playlist());
+    foreach(Item *item, items) {
+        if(item && item->playlist()) {
+            Playlist *pl = item->playlist();
+            if (pl->canDelete()) {
+                if (!pl->fileName().isEmpty() && QFileInfo(pl->fileName()).exists()) {
+                    files.append(pl->fileName());
+                }
+
+                removeQueue.append(pl);
+                names.append(pl->name());
+            }
         }
     }
 
-    if(items.back()->nextSibling() && static_cast<Item *>(items.back()->nextSibling())->playlist())
+    if (names.isEmpty()) {
+        return;
+    }
+
+    // Playlist won't have a fileName if never saved
+    int respRemoveFiles = KMessageBox::No;
+    if(!files.isEmpty()) {
+        respRemoveFiles = KMessageBox::warningYesNoCancelList(
+            this,
+            i18n("Do you want to delete these files from the disk as well?"),
+            files,
+            QString(),
+            KStandardGuiItem::del(),
+            KGuiItem(i18n("Keep")));
+
+        if(respRemoveFiles == KMessageBox::No) {
+            // protect against code mistakes below
+            files.clear();
+        } 
+        else if(respRemoveFiles == KMessageBox::Cancel) {
+            return;
+        }
+    }
+    else {
+        int resp = KMessageBox::warningContinueCancelList(
+            this,
+            i18n("Are you sure you want to remove these playlists from your collection?"),
+            names,
+            i18n("Remove Items?"),
+            KGuiItem(i18n("&Remove"), "user-trash"));
+
+        if(resp == KMessageBox::Cancel) {
+            return;
+        }
+    }
+
+    // identify a new playlist icon for the PlaylistBox selection to move to
+    if(items.back()->nextSibling() && static_cast<Item *>(items.back()->nextSibling())->playlist()) {
         setSingleItem(items.back()->nextSibling());
+    }
     else {
         Item *i = static_cast<Item *>(items.front()->itemAbove());
-        while(i && !i->playlist())
+        while(i && !i->playlist()) {
             i = static_cast<Item *>(i->itemAbove());
+        }
 
-        if(!i)
+        if(!i) {
             i = Item::collectionItem();
+        }
 
         setSingleItem(i);
     }
 
-    for(PlaylistList::ConstIterator it = removeQueue.constBegin(); it != removeQueue.constEnd(); ++it) {
-        delete *it;
+    // delete the playlist objects
+    foreach(Playlist *pl, removeQueue) {
+        delete pl;
+    }
+
+    // remove the disk files _after_ we delete the playlist objects, in case of crash
+    if(respRemoveFiles == KMessageBox::Yes) {
+        QStringList filesNotDeleted;
+        foreach(QString path, files) {
+            if(!QFile::remove(path)) {
+                filesNotDeleted.append(path);
+            }
+        }
+
+        if(!filesNotDeleted.isEmpty()) {
+            KMessageBox::errorList(this, i18n("Could not delete these files."), filesNotDeleted);
+        }
     }
 }
 
