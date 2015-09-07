@@ -200,15 +200,27 @@ void JuK::setupActions()
 
     // Setup KDE standard actions that JuK uses.
 
+    //
+    // File Menu
+    //
+
     KStandardAction::quit(this, SLOT(slotQuit()), collection);
-    KStandardAction::undo(this, SLOT(slotUndo()), collection);
-    KStandardAction::cut(collection);
-    KStandardAction::copy(collection);
-    KStandardAction::paste(collection);
-    KAction *clear = KStandardAction::clear(collection);
-    KStandardAction::selectAll(collection);
+
+    //
+    // Edit Menu
+    //
+
+    KStandardAction::undo(this, SLOT(slotUndo()), collection); /* edit_undo */
+    KStandardAction::cut(collection);       /* edit_cut */
+    KStandardAction::copy(collection);      /* edit_copy */
+    KStandardAction::paste(collection);     /* edit_paste */
+    KAction *clear = KStandardAction::clear(collection);    /* edit_clear */
+    KStandardAction::selectAll(collection); /* edit_select_all */
     KStandardAction::keyBindings(this, SLOT(slotEditKeys()), collection);
 
+    //
+    // Player Menu
+    //
 
     // Setup the menu which handles the random play options.
     KActionMenu *actionMenu = collection->add<KActionMenu>("actionMenu");
@@ -269,6 +281,10 @@ void JuK::setupActions()
     act->setText(i18n("&Loop Playlist"));
     act->setCheckable(true);
 
+    //
+    // View Menu
+    //
+
     act = collection->add<KToggleAction>("resizeColumnsManually");
     act->setText(i18n("&Resize Playlist Columns Manually"));
 
@@ -301,9 +317,9 @@ void JuK::setupActions()
     act = collection->addAction("showHide", this, SLOT(slotShowHide()));
     act->setText(i18n("Show / Hide"));
 
-    //////////////////////////////////////////////////
-    // settings menu
-    //////////////////////////////////////////////////
+    //
+    // Settings Menu
+    //
 
     m_toggleSplashAction = collection->add<KToggleAction>("showSplashScreen");
     m_toggleSplashAction->setText(i18n("Show Splash Screen on Startup"));
@@ -330,9 +346,9 @@ void JuK::setupActions()
     act = collection->addAction("scrobblerConfig", this, SLOT(slotConfigureScrobbling()));
     act->setText(i18n("&Configure scrobbling..."));
 
-    //////////////////////////////////////////////////
-    // just in the toolbar
-    //////////////////////////////////////////////////
+    //
+    // Create Actions and Widgets in player toolbar
+    //
 
     collection->addAction("trackPositionAction",
                           new TrackPositionAction(i18n("Track Position"), this));
