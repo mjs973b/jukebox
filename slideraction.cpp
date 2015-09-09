@@ -41,18 +41,20 @@ TrackPositionAction::TrackPositionAction(const QString &text, QObject *parent, P
 
 QWidget *TrackPositionAction::createWidget(QWidget *parent)
 {
+    // QSlider widget
     m_slider = new TimeSlider(parent);
     m_slider->setObjectName(QLatin1String("timeSlider"));
 
     connect(m_player, SIGNAL(tick(int)), m_slider, SLOT(setValue(int)));
-    connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(seekableChanged(bool)));
-    connect(m_player, SIGNAL(totalTimeChanged(int)), this, SLOT(totalTimeChanged(int)));
+    connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(slotSeekableChanged(bool)));
+    connect(m_player, SIGNAL(totalTimeChanged(int)), this, SLOT(slotTotalTimeChanged(int)));
     connect(m_slider, SIGNAL(sliderMoved(int)), m_player, SLOT(seek(int)));
 
     return m_slider;
 }
 
-void TrackPositionAction::seekableChanged(bool seekable)
+/* called by player when song characteristics change */
+void TrackPositionAction::slotSeekableChanged(bool seekable)
 {
     m_slider->setEnabled(seekable);
     m_slider->setToolTip(seekable ?
@@ -60,7 +62,8 @@ void TrackPositionAction::seekableChanged(bool seekable)
                          i18n("Seeking is not supported in this file with your audio settings."));
 }
 
-void TrackPositionAction::totalTimeChanged(int ms)
+/* called by player when song characteristics change */
+void TrackPositionAction::slotTotalTimeChanged(int ms)
 {
     m_slider->setRange(0, ms);
 }

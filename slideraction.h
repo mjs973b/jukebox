@@ -33,8 +33,8 @@ public:
 protected:
     virtual QWidget *createWidget(QWidget *parent);
 private slots:
-    void seekableChanged(bool seekable);
-    void totalTimeChanged(int ms);
+    void slotSeekableChanged(bool seekable);
+    void slotTotalTimeChanged(int ms);
 private:
     TimeSlider *m_slider;
     PlayerManager *m_player;
