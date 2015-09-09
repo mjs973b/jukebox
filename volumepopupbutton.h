@@ -28,6 +28,7 @@ class QMouseEvent;
 class QWheelEvent;
 
 class VolumeSlider;
+class PlayerManager;
 
 class VolumePopupButton : public QToolButton
 {
@@ -42,15 +43,18 @@ protected:
     virtual void wheelEvent( QWheelEvent * event );
 
 private slots:
-    void volumeChanged( float newVolume );
-    void muteStateChanged( bool muted );
+    void slotVolumeChanged( float newVolume );
+    void slotToggleMute( bool );
+    void slotMuteStateChanged( bool muted );
 
 private:
     QLabel * m_volumeLabel;
     QMenu * m_volumeMenu;
     VolumeSlider * m_volumeSlider;
     QAction * m_muteAction;
-    float m_volumeBeforeMute;
+    float m_prevVolume;
+    float m_curVolume;
+    PlayerManager *player;
 };
 
 #endif // VOLUMEPOPUPBUTTON_H

@@ -1,6 +1,7 @@
 /**
  * Copyright (c) 2009 Nikolaj Hald Nielsen <nhn@kde.org>
  * Copyright (c) 2009 Mark Kretschmann <kretschmann@kde.org>
+ * Copyright (c) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -18,6 +19,7 @@
 #include "volumepopupbutton.h"
 #include "slider.h"
 
+#include <kdebug.h>
 #include <KLocale>
 #include <KVBox>
 #include <KIcon>
@@ -32,11 +34,11 @@
 #include "playermanager.h"
 #include "juk.h"
 
-VolumePopupButton::VolumePopupButton( QWidget * parent )
-    : QToolButton( parent )
+VolumePopupButton::VolumePopupButton( QWidget * parent ) :
+    QToolButton( parent ),
+    m_prevVolume(0.0),
+    m_curVolume(0.0)
 {
-    m_volumeBeforeMute = 0.0;
-
     //create the volume popup
     m_volumeMenu = new QMenu( this );
 
@@ -55,49 +57,73 @@ VolumePopupButton::VolumePopupButton( QWidget * parent )
     mainBox->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
     sliderBox->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
 
-    PlayerManager *player = JuK::JuKInstance()->playerManager();
+    player = JuK::JuKInstance()->playerManager();
 
     QWidgetAction *sliderActionWidget = new QWidgetAction( this );
     sliderActionWidget->setDefaultWidget( mainBox );
 
+    // volumeChanged is a customSignal, is not emited by setValue()
     connect( m_volumeSlider, SIGNAL(volumeChanged(float)), player, SLOT(setVolume(float)) );
 
     QToolBar *muteBar = new QToolBar( QString(), mainBox );
     muteBar->setContentsMargins( 0, 0, 0, 0 );
     muteBar->setIconSize( QSize( 16, 16 ) );
 
+    // our popup's mute-toggle  button
     m_muteAction = new QAction( KIcon( "audio-volume-muted" ), QString(), muteBar );
     m_muteAction->setToolTip( i18n( "Mute/Unmute" ) );
-    m_muteAction->setCheckable( true );
-    m_muteAction->setChecked( player->muted() );
 
-    connect( m_muteAction, SIGNAL(toggled(bool)), player, SLOT(setMuted(bool)) );
-    connect( player, SIGNAL(mutedChanged(bool)), this, SLOT(muteStateChanged(bool)) );
+    connect( m_muteAction, SIGNAL(triggered(bool)), this, SLOT(slotToggleMute(bool)) );
+    connect( player, SIGNAL(mutedChanged(bool)), this, SLOT(slotMuteStateChanged(bool)) );
 
     m_volumeMenu->addAction( sliderActionWidget );
     muteBar->addAction( m_muteAction );
 
-    // set correct icon and label initially
-    volumeChanged( player->volume() );
+    /* set icon and label to match create state of AudioOutput, as the 
+     * desired volume value is not available yet (because the player
+     * object is not set up yet.) Someone must call PlayerManager::setVolume() 
+     * later.
+     */
+    slotVolumeChanged( 1.0 );
 
-    connect( player, SIGNAL(volumeChanged(float)), this, SLOT(volumeChanged(float)) );
+    // let player notify us when volume changes
+    connect( player, SIGNAL(volumeChanged(float)), this, SLOT(slotVolumeChanged(float)) );
 }
 
-void
-VolumePopupButton::refresh()
+/* update our widgets using current volume from PlayerManager. Generally
+ * not necessary to call this.
+ */
+void VolumePopupButton::refresh()
 {
-    volumeChanged( JuK::JuKInstance()->playerManager()->volume() );
+    kDebug() << "called";
+    slotVolumeChanged( player->volume() );
 }
 
-void
-VolumePopupButton::volumeChanged( float newVolume )
-{
-    if (!JuK::JuKInstance()->playerManager()->muted())
-    {
-        m_volumeBeforeMute = newVolume;
+/* user has clicked our popup's mute-toggle button. 
+ * For mute method, we don't use the Player's Mute feature, but instead
+ * mimic MPlayer's toggle-to-zero behavior.
+ */
+void VolumePopupButton::slotToggleMute(bool) {
+    if (m_curVolume < 0.01) {
+        player->setVolume( m_prevVolume );
+    } else {
+        player->setVolume( 0.0 );
     }
+}
 
-    if ( newVolume <= 0.0001 )
+/* called by the player when someone has changed the volume. Update
+ * all our widgets, but do NOT change player volume from this method.
+ * The Player is already set to new volume value when this is called.
+ * @param newVolume has range 0.0 - 1.0.
+ */
+void VolumePopupButton::slotVolumeChanged( float newVolume )
+{
+    kDebug() << "newVolume is " << newVolume;
+
+    bool isMuted = player->muted() || newVolume < 0.01;
+
+    // update icon for our toolbar button
+    if ( isMuted )
         setIcon( KIcon( "audio-volume-muted" ) );
     else if ( newVolume < 0.34 )
         setIcon( KIcon( "audio-volume-low" ) );
@@ -108,32 +134,35 @@ VolumePopupButton::volumeChanged( float newVolume )
 
     m_volumeLabel->setText( i18n( "%1%" , int( newVolume * 100 ) ) );
 
-    if( newVolume != m_volumeSlider->value() )
+    // only update if user not dragging it's slider
+    if (!m_volumeSlider->isSliderDown()) {
+        // emits valueChanged() but not volumeChanged()
         m_volumeSlider->setValue( newVolume * 100 );
+    }
 
-    //make sure to uncheck mute toolbar when moving slider
-    if ( newVolume > 0 )
-        m_muteAction->setChecked( false );
+    // mimic MPlayer's auto-unmute behavior 
+    if ( player->muted() && newVolume >= 0.01 ) {
+        player->setMuted(false);
+    }
 
-    const KLocalizedString tip = m_muteAction->isChecked() ? ki18n( "Volume: %1% (muted)" ) : ki18n( "Volume: %1%" );
-    setToolTip( tip.subs( int( 100 * newVolume ) ).toString() );
+    // tooltip for toolbar button
+    const KLocalizedString tip = ki18n( "Volume: %1%" );
+    this->setToolTip( tip.subs( int( 100 * newVolume ) ).toString() );
+
+    m_prevVolume = m_curVolume;
+    m_curVolume  = newVolume;
 }
 
+/* called by the player when some external method has changed the mute 
+ * state. Update our widgets, but do not try to change player state from 
+ * here.
+ */
 void
-VolumePopupButton::muteStateChanged( bool muted )
+VolumePopupButton::slotMuteStateChanged( bool muted )
 {
-    if ( muted )
-    {
-        const float volume = JuK::JuKInstance()->playerManager()->volume();
-        setIcon( KIcon( "audio-volume-muted" ) );
-        setToolTip( i18n( "Volume: %1% (muted)", int( 100 * volume ) ) );
-    }
-    else
-    {
-        JuK::JuKInstance()->playerManager()->setVolume( m_volumeBeforeMute );
-    }
-
-    m_muteAction->setChecked( muted );
+    Q_UNUSED(muted)
+    // update our toolbar icon based on player's current volume level
+    slotVolumeChanged( player->volume() );
 }
 
 void
@@ -149,10 +178,6 @@ VolumePopupButton::mouseReleaseEvent( QMouseEvent * event )
             m_volumeMenu->exec( mapToGlobal( pos ) );
         }
     }
-    else if( event->button() == Qt::MidButton )
-    {
-        muteStateChanged( JuK::JuKInstance()->playerManager()->mute() );
-    }
 
     QToolButton::mouseReleaseEvent( event );
 }
@@ -161,10 +186,8 @@ void
 VolumePopupButton::wheelEvent( QWheelEvent * event )
 {
     event->accept();
-    PlayerManager *player = JuK::JuKInstance()->playerManager();
     float volume = qBound( 0.0f, player->volume() + float( event->delta() ) / 4000.0f, 1.0f );
     player->setVolume( volume );
-    volumeChanged( volume );
 }
 
 #include "volumepopupbutton.moc"
