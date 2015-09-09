@@ -28,46 +28,41 @@
 #include <QBoxLayout>
 
 #include "volumepopupbutton.h"
-#include "slider.h"
+#include "slider.h"             // TimeSlider
 #include "playermanager.h"
-#include "juk.h"
 
 TrackPositionAction::TrackPositionAction(const QString &text, QObject *parent, PlayerManager *mgr) :
     KAction(text, parent),
+    m_slider(0),
     m_player(mgr)
 {
 
 }
 
-Slider *TrackPositionAction::slider() const
-{
-    return parent()->findChild<Slider *>("timeSlider");
-}
-
 QWidget *TrackPositionAction::createWidget(QWidget *parent)
 {
-    Slider *slider = new TimeSlider(parent);
-    slider->setObjectName(QLatin1String("timeSlider"));
+    m_slider = new TimeSlider(parent);
+    m_slider->setObjectName(QLatin1String("timeSlider"));
 
-    connect(m_player, SIGNAL(tick(int)), slider, SLOT(setValue(int)));
+    connect(m_player, SIGNAL(tick(int)), m_slider, SLOT(setValue(int)));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(seekableChanged(bool)));
     connect(m_player, SIGNAL(totalTimeChanged(int)), this, SLOT(totalTimeChanged(int)));
-    connect(slider, SIGNAL(sliderMoved(int)), m_player, SLOT(seek(int)));
+    connect(m_slider, SIGNAL(sliderMoved(int)), m_player, SLOT(seek(int)));
 
-    return slider;
+    return m_slider;
 }
 
 void TrackPositionAction::seekableChanged(bool seekable)
 {
-    slider()->setEnabled(seekable);
-    slider()->setToolTip(seekable ?
+    m_slider->setEnabled(seekable);
+    m_slider->setToolTip(seekable ?
                          QString() :
                          i18n("Seeking is not supported in this file with your audio settings."));
 }
 
 void TrackPositionAction::totalTimeChanged(int ms)
 {
-    slider()->setRange(0, ms);
+    m_slider->setRange(0, ms);
 }
 
 VolumeAction::VolumeAction(const QString &text, QObject *parent, PlayerManager *mgr) :

@@ -22,7 +22,7 @@
 
 #include "volumepopupbutton.h"
 
-class Slider;
+class TimeSlider;
 class PlayerManager;
 
 class TrackPositionAction : public KAction
@@ -30,13 +30,13 @@ class TrackPositionAction : public KAction
     Q_OBJECT
 public:
     TrackPositionAction(const QString &text, QObject *parent, PlayerManager *mgr);
-    Slider *slider() const;
 protected:
     virtual QWidget *createWidget(QWidget *parent);
 private slots:
     void seekableChanged(bool seekable);
     void totalTimeChanged(int ms);
 private:
+    TimeSlider *m_slider;
     PlayerManager *m_player;
 };
 
