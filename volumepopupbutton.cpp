@@ -32,12 +32,13 @@
 #include <QWidgetAction>
 
 #include "playermanager.h"
-#include "juk.h"
+//#include "juk.h"
 
-VolumePopupButton::VolumePopupButton( QWidget * parent ) :
+VolumePopupButton::VolumePopupButton( QWidget * parent, PlayerManager *mgr ) :
     QToolButton( parent ),
     m_prevVolume(0.0),
-    m_curVolume(0.0)
+    m_curVolume(0.0),
+    player(mgr)
 {
     //create the volume popup
     m_volumeMenu = new QMenu( this );
@@ -56,8 +57,6 @@ VolumePopupButton::VolumePopupButton( QWidget * parent ) :
     sliderBox->setMargin( 0 );
     mainBox->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
     sliderBox->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Fixed );
-
-    player = JuK::JuKInstance()->playerManager();
 
     QWidgetAction *sliderActionWidget = new QWidgetAction( this );
     sliderActionWidget->setDefaultWidget( mainBox );

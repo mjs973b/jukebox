@@ -35,7 +35,7 @@ class VolumePopupButton : public QToolButton
     Q_OBJECT
 
 public:
-    VolumePopupButton( QWidget * parent );
+    VolumePopupButton( QWidget * parent, PlayerManager *mgr );
     void refresh();
 
 protected:

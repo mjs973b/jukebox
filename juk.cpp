@@ -350,10 +350,13 @@ void JuK::setupActions()
     // Create Actions and Widgets in player toolbar
     //
 
-    collection->addAction("trackPositionAction",
-                          new TrackPositionAction(i18n("Track Position"), this));
-    collection->addAction("volumeAction",
-                          new VolumeAction(i18n("Volume"), this));
+    // create song-current-position slider
+    act = new TrackPositionAction(i18n("Track Position"), this, m_player);
+    collection->addAction("trackPositionAction", act);
+
+    // create volume popup
+    act = new VolumeAction(i18n("Volume"), this, m_player);
+    collection->addAction("volumeAction", act);
 
     ActionCollection::actions()->addAssociatedWidget(this);
     foreach (QAction* action, ActionCollection::actions()->actions())

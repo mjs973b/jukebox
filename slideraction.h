@@ -23,30 +23,34 @@
 #include "volumepopupbutton.h"
 
 class Slider;
+class PlayerManager;
 
 class TrackPositionAction : public KAction
 {
     Q_OBJECT
 public:
-    TrackPositionAction(const QString &text, QObject *parent);
+    TrackPositionAction(const QString &text, QObject *parent, PlayerManager *mgr);
     Slider *slider() const;
 protected:
     virtual QWidget *createWidget(QWidget *parent);
 private slots:
     void seekableChanged(bool seekable);
     void totalTimeChanged(int ms);
+private:
+    PlayerManager *m_player;
 };
 
 class VolumeAction : public KAction
 {
     Q_OBJECT
 public:
-    VolumeAction(const QString &text, QObject *parent);
+    VolumeAction(const QString &text, QObject *parent, PlayerManager *mgr);
     VolumePopupButton *button() const { return m_button; }
 protected:
     virtual QWidget *createWidget(QWidget *parent);
 private:
     VolumePopupButton *m_button;
+    PlayerManager *m_player;
 };
 
 #endif

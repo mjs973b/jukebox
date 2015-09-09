@@ -32,8 +32,9 @@
 #include "playermanager.h"
 #include "juk.h"
 
-TrackPositionAction::TrackPositionAction(const QString &text, QObject *parent) :
-    KAction(text, parent)
+TrackPositionAction::TrackPositionAction(const QString &text, QObject *parent, PlayerManager *mgr) :
+    KAction(text, parent),
+    m_player(mgr)
 {
 
 }
@@ -48,12 +49,10 @@ QWidget *TrackPositionAction::createWidget(QWidget *parent)
     Slider *slider = new TimeSlider(parent);
     slider->setObjectName(QLatin1String("timeSlider"));
 
-    PlayerManager *player = JuK::JuKInstance()->playerManager();
-
-    connect(player, SIGNAL(tick(int)), slider, SLOT(setValue(int)));
-    connect(player, SIGNAL(seekableChanged(bool)), this, SLOT(seekableChanged(bool)));
-    connect(player, SIGNAL(totalTimeChanged(int)), this, SLOT(totalTimeChanged(int)));
-    connect(slider, SIGNAL(sliderMoved(int)), player, SLOT(seek(int)));
+    connect(m_player, SIGNAL(tick(int)), slider, SLOT(setValue(int)));
+    connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(seekableChanged(bool)));
+    connect(m_player, SIGNAL(totalTimeChanged(int)), this, SLOT(totalTimeChanged(int)));
+    connect(slider, SIGNAL(sliderMoved(int)), m_player, SLOT(seek(int)));
 
     return slider;
 }
@@ -71,16 +70,17 @@ void TrackPositionAction::totalTimeChanged(int ms)
     slider()->setRange(0, ms);
 }
 
-VolumeAction::VolumeAction(const QString &text, QObject *parent) :
+VolumeAction::VolumeAction(const QString &text, QObject *parent, PlayerManager *mgr) :
     KAction(text, parent),
-    m_button(0)
+    m_button(0),
+    m_player(mgr)
 {
 
 }
 
 QWidget *VolumeAction::createWidget(QWidget *parent)
 {
-    m_button = new VolumePopupButton(parent);
+    m_button = new VolumePopupButton(parent, m_player);
     return m_button;
 }
 
