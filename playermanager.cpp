@@ -63,7 +63,8 @@ PlayerManager::PlayerManager() :
     m_muted(false),
     m_setup(false),
     m_crossfadeTracks(true),
-    m_curOutputPath(0)
+    m_curOutputPath(0),
+    m_prevTrackTime(-1)
 {
 }
 
@@ -486,14 +487,29 @@ void PlayerManager::slotLength(qint64 msec)
     emit totalTimeChanged(msec);
 }
 
+/**
+ * Notify listeners of the current time offset in the playing track.
+ * This is driven by the MediaObject::tick() signal, and occurs 
+ * 3 to 5 times per second. We emit PlayManager::tick() signal for our 
+ * listeners (who typically use it to update widgets.)
+ * @param msec  time offset in milliseconds
+ */
 void PlayerManager::slotTick(qint64 msec)
 {
-    if(!m_setup || !m_playlistInterface)
+    /* The Phonon MediaObject issues duplicate tick() updates; we drop 
+     * the duplicates here by checking value of previous announcement
+     * (seen on Phonon 4.6.2 w/ VLC-backend v0.6.2)
+     */
+    if(!m_setup || !m_playlistInterface || msec == m_prevTrackTime) {
         return;
+    }
+
+    m_prevTrackTime = msec;
 
     if(m_statusLabel)
         m_statusLabel->setItemCurrentTime(msec / 1000);
 
+    //kDebug() << sender() << " emit tick " << msec;
     emit tick(msec);
 }
 
@@ -670,10 +686,10 @@ void PlayerManager::setup()
         connect(m_media[i], SIGNAL(stateChanged(Phonon::State,Phonon::State)), SLOT(slotStateChanged(Phonon::State,Phonon::State)));
         connect(m_media[i], SIGNAL(prefinishMarkReached(qint32)), SLOT(slotNeedNextUrl()));
         connect(m_media[i], SIGNAL(totalTimeChanged(qint64)), SLOT(slotLength(qint64)));
-        connect(m_media[i], SIGNAL(tick(qint64)), SLOT(slotTick(qint64)));
-        connect(m_media[i], SIGNAL(finished()), SLOT(slotFinished()));
         connect(m_media[i], SIGNAL(seekableChanged(bool)), SLOT(slotSeekableChanged(bool)));
     }
+    connect(m_media[0], SIGNAL(tick(qint64)), SLOT(slotTick(qint64)));
+    connect(m_media[0], SIGNAL(finished()), SLOT(slotFinished()));
 
     // initialize action states
 
@@ -692,6 +708,10 @@ void PlayerManager::slotUpdateGuiIfStopped()
         stop();
 }
 
+/* setup newFile to become the current track, tell MediaObject to Play it,
+ * then configure faders to smoothly shift from old track to current track
+ * over a 2 second interval.
+ */
 void PlayerManager::crossfadeToFile(const FileHandle &newFile)
 {
     int nextOutputPath = 1 - m_curOutputPath;
@@ -702,9 +722,17 @@ void PlayerManager::crossfadeToFile(const FileHandle &newFile)
 
     m_fader[nextOutputPath]->setVolume(0.0f);
 
+    // fore-warn listeners that newFile is about to become the current track
     emit signalItemChanged(newFile);
+
     m_media[nextOutputPath]->setCurrentSource(QUrl::fromLocalFile(newFile.absFilePath()));
     m_media[nextOutputPath]->play();
+
+    /* only one media object should announce current track time, or listeners
+     * will get confused
+     */
+    disconnect(m_media[m_curOutputPath], SIGNAL(tick(qint64)), this, 0);
+    connect(m_media[nextOutputPath], SIGNAL(tick(qint64)), SLOT(slotTick(qint64)));
 
     m_fader[m_curOutputPath]->setVolume(1.0f);
     m_fader[m_curOutputPath]->fadeTo(0.0f, 2000);

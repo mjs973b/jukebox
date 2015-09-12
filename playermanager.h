@@ -162,6 +162,8 @@ private:
     Phonon::Path m_audioPath[2];
     Phonon::MediaObject *m_media[2];
     Phonon::VolumeFaderEffect *m_fader[2];
+
+    qint64 m_prevTrackTime;
 };
 
 #endif
