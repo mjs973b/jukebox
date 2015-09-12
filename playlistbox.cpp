@@ -743,7 +743,7 @@ void PlaylistBox::slotPlaylistChanged()
             if(!p->canModifyContent() || !p->hasFileListChanged()) {
                 bCanSave = false;
             }
-            if(!p->searchIsEditable()) {
+            if(!p->canEditSearchPattern()) {
                 bCanEditSearch = false;
             }
             playlists.append(p);

@@ -31,7 +31,7 @@ public:
 
     PlaylistSearch playlistSearch() const { return m_search; }
     void setPlaylistSearch(const PlaylistSearch &s, bool update = true);
-    virtual bool searchIsEditable() const { return true; }
+    virtual bool canEditSearchPattern() const { return true; }
 
     virtual bool canReload() const { return true; }
     virtual bool canDelete() const { return true; }

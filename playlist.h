@@ -305,7 +305,7 @@ public:
     virtual bool canModifyContent() const { return true; }
 
     /**
-     * Report whether the label on this playlist is permiteed to be 
+     * Report whether the label on this playlist is permitted to be 
      * changed BY USER ACTION. The default is true, but it can be changed 
      * by a subclass. This is class policy, not mutable state.
      */
@@ -329,7 +329,7 @@ public:
      * Returns true if the playlist is a search playlist and the search should be
      * editable. This is class policy, not mutable state.
      */
-    virtual bool searchIsEditable() const { return false; }
+    virtual bool canEditSearchPattern() const { return false; }
 
     /**
      * Synchronizes the playing item in this playlist with the playing item

@@ -31,7 +31,7 @@ public:
                          const PlaylistSearch &search = PlaylistSearch(),
                          const QString &name = QString());
 
-    virtual bool searchIsEditable() const { return false; }
+    virtual bool canEditSearchPattern() const { return false; }
     void retag(const QStringList &files, Playlist *donorPlaylist);
 
 signals:

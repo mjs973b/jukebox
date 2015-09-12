@@ -91,6 +91,7 @@ void SearchPlaylist::updateItems()
 
 QDataStream &operator<<(QDataStream &s, const SearchPlaylist &p)
 {
+    qDebug() << "SearchPlaylist::operator<<: Write " << p.name();
     s << p.name()
       << p.playlistSearch();
 
