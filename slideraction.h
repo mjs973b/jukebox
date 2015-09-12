@@ -18,7 +18,6 @@
 #define SLIDERACTION_H
 
 #include <kaction.h>
-#include <QBoxLayout>
 
 #include "volumepopupbutton.h"
 
@@ -35,6 +34,7 @@ protected:
 private slots:
     void slotSeekableChanged(bool seekable);
     void slotTotalTimeChanged(int ms);
+    void slotSliderReleased();
 private:
     TimeSlider *m_slider;
     PlayerManager *m_player;

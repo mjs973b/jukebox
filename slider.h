@@ -101,23 +101,18 @@ private:
     Q_DISABLE_COPY( VolumeSlider )
 };
 
-class TimeSlider : public Slider
+class TimeSlider : public QSlider
 {
     Q_OBJECT
 
 public:
     TimeSlider( QWidget *parent );
 
-    void setSliderValue( int value );
-protected:
-    virtual void paintEvent( QPaintEvent* );
-    virtual void mousePressEvent( QMouseEvent* );
-    virtual void sliderChange( SliderChange change );
+public slots:
+    void setValue(int value);
 
 private:
     Q_DISABLE_COPY( TimeSlider )
-
-    int m_knobX; // The position of the current indicator.
 };
 
 #endif

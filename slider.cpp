@@ -19,6 +19,7 @@
 #include "slider.h"
 #include "svghandler.h"
 
+#include <KDebug>
 #include <KIcon>
 #include <KLocale>
 #include <KStandardDirs>
@@ -287,53 +288,16 @@ VolumeSlider::emitVolumeChanged( int value )
 //////////////////////////////////////////////////////////////////////////////////////////
 
 TimeSlider::TimeSlider( QWidget *parent )
-    : Slider( Qt::Horizontal, 0, parent )
-    , m_knobX( 0.0 )
+    : QSlider( Qt::Horizontal, parent )
 {
-    m_usingCustomStyle = true;
     setFocusPolicy( Qt::NoFocus );
 }
 
-void
-TimeSlider::setSliderValue( int value )
-{
-    Slider::setValue( value );
-}
-
-void
-TimeSlider::paintEvent( QPaintEvent *pe )
-{
-    QPainter p( this );
-    p.setClipRegion( pe->region() );
-    paintCustomSlider( &p );
-    p.end();
-
-}
-
-void TimeSlider::sliderChange( SliderChange change )
-{
-    if ( change == SliderValueChange || change == SliderRangeChange )
-    {
-        int oldKnobX = m_knobX;
-        qreal percent = 0.0;
-        if ( maximum() > minimum() )
-            percent = ((qreal)value()) / ( maximum() - minimum() );
-        QRect knob = sliderHandleRect( rect(), percent );
-        m_knobX = knob.x();
-
-        if (oldKnobX < m_knobX)
-            update( oldKnobX, knob.y(), knob.right() + 1 - oldKnobX, knob.height() );
-        else if (oldKnobX > m_knobX)
-            update( m_knobX, knob.y(), oldKnobX + knob.width(), knob.height() );
+void TimeSlider::setValue(int time_millisec) {
+    // don't allow tick() to update position while user is dragging
+    if (!this->isSliderDown()) {
+        QSlider::setValue(time_millisec);
     }
-    else
-        Slider::sliderChange( change ); // calls update()
-}
-
-void TimeSlider::mousePressEvent( QMouseEvent *event )
-{
-    // We should probably eat this event if we're not able to seek
-    Slider::mousePressEvent( event );
 }
 
 #include "slider.moc"

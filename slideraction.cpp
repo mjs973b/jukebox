@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2002-2004 Scott Wheeler <wheeler@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -48,7 +49,7 @@ QWidget *TrackPositionAction::createWidget(QWidget *parent)
     connect(m_player, SIGNAL(tick(int)), m_slider, SLOT(setValue(int)));
     connect(m_player, SIGNAL(seekableChanged(bool)), this, SLOT(slotSeekableChanged(bool)));
     connect(m_player, SIGNAL(totalTimeChanged(int)), this, SLOT(slotTotalTimeChanged(int)));
-    connect(m_slider, SIGNAL(sliderMoved(int)), m_player, SLOT(seek(int)));
+    connect(m_slider, SIGNAL(sliderReleased()), this, SLOT(slotSliderReleased()));
 
     return m_slider;
 }
@@ -66,6 +67,15 @@ void TrackPositionAction::slotSeekableChanged(bool seekable)
 void TrackPositionAction::slotTotalTimeChanged(int ms)
 {
     m_slider->setRange(0, ms);
+}
+
+/* called when user is finished moving the puck. Ask player to seek to the 
+ * puck position. Player will issue callback that results in 
+ * m_slider->setValue() being called.
+ */
+void TrackPositionAction::slotSliderReleased() {
+    int seekTime = m_slider->sliderPosition();
+    m_player->seek(seekTime);
 }
 
 VolumeAction::VolumeAction(const QString &text, QObject *parent, PlayerManager *mgr) :
