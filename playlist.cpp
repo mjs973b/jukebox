@@ -1196,13 +1196,6 @@ bool Playlist::eventFilter(QObject *watched, QEvent *e)
 
             break;
         }
-        case QEvent::MouseButtonPress:
-        {
-            if(static_cast<QMouseEvent *>(e)->button() == Qt::RightButton)
-                m_headerMenu->popup(QCursor::pos());
-
-            break;
-        }
         case QEvent::MouseButtonRelease:
         {
             if(m_columnWidthModeChanged) {
@@ -1622,6 +1615,7 @@ void Playlist::slotInitialize()
     setColumnAlignment(3, Qt::AlignHCenter);    // Cover
     setColumnAlignment(4, Qt::AlignHCenter);    // Track #
 
+    // for K3ListView 'renameable' means Item cell can be edited in-place
     setRenameable(PlaylistItem::TrackColumn, true);
     setRenameable(PlaylistItem::ArtistColumn, true);
     setRenameable(PlaylistItem::AlbumColumn, true);
@@ -1637,13 +1631,8 @@ void Playlist::slotInitialize()
     m_columnFixedWidths.resize(columns());
 
     //////////////////////////////////////////////////
-    // setup header RMB menu
+    // setup menu for View|Show Columns
     //////////////////////////////////////////////////
-
-#ifdef __GNUC__
-    #warning should be fixed...
-#endif
-    /* m_headerMenu->insertTitle(i18n("Show")); */
 
     /* we only add items to the menu once, and we do it the first
      * time this method is called. All Playlist Widgets will share this
