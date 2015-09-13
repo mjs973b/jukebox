@@ -47,8 +47,6 @@
 #include "scrobbler.h"
 #include "juk.h"
 
-using namespace ActionCollection;
-
 enum PlayerManagerStatus { StatusStopped = -1, StatusPaused = 1, StatusPlaying = 2 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -279,7 +277,7 @@ void PlayerManager::pause()
         return;
     }
 
-    action("pause")->setEnabled(false);
+    ActionCollection::action("pause")->setEnabled(false);
 
     m_media[m_curOutputPath]->pause();
 }
@@ -289,11 +287,11 @@ void PlayerManager::stop()
     if(!m_setup || !m_playlistInterface)
         return;
 
-    action("pause")->setEnabled(false);
-    action("stop")->setEnabled(false);
-    action("back")->setEnabled(false);
-    action("forward")->setEnabled(false);
-    action("forwardAlbum")->setEnabled(false);
+    ActionCollection::action("pause")->setEnabled(false);
+    ActionCollection::action("stop")->setEnabled(false);
+    ActionCollection::action("back")->setEnabled(false);
+    ActionCollection::action("forward")->setEnabled(false);
+    ActionCollection::action("forwardAlbum")->setEnabled(false);
 
     // Fading out playback is for chumps.
     stopCrossfade();
@@ -375,7 +373,7 @@ void PlayerManager::seekBack()
 
 void PlayerManager::playPause()
 {
-    playing() ? action("pause")->trigger() : action("play")->trigger();
+    playing() ? ActionCollection::action("pause")->trigger() : ActionCollection::action("play")->trigger();
 }
 
 void PlayerManager::forward()
@@ -581,12 +579,12 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
             m_output[m_curOutputPath]->setVolume( m_curVolume );
         }
 
-        action("pause")->setEnabled(true);
-        action("stop")->setEnabled(true);
-        action("forward")->setEnabled(true);
-        if(action<KToggleAction>("albumRandomPlay")->isChecked())
-            action("forwardAlbum")->setEnabled(true);
-        action("back")->setEnabled(true);
+        ActionCollection::action("pause")->setEnabled(true);
+        ActionCollection::action("stop")->setEnabled(true);
+        ActionCollection::action("forward")->setEnabled(true);
+        if(ActionCollection::action<KToggleAction>("albumRandomPlay")->isChecked())
+            ActionCollection::action("forwardAlbum")->setEnabled(true);
+        ActionCollection::action("back")->setEnabled(true);
 
         JuK::JuKInstance()->setWindowTitle(i18nc(
             "%1 is the artist and %2 is the title of the currently playing track.", 
@@ -649,12 +647,12 @@ void PlayerManager::setup()
 {
     // All of the actions required by this class should be listed here.
 
-    if(!action("pause") ||
-       !action("stop") ||
-       !action("back") ||
-       !action("forwardAlbum") ||
-       !action("forward") ||
-       !action("trackPositionAction"))
+    if(!ActionCollection::action("pause") ||
+       !ActionCollection::action("stop") ||
+       !ActionCollection::action("back") ||
+       !ActionCollection::action("forwardAlbum") ||
+       !ActionCollection::action("forward") ||
+       !ActionCollection::action("trackPositionAction"))
     {
         kWarning() << "Could not find all of the required actions.";
         return;
@@ -693,11 +691,11 @@ void PlayerManager::setup()
 
     // initialize action states
 
-    action("pause")->setEnabled(false);
-    action("stop")->setEnabled(false);
-    action("back")->setEnabled(false);
-    action("forward")->setEnabled(false);
-    action("forwardAlbum")->setEnabled(false);
+    ActionCollection::action("pause")->setEnabled(false);
+    ActionCollection::action("stop")->setEnabled(false);
+    ActionCollection::action("back")->setEnabled(false);
+    ActionCollection::action("forward")->setEnabled(false);
+    ActionCollection::action("forwardAlbum")->setEnabled(false);
 
     QDBusConnection::sessionBus().registerObject("/Player", this);
 }
@@ -763,9 +761,9 @@ void PlayerManager::stopCrossfade()
 
 QString PlayerManager::randomPlayMode() const
 {
-    if(action<KToggleAction>("randomPlay")->isChecked())
+    if(ActionCollection::action<KToggleAction>("randomPlay")->isChecked())
         return "Random";
-    if(action<KToggleAction>("albumRandomPlay")->isChecked())
+    if(ActionCollection::action<KToggleAction>("albumRandomPlay")->isChecked())
         return "AlbumRandom";
     return "NoRandom";
 }
@@ -778,11 +776,11 @@ void PlayerManager::setCrossfadeEnabled(bool crossfadeEnabled)
 void PlayerManager::setRandomPlayMode(const QString &randomMode)
 {
     if(randomMode.toLower() == "random")
-        action<KToggleAction>("randomPlay")->setChecked(true);
+        ActionCollection::action<KToggleAction>("randomPlay")->setChecked(true);
     if(randomMode.toLower() == "albumrandom")
-        action<KToggleAction>("albumRandomPlay")->setChecked(true);
+        ActionCollection::action<KToggleAction>("albumRandomPlay")->setChecked(true);
     if(randomMode.toLower() == "norandom")
-        action<KToggleAction>("disableRandomPlay")->setChecked(true);
+        ActionCollection::action<KToggleAction>("disableRandomPlay")->setChecked(true);
 }
 
 #include "playermanager.moc"
