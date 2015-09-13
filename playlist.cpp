@@ -80,8 +80,6 @@
 #include "tagtransactionmanager.h"
 #include "cache.h"
 
-using namespace ActionCollection;
-
 /* ptr to the right-click menu for View|Show Columns and the header on the
  * table. This KMenu object is shared by all Playlist Widgets.
  */
@@ -100,7 +98,7 @@ quint32 g_trackID = 0;
 
 static bool manualResize()
 {
-    return action<KToggleAction>("resizeColumnsManually")->isChecked();
+    return ActionCollection::action<KToggleAction>("resizeColumnsManually")->isChecked();
 }
 
 /**
@@ -270,7 +268,7 @@ Playlist::SharedSettings::SharedSettings()
     KConfigGroup config(KGlobal::config(), "PlaylistShared");
 
     bool resizeColumnsManually = config.readEntry("ResizeColumnsManually", false);
-    action("resizeColumnsManually")->setChecked(resizeColumnsManually);
+    ActionCollection::action("resizeColumnsManually")->setChecked(resizeColumnsManually);
 
     // Preallocate spaces so we don't need to check later.
     m_columnsVisible.fill(true, PlaylistItem::lastColumn() + 1);
@@ -498,7 +496,7 @@ void Playlist::playFirst()
 {
     TrackSequenceManager::instance()->setNextItem(static_cast<PlaylistItem *>(
         Q3ListViewItemIterator(const_cast<Playlist *>(this), Q3ListViewItemIterator::Visible).current()));
-    action("forward")->trigger();
+    ActionCollection::action("forward")->trigger();
 }
 
 void Playlist::playNextAlbum()
@@ -514,7 +512,7 @@ void Playlist::playNextAlbum()
         current = TrackSequenceManager::instance()->nextItem();
 
     TrackSequenceManager::instance()->setNextItem(current);
-    action("forward")->trigger();
+    ActionCollection::action("forward")->trigger();
 }
 
 void Playlist::playNext()
@@ -534,7 +532,7 @@ void Playlist::playPrevious()
     if(!playingItem())
         return;
 
-    bool random = action("randomPlay") && action<KToggleAction>("randomPlay")->isChecked();
+    bool random = ActionCollection::action("randomPlay") && ActionCollection::action<KToggleAction>("randomPlay")->isChecked();
 
     PlaylistItem *previous = 0;
 
@@ -1096,7 +1094,7 @@ void Playlist::removeFromDisk(const PlaylistItemList &items)
 
             foreach(PlaylistItem *item, items) {
                 if(playingItem() == item)
-                    action("forward")->trigger();
+                    ActionCollection::action("forward")->trigger();
 
                 QString removePath = item->file().absFilePath();
                 if((!shouldDelete && KIO::NetAccess::synchronousRun(KIO::trash(removePath), this)) ||
@@ -1218,11 +1216,11 @@ bool Playlist::eventFilter(QObject *watched, QEvent *e)
         case QEvent::MouseMove:
         {
             if((static_cast<QMouseEvent *>(e)->modifiers() & Qt::LeftButton) == Qt::LeftButton &&
-                !action<KToggleAction>("resizeColumnsManually")->isChecked())
+                !ActionCollection::action<KToggleAction>("resizeColumnsManually")->isChecked())
             {
                 m_columnWidthModeChanged = true;
 
-                action<KToggleAction>("resizeColumnsManually")->setChecked(true);
+                ActionCollection::action<KToggleAction>("resizeColumnsManually")->setChecked(true);
                 slotColumnResizeModeChanged();
             }
 
@@ -1712,10 +1710,10 @@ void Playlist::slotInitialize()
     connect(renameLineEdit(), SIGNAL(completionModeChanged(KGlobalSettings::Completion)),
             this, SLOT(slotInlineCompletionModeChanged(KGlobalSettings::Completion)));
 
-    connect(action("resizeColumnsManually"), SIGNAL(activated()),
+    connect(ActionCollection::action("resizeColumnsManually"), SIGNAL(activated()),
             this, SLOT(slotColumnResizeModeChanged()));
 
-    if(action<KToggleAction>("resizeColumnsManually")->isChecked())
+    if(ActionCollection::action<KToggleAction>("resizeColumnsManually")->isChecked())
         setHScrollBarMode(Auto);
     else
         setHScrollBarMode(AlwaysOff);
@@ -1783,7 +1781,7 @@ void Playlist::slotPopulateBackMenu() const
     if(!playingItem())
         return;
 
-    QMenu *menu = action<KToolBarPopupAction>("back")->menu();
+    QMenu *menu = ActionCollection::action<KToolBarPopupAction>("back")->menu();
     menu->clear();
     m_backMenuItems.clear();
     m_backMenuItems.reserve(10);
@@ -1811,7 +1809,7 @@ void Playlist::slotPlayFromBackMenu(QAction *backAction) const
         return;
 
     TrackSequenceManager::instance()->setNextItem(m_backMenuItems[number]);
-    action("forward")->trigger();
+    ActionCollection::action("forward")->trigger();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1926,7 +1924,7 @@ void Playlist::setPlaying(PlaylistItem *item, bool addToHistory)
     item->setPlaying(true);
 
     bool enableBack = !m_history.isEmpty();
-    action<KToolBarPopupAction>("back")->menu()->setEnabled(enableBack);
+    ActionCollection::action<KToolBarPopupAction>("back")->menu()->setEnabled(enableBack);
 }
 
 bool Playlist::playing() const
@@ -2270,26 +2268,26 @@ void Playlist::slotShowRMBMenu(Q3ListViewItem *item, const QPoint &point, int co
         m_rmbMenu->addSeparator();
 
         if(this->canModifyContent()) {
-            m_rmbMenu->addAction( action("edit_cut") );
-            m_rmbMenu->addAction( action("edit_copy") );
-            m_rmbMenu->addAction( action("edit_paste") );
+            m_rmbMenu->addAction( ActionCollection::action("edit_cut") );
+            m_rmbMenu->addAction( ActionCollection::action("edit_copy") );
+            m_rmbMenu->addAction( ActionCollection::action("edit_paste") );
             m_rmbMenu->addSeparator();
-            m_rmbMenu->addAction( action("removeFromPlaylist") );
+            m_rmbMenu->addAction( ActionCollection::action("removeFromPlaylist") );
         }
         else
-            m_rmbMenu->addAction( action("edit_copy") );
+            m_rmbMenu->addAction( ActionCollection::action("edit_copy") );
 
         m_rmbEdit = m_rmbMenu->addAction(i18n("Edit"), this, SLOT(slotRenameTag()));
 
-        m_rmbMenu->addAction( action("refresh") );
-        m_rmbMenu->addAction( action("removeItem") );
+        m_rmbMenu->addAction( ActionCollection::action("refresh") );
+        m_rmbMenu->addAction( ActionCollection::action("removeItem") );
 
         m_rmbMenu->addSeparator();
 
-        m_rmbMenu->addAction( action("guessTag") );
-        m_rmbMenu->addAction( action("renameFile") );
+        m_rmbMenu->addAction( ActionCollection::action("guessTag") );
+        m_rmbMenu->addAction( ActionCollection::action("renameFile") );
 
-        m_rmbMenu->addAction( action("coverManager") );
+        m_rmbMenu->addAction( ActionCollection::action("coverManager") );
 
         m_rmbMenu->addSeparator();
 
@@ -2329,8 +2327,8 @@ void Playlist::slotShowRMBMenu(Q3ListViewItem *item, const QPoint &point, int co
     // the remove cover option if the cover is in our database (and not directly
     // embedded in the file, for instance).
 
-    action("viewCover")->setEnabled(file.coverInfo()->hasCover());
-    action("removeCover")->setEnabled(file.coverInfo()->coverId() != CoverManager::NoMatch);
+    ActionCollection::action("viewCover")->setEnabled(file.coverInfo()->hasCover());
+    ActionCollection::action("removeCover")->setEnabled(file.coverInfo()->coverId() != CoverManager::NoMatch);
 
     m_rmbMenu->popup(point);
     m_currentColumn = column + columnOffset();
@@ -2518,7 +2516,7 @@ void Playlist::slotPlayCurrent()
     Q3ListViewItemIterator it(this, Q3ListViewItemIterator::Selected);
     PlaylistItem *next = static_cast<PlaylistItem *>(it.current());
     TrackSequenceManager::instance()->setNextItem(next);
-    action("forward")->trigger();
+    ActionCollection::action("forward")->trigger();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
