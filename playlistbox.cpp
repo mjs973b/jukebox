@@ -158,8 +158,8 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     connect(historyAction, SIGNAL(triggered(bool)),
             this, SLOT(slotSetHistoryPlaylistEnabled(bool)));
 
-    m_showTimer = new QTimer(this);
-    connect(m_showTimer, SIGNAL(timeout()), SLOT(slotShowDropTarget()));
+    //m_showTimer = new QTimer(this);
+    //connect(m_showTimer, SIGNAL(timeout()), SLOT(slotShowDropTarget()));
 
     // hook up to the D-Bus
     (void) new DBusCollectionProxy(this, this);
@@ -560,7 +560,7 @@ void PlaylistBox::decode(const QMimeData *s, Item *item)
 
 void PlaylistBox::contentsDropEvent(QDropEvent *e)
 {
-    m_showTimer->stop();
+    //m_showTimer->stop();
 
     Item *i = static_cast<Item *>(itemAt(contentsToViewport(e->pos())));
     decode(e->mimeData(), i);
@@ -612,13 +612,13 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
 
         if(m_dropItem != target) {
             Item *old = m_dropItem;
-            m_showTimer->stop();
+            //m_showTimer->stop();
 
             if(e->isAccepted()) {
                 m_dropItem = target;
                 target->repaint();
-                m_showTimer->setSingleShot(true);
-                m_showTimer->start(1500);
+                //m_showTimer->setSingleShot(true);
+                //m_showTimer->start(1500);
             }
             else
                 m_dropItem = 0;
