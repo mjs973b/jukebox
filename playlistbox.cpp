@@ -310,7 +310,7 @@ void PlaylistBox::saveConfig()
 
 /**
  * This is called by the 'File|Remove Playlists...' menu item. Remove selected 
- * playlists where canDelete() is true. 
+ * playlists where canDelete() & isContentMutable() is true. 
  * Prompt the user whether to remove the .m3u file from disk too. If it happens that 
  * there are no disk files, then prompt with the playlist names which will be deleted.
  * If user selects Cancel, then delete neither the playlist objects or the disk files.
@@ -326,7 +326,7 @@ void PlaylistBox::remove()
     foreach(Item *item, items) {
         if(item && item->playlist()) {
             Playlist *pl = item->playlist();
-            if (pl->canDelete()) {
+            if (pl->canDelete() && pl->isContentMutable()) {
                 if (!pl->fileName().isEmpty() && QFileInfo(pl->fileName()).exists()) {
                     files.append(pl->fileName());
                 }
@@ -523,8 +523,20 @@ void PlaylistBox::slotRemoveItem(const QString &tag, unsigned column)
  */
 void PlaylistBox::decode(const QMimeData *s, Item *item)
 {
-    if(!s || 
-       (item && item->playlist() && !item->playlist()->canModifyContent())) {
+    if(!s) {
+        kError() << "QMimeData is null";
+        return;
+    }
+
+    // should never happen
+    if(item && item->playlist() && !item->playlist()->canModifyContent()) {
+        kError() << "Attempt to drop on read-only target";
+        return;
+    }
+
+    // should never happen
+    if(item && item->playlist() && !item->playlist()->isContentMutable()) {
+        kError() << "Attempt to drop on read-only target";
         return;
     }
 
@@ -572,6 +584,11 @@ void PlaylistBox::contentsDropEvent(QDropEvent *e)
     }
 }
 
+/**
+ * During a drag/drop operation, this method is called periodically so the 
+ * system can figure out if the cursor is over a valid drop target or
+ * not. This method calls e->setAccepted() to provide that answer.
+ */
 void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
 {
     // If we can decode the input source, there is a non-null item at the "move"
@@ -585,12 +602,20 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
         return;
     }
 
+    // is set to null if not over any target
     Item *target = static_cast<Item *>(itemAt(contentsToViewport(e->pos())));
 
     if(target) {
 
-        if(target->playlist() && !target->playlist()->canModifyContent())
+        if(target->playlist() && !target->playlist()->canModifyContent()) {
+            e->setAccepted(false);
             return;
+        }
+
+        if(target->playlist() && !target->playlist()->isContentMutable()) {
+            e->setAccepted(false);
+            return;
+        }
 
         // This is a semi-dirty hack to check if the items are coming from within
         // JuK.  If they are not coming from a Playlist (or subclass) then the
@@ -709,6 +734,7 @@ void PlaylistBox::slotPlaylistChanged()
     bool bCanDelete = true;     /* the .m3u playlist */
     bool bCanRename = true;
     bool bCanModifyContent = true;
+    bool bIsContentMutable = true;
     bool bFileListChanged  = true;
     bool bCanEditSearch    = true;
 
@@ -737,6 +763,9 @@ void PlaylistBox::slotPlaylistChanged()
             if(!p->canModifyContent()) {
                 bCanModifyContent = false;
             }
+            if(!p->isContentMutable()) {
+                bIsContentMutable = false;
+            }
             if(!p->hasFileListChanged()) {
                 bFileListChanged = false;
             }
@@ -746,6 +775,9 @@ void PlaylistBox::slotPlaylistChanged()
             playlists.append(p);
         }
     }
+
+    // policy: can not delete a playlist with read-only .m3u
+    bCanDelete = bCanDelete && bIsContentMutable;
 
     bool bCanSave = bCanModifyContent && bFileListChanged;
 
@@ -763,7 +795,7 @@ void PlaylistBox::slotPlaylistChanged()
     } else if (selectCnt == 1) {
         bCanDuplicate = playlists.front()->count() > 0;
         bCanExport = bCanDuplicate;
-        bCanImport = true;
+        bCanImport = bCanModifyContent && bIsContentMutable;
     } else if (selectCnt > 1) {
         bCanRename = false;
         bCanEditSearch = false;
