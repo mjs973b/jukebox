@@ -349,6 +349,7 @@ Playlist::Playlist(PlaylistCollection *collection, const QString &name,
     m_rmbMenu(0),
     m_toolTip(0),
     m_bFileListChanged(false),
+    m_bContentMutable(true),
     m_blockDataChanged(false)
 {
     setup();
@@ -373,6 +374,7 @@ Playlist::Playlist(PlaylistCollection *collection, const PlaylistItemList &items
     m_rmbMenu(0),
     m_toolTip(0),
     m_bFileListChanged(false),
+    m_bContentMutable(true),
     m_blockDataChanged(false)
 {
     setup();
@@ -398,6 +400,7 @@ Playlist::Playlist(PlaylistCollection *collection, const QFileInfo &playlistFile
     m_rmbMenu(0),
     m_toolTip(0),
     m_bFileListChanged(false),
+    m_bContentMutable(true),
     m_blockDataChanged(false)
 {
     setup();
@@ -421,6 +424,7 @@ Playlist::Playlist(PlaylistCollection *collection, bool delaySetup, int extraCol
     m_rmbMenu(0),
     m_toolTip(0),
     m_bFileListChanged(false),
+    m_bContentMutable(true),
     m_blockDataChanged(false)
 {
     for(int i = 0; i < extraColumns; ++i) {
@@ -671,6 +675,11 @@ void Playlist::updateDeletedItem(PlaylistItem *item)
 
 void Playlist::clearItem(PlaylistItem *item)
 {
+    if(!this->isContentMutable()) {
+        kError() << "Attempt to delete track from read-only playlist";
+        return;
+    }
+
     // Automatically updates internal structs via updateDeletedItem
     delete item;
 
@@ -681,6 +690,11 @@ void Playlist::clearItem(PlaylistItem *item)
 
 void Playlist::clearItems(const PlaylistItemList &items)
 {
+    if(!this->isContentMutable()) {
+        kError() << "Attempt to delete track(s) from read-only playlist";
+        return;
+    }
+
     foreach(PlaylistItem *item, items)
         delete item;
 
@@ -794,6 +808,14 @@ void Playlist::markItemSelected(PlaylistItem *item, bool selected)
         m_selectedCount--;
 }
 
+bool Playlist::isContentMutable() const {
+    return m_bContentMutable;
+}
+
+void Playlist::setContentMutable(bool b) {
+    m_bContentMutable = b;
+}
+
 void Playlist::synchronizePlayingItems(const PlaylistList &sources, bool setMaster)
 {
     foreach(const Playlist *p, sources) {
@@ -870,6 +892,11 @@ void Playlist::slotRefresh()
 
 void Playlist::slotRenameFile()
 {
+    if(!this->isContentMutable()) {
+        kError() << "Attempt to rename track in read-only playlist";
+        return;
+    }
+
     FileRenamer renamer;
     PlaylistItemList items = selectedItems();
 
@@ -1144,6 +1171,11 @@ bool Playlist::acceptDrag(QDropEvent *e) const
 
 void Playlist::decode(const QMimeData *s, PlaylistItem *item)
 {
+    if(!this->isContentMutable()) {
+        kError() << "Attempt to drop track(s) on read-only playlist";
+        return;
+    }
+
     if(!KUrl::List::canDecode(s))
         return;
 
@@ -1426,6 +1458,11 @@ void Playlist::createItems(const PlaylistItemList &siblings, PlaylistItem *after
 
 void Playlist::addFiles(const QStringList &files, PlaylistItem *after)
 {
+    if(!this->isContentMutable()) {
+        kError() << "Attempt to add track(s) to read-only playlist";
+        return;
+    }
+
     if(!after)
         after = static_cast<PlaylistItem *>(lastItem());
 
@@ -1963,6 +2000,11 @@ void Playlist::calculateColumnWeights()
 void Playlist::addFile(const QString &file, FileHandleList &files, bool importPlaylists,
                        PlaylistItem **after)
 {
+    if(!this->isContentMutable()) {
+        kError() << "Attempt to add track to read-only playlist";
+        return;
+    }
+
     if(hasItem(file) && !m_allowDuplicates)
         return;
 

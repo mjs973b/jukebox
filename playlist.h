@@ -332,6 +332,22 @@ public:
     virtual bool canEditSearchPattern() const { return false; }
 
     /**
+     * Determine if this playlist content can be modified by the app.
+     * This is _state_ that can be changed programatically at any time.
+     * This flag is completely distinct from canModifyContent(),
+     * which applies only to USER ACTION.
+     *
+     * This is useful for lists imported from read-only .m3u files, to
+     * avoid modifications which we can't write back to disk.
+     *
+     * @return true if track addition, track deletion, track file rename, 
+     * and playlist object delete is allowed for this playlist.
+     */
+    bool isContentMutable() const;
+
+    void setContentMutable(bool b);
+
+    /**
      * Synchronizes the playing item in this playlist with the playing item
      * in \a sources.  If \a setMaster is true, this list will become the source
      * for determining the next item.
@@ -768,8 +784,15 @@ private:
      */
     bool m_bFileListChanged;
 
+    /** 
+     * Flag to allow modification of track data. Does not protect the 
+     * playlist's name.
+     */
+    bool m_bContentMutable;
+
     /** when true, do not issue dataChanged() calls */
     bool m_blockDataChanged;
+
 };
 
 typedef QList<Playlist *> PlaylistList;
