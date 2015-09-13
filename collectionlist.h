@@ -124,7 +124,7 @@ public:
 
     virtual bool canReload() const { return true; }
     virtual bool canDelete() const { return false; }
-    virtual bool canModifyContent() const { return false; }
+    virtual bool canModifyContent() const { return true; }
     virtual bool canRename() const { return false; }
 
     void saveItemsToCache() const;
