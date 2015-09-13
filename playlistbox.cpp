@@ -627,13 +627,6 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
                 old->repaint();
         }
     }
-    else {
-
-        // We're dragging over the whitespace.  We'll use this case to make it
-        // possible to create new lists.
-
-        e->setAccepted(true);
-    }
 }
 
 void PlaylistBox::contentsDragLeaveEvent(QDragLeaveEvent *e)
