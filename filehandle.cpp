@@ -199,6 +199,10 @@ bool FileHandle::isNull() const
     return *this == null();
 }
 
+bool FileHandle::isWritable() const {
+    return !isNull() && d->fileInfo.isWritable();
+}
+
 bool FileHandle::current() const
 {
     return (d->modificationTime.isValid() &&

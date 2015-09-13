@@ -58,6 +58,13 @@ public:
     const QFileInfo &fileInfo() const;
 
     bool isNull() const;
+
+    /**
+     * @return true if the current user can write to the underlying file
+     *              specified by absFilePath().
+     */
+    bool isWritable() const;
+
     bool current() const;
     const QDateTime &lastModified() const;
 
