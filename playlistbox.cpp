@@ -517,9 +517,12 @@ void PlaylistBox::slotRemoveItem(const QString &tag, unsigned column)
 }
 
 /**
- * Handle the "Drop" part of Drag/Drop. 'this' points to the playlist
- * which is being dropped onto. The QMimeData contains a list of absolute 
- * filename(s).
+ * Handle the "Drop" part of Drag/Drop.
+ *
+ * @param s     a list of "file:" URL(s) in mime format. if s is null, this
+ *              method does nothing.
+ * @param item  the target item that was dropped onto. if item or 
+ *              item->playlist() is null, this method does nothing.
  */
 void PlaylistBox::decode(const QMimeData *s, Item *item)
 {
@@ -528,46 +531,51 @@ void PlaylistBox::decode(const QMimeData *s, Item *item)
         return;
     }
 
-    // should never happen
-    if(item && item->playlist() && !item->playlist()->canModifyContent()) {
+    if(!item) {
+        kDebug() << "item is null";
+        return;
+    }
+     
+    Playlist *pl = item->playlist();
+    if(!pl) {
+        kDebug() << "no playlist specified";
+        return;
+    }
+
+    if (!pl->canModifyContent()) {
+        // it's a bug if this happens
         kError() << "Attempt to drop on read-only target";
         return;
     }
 
-    // should never happen
-    if(item && item->playlist() && !item->playlist()->isContentMutable()) {
+    if(!pl->isContentMutable()) {
+        // it's a bug if this happens
         kError() << "Attempt to drop on read-only target";
         return;
     }
 
     const KUrl::List urls = KUrl::List::fromMimeData(s);
 
-    if(!urls.isEmpty()) {
-        QStringList files;
-        for(KUrl::List::ConstIterator it = urls.constBegin(); it != urls.constEnd(); ++it)
-            files.append((*it).path());
-
-        if(item) {
-            TreeViewItemPlaylist *playlistItem;
-            playlistItem = dynamic_cast<TreeViewItemPlaylist *>(item->playlist());
-            if(playlistItem) {
-                playlistItem->retag(files, currentPlaylist());
-                TagTransactionManager::instance()->commit();
-                currentPlaylist()->update();
-                return;
-            }
-        }
-
-        if(item && item->playlist())
-            item->playlist()->addFiles(files);
-        else {
-            QString name = playlistNameDialog();
-            if(!name.isNull()) {
-                Playlist *p = new Playlist(this, name);
-                p->addFiles(files);
-            }
-        }
+    if(urls.isEmpty()) {
+        kError() << "KUrl list is empty";
+        return;
     }
+
+    QStringList files;
+    foreach(const KUrl url, urls) {
+        files.append( url.path() );
+    }
+
+    TreeViewItemPlaylist *playlistItem;
+    playlistItem = dynamic_cast<TreeViewItemPlaylist *>(pl);
+    if(playlistItem) {
+        playlistItem->retag(files, currentPlaylist());
+        TagTransactionManager::instance()->commit();
+        currentPlaylist()->update();
+        return;
+    }
+
+    pl->addFiles(files);
 }
 
 void PlaylistBox::contentsDropEvent(QDropEvent *e)
