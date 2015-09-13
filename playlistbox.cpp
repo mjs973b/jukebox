@@ -708,8 +708,9 @@ void PlaylistBox::slotPlaylistChanged()
     bool bCanReload = true;
     bool bCanDelete = true;     /* the .m3u playlist */
     bool bCanRename = true;
-    bool bCanEditSearch = true;
-    bool bCanSave = true;
+    bool bCanModifyContent = true;
+    bool bFileListChanged  = true;
+    bool bCanEditSearch    = true;
 
     PlaylistList playlists;
 
@@ -733,8 +734,11 @@ void PlaylistBox::slotPlaylistChanged()
             if(!p->canRename()) {
                 bCanRename = false;
             }
-            if(!p->canModifyContent() || !p->hasFileListChanged()) {
-                bCanSave = false;
+            if(!p->canModifyContent()) {
+                bCanModifyContent = false;
+            }
+            if(!p->hasFileListChanged()) {
+                bFileListChanged = false;
             }
             if(!p->canEditSearchPattern()) {
                 bCanEditSearch = false;
@@ -742,6 +746,8 @@ void PlaylistBox::slotPlaylistChanged()
             playlists.append(p);
         }
     }
+
+    bool bCanSave = bCanModifyContent && bFileListChanged;
 
     bool bCanDuplicate = false;
     bool bCanExport = false;
