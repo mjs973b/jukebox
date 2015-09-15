@@ -79,16 +79,45 @@ public:
 
     // The following group of functions implement the PlaylistInterface API.
 
+    /**
+     * @return  the label for this playlist.
+     */
     virtual QString name() const;
+
+    /**
+     * Playlist has a built-in iterator used for current/next/previous
+     * track to play.
+     * @return  a FileHandle for the currently playing track
+     */
     virtual FileHandle currentFile() const;
+
+    /**
+     * @return  the number of tracks in this playlist.
+     */
     virtual int count() const { return childCount(); }
+
+    /**
+     * @return the sum of all track lengths, in seconds. 
+     */
     virtual int time() const;
+
+    /**
+     * Step iterator forward by one and send to music player.
+     */
     virtual void playNext();
+
+    /**
+     * Step iterator back by one and send to music player.
+     */
     virtual void playPrevious();
+
+    /**
+     * Halt the music player.
+     */
     virtual void stop();
 
     /**
-     * Plays the top item of the playlist.
+     * Plays the top item of this playlist.
      */
     void playFirst();
 
@@ -345,6 +374,9 @@ public:
      */
     bool isContentMutable() const;
 
+    /**
+     * Set the isContentMutable() flag.
+     */
     void setContentMutable(bool b);
 
     /**
