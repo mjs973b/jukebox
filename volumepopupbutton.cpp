@@ -117,7 +117,7 @@ void VolumePopupButton::slotToggleMute(bool) {
  */
 void VolumePopupButton::slotVolumeChanged( float newVolume )
 {
-    kDebug() << "newVolume is " << newVolume;
+    //kDebug() << "newVolume is " << newVolume;
 
     bool isMuted = player->muted() || newVolume < 0.01;
 

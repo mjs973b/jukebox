@@ -313,7 +313,7 @@ void PlayerManager::setVolume(float volume)
     if(!m_setup)
         setup();
 
-    kDebug() << "new volume = " << volume;
+    //kDebug() << "new volume = " << volume;
     m_curVolume = volume;
     m_outputVolumeSet[0] = false;
     m_outputVolumeSet[1] = false;
@@ -626,7 +626,7 @@ void PlayerManager::slotMutedChanged(bool muted)
 /* called when AudioOutput volume changes */
 void PlayerManager::slotVolumeChanged(qreal volume)
 {
-    kDebug() << " new volume " << volume;
+    //kDebug() << " new volume " << volume;
 
     // Use sender() since either output object may have sent the signal.
     Phonon::AudioOutput *output = qobject_cast<Phonon::AudioOutput *>(sender());
