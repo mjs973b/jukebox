@@ -2250,13 +2250,12 @@ void Playlist::slotAddToUpcoming()
     m_collection->upcomingPlaylist()->appendItems(selectedItems());
 }
 
+/* right-click context menu for table. Called when mouse button pressed. */
 void Playlist::slotShowRMBMenu(Q3ListViewItem *item, const QPoint &point, int column)
 {
-    if(!item)
-        return;
+    Q_UNUSED(item);
 
-    // Create the RMB menu on demand.
-
+    // Create the RMB menu on first use.
     if(!m_rmbMenu) {
 
         // Probably more of these actions should be ported over to using KActions.
@@ -2267,71 +2266,28 @@ void Playlist::slotShowRMBMenu(Q3ListViewItem *item, const QPoint &point, int co
             i18n("Add to Play Queue"), this, SLOT(slotAddToUpcoming()));
         m_rmbMenu->addSeparator();
 
-        if(this->canModifyContent()) {
-            m_rmbMenu->addAction( ActionCollection::action("edit_cut") );
-            m_rmbMenu->addAction( ActionCollection::action("edit_copy") );
-            m_rmbMenu->addAction( ActionCollection::action("edit_paste") );
-            m_rmbMenu->addSeparator();
-            m_rmbMenu->addAction( ActionCollection::action("removeFromPlaylist") );
-        }
-        else
-            m_rmbMenu->addAction( ActionCollection::action("edit_copy") );
-
-        m_rmbEdit = m_rmbMenu->addAction(i18n("Edit"), this, SLOT(slotRenameTag()));
-
-        m_rmbMenu->addAction( ActionCollection::action("refresh") );
-        m_rmbMenu->addAction( ActionCollection::action("removeItem") );
-
+        m_rmbMenu->addAction( ActionCollection::action("edit_copy") );
+        m_rmbMenu->addAction( ActionCollection::action("edit_cut") );
+        m_rmbMenu->addAction( ActionCollection::action("edit_paste") );
         m_rmbMenu->addSeparator();
-
-        m_rmbMenu->addAction( ActionCollection::action("guessTag") );
-        m_rmbMenu->addAction( ActionCollection::action("renameFile") );
-
-        m_rmbMenu->addAction( ActionCollection::action("coverManager") );
-
-        m_rmbMenu->addSeparator();
-
-        m_rmbMenu->addAction(
-            SmallIcon("folder-new"), i18n("Create Playlist From Selected Items..."), this, SLOT(slotCreateGroup()));
-
-        K3bExporter *exporter = new K3bExporter(this);
-        KAction *k3bAction = exporter->action();
-        if(k3bAction)
-            m_rmbMenu->addAction( k3bAction );
+        m_rmbMenu->addAction( ActionCollection::action("viewCover") );
+        m_rmbMenu->addAction( ActionCollection::action("showEditor") );
     }
 
-    // Ignore any columns added by subclasses.
+    // if no rows are selected, then all menu items get disabled
+    int nRow = selectedItems().count();
 
-    column -= columnOffset();
+    // use read/write status for this playlist
+    bool bMutable = nRow > 0 && this->canModifyContent() && this->isContentMutable();
 
-    bool showEdit =
-        (column == PlaylistItem::TrackColumn) ||
-        (column == PlaylistItem::ArtistColumn) ||
-        (column == PlaylistItem::AlbumColumn) ||
-        (column == PlaylistItem::TrackNumberColumn) ||
-        (column == PlaylistItem::GenreColumn) ||
-        (column == PlaylistItem::YearColumn);
-
-    if(showEdit)
-        m_rmbEdit->setText(i18n("Edit '%1'", columnText(column + columnOffset())));
-
-    m_rmbEdit->setVisible(showEdit);
-
-    // Disable edit menu if only one file is selected, and it's read-only
-
-    FileHandle file = static_cast<PlaylistItem*>(item)->file();
-
-    m_rmbEdit->setEnabled(file.fileInfo().isWritable() || selectedItems().count() > 1);
-
-    // View cover is based on if there is a cover to see.  We should only have
-    // the remove cover option if the cover is in our database (and not directly
-    // embedded in the file, for instance).
-
-    ActionCollection::action("viewCover")->setEnabled(file.coverInfo()->hasCover());
-    ActionCollection::action("removeCover")->setEnabled(file.coverInfo()->coverId() != CoverManager::NoMatch);
+    ActionCollection::action("edit_copy") ->setEnabled(nRow > 0);
+    ActionCollection::action("edit_cut")  ->setEnabled(bMutable);
+    ActionCollection::action("edit_paste")->setEnabled(bMutable);
+    ActionCollection::action("viewCover") ->setEnabled(nRow > 0);
 
     m_rmbMenu->popup(point);
-    m_currentColumn = column + columnOffset();
+
+    m_currentColumn = column;
 }
 
 void Playlist::slotRenameTag()
