@@ -61,6 +61,11 @@ public:
     virtual void scanFolders();
 
     /**
+     * @return  a list with all the Playlist objects managed by this playlistbox.
+     */
+    QList<Playlist*> getAllPlaylists() const;
+
+    /**
      * For view modes that have dynamic playlists, this freezes them from
      * removing playlists.
      */

@@ -380,6 +380,12 @@ public:
     void setContentMutable(bool b);
 
     /**
+     * Set the isContentMutuable() state of this playlist based on the read-write 
+     * state of m3u playlist file. Does nothing if no fileName() specified.
+     */
+    void checkForReadOnlyM3uFile();
+
+    /**
      * Synchronizes the playing item in this playlist with the playing item
      * in \a sources.  If \a setMaster is true, this list will become the source
      * for determining the next item.

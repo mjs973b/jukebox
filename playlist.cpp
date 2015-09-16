@@ -446,6 +446,7 @@ Playlist::~Playlist()
     // clearItem() will take care of removing the items from the history,
     // so call clearItems() to make sure it happens.
 
+    setContentMutable(true);
     clearItems(items());
 
     /* delete m_toolTip; */
@@ -814,6 +815,19 @@ void Playlist::setContentMutable(bool b) {
     m_bContentMutable = b;
 }
 
+void Playlist::checkForReadOnlyM3uFile() {
+    bool bMutable = true;
+    bool bIsNormal = this->canRename() && this->canModifyContent() && this->canDelete();
+    QString fname = this->fileName();
+    if (bIsNormal && !fname.isEmpty()) {
+       QFileInfo fileInfo(fname);
+       if (fileInfo.exists() && !fileInfo.isWritable()) {
+           bMutable = false;
+       }
+    }
+    this->setContentMutable(bMutable);
+}
+
 void Playlist::synchronizePlayingItems(const PlaylistList &sources, bool setMaster)
 {
     foreach(const Playlist *p, sources) {
@@ -1009,12 +1023,22 @@ void Playlist::slotGuessTagInfo(TagGuesser::Type type)
 
 void Playlist::slotReload()
 {
-    QFileInfo fileInfo(m_fileName);
-    if(!fileInfo.exists() || !fileInfo.isFile() || !fileInfo.isReadable())
+    // check policy
+    if (!canReload()) {
+        kError() << "Attempt to reload '" << name() << "' prohibited by policy";
         return;
+    }
 
+    QFileInfo fileInfo(m_fileName);
+    if(!fileInfo.exists() || !fileInfo.isFile() || !fileInfo.isReadable()) {
+        kWarning() << "can't read file '" << m_fileName << "'";
+        return;
+    }
+
+    setContentMutable(true);
     clearItems(items());
     loadFile(m_fileName, fileInfo);
+    checkForReadOnlyM3uFile();
 }
 
 void Playlist::slotWeightDirty(int column)
@@ -2037,7 +2061,9 @@ void Playlist::addFile(const QString &file, FileHandleList &files, bool importPl
     if(importPlaylists && MediaFiles::isPlaylistFile(file) &&
        !m_collection->containsPlaylistFile(canonicalPath))
     {
-        new Playlist(m_collection, fileInfo);
+        Playlist *pl = new Playlist(m_collection, fileInfo);
+        // set the isContentMutable() flag
+        pl->checkForReadOnlyM3uFile();
         return;
     }
 

@@ -222,8 +222,29 @@ void PlaylistBox::scanFolders()
     PlaylistCollection::scanFolders();
 
     kDebug() << "Folder scan complete, took" << stopwatch.elapsed() << "ms";
+
+    // set the read/write state for each playlist based on m3u writability
+    QList<Playlist*> list = this->getAllPlaylists();
+    QString fname;
+    foreach(Playlist *pl, list) {
+        pl->checkForReadOnlyM3uFile();
+    }
+
+    // we're done
     kDebug() << "Startup complete!";
     emit startupComplete();
+}
+
+QList<Playlist*> PlaylistBox::getAllPlaylists() const {
+    QList<Playlist*> list;
+    for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
+        Item *item = static_cast<Item *>(i);
+        Playlist *pl = item->playlist();
+        if(pl) {
+            list.append(pl);
+        }
+    }
+    return list;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -562,7 +583,7 @@ void PlaylistBox::decode(const QMimeData *s, Item *item)
     }
 
     QStringList files;
-    foreach(const KUrl url, urls) {
+    foreach(const KUrl& url, urls) {
         files.append( url.path() );
     }
 
