@@ -809,6 +809,7 @@ void PlaylistBox::slotPlaylistChanged()
         bCanEditSearch = false;
     }
 
+    // File menu
     action("file_open"         )->setEnabled(bCanImport);
     action("file_save"         )->setEnabled(bCanSave);
     action("file_save_as"      )->setEnabled(bCanExport);
@@ -817,6 +818,11 @@ void PlaylistBox::slotPlaylistChanged()
     action("reloadPlaylist"    )->setEnabled(bCanReload);
     action("duplicatePlaylist" )->setEnabled(bCanDuplicate);
     action("editSearch"        )->setEnabled(bCanEditSearch);
+
+    // Edit menu
+    action("edit_copy"         )->setEnabled(bCanDuplicate); // copy playlist
+    action("edit_cut"          )->setEnabled(bCanDelete); // delete playlist
+    action("edit_paste"        )->setEnabled(bCanImport); // paste track(s)
 
     if(m_k3bAction)
         m_k3bAction->setEnabled(selectCnt > 0);
