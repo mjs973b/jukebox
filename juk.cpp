@@ -211,7 +211,7 @@ void JuK::setupActions()
     //
 
     KStandardAction::undo(this, SLOT(slotUndo()), collection); /* edit_undo */
-    KStandardAction::cut(collection);       /* edit_cut */
+    //KStandardAction::cut(collection);       /* edit_cut */
     KStandardAction::copy(collection);      /* edit_copy */
     KStandardAction::paste(collection);     /* edit_paste */
     KAction *clear = KStandardAction::clear(collection);    /* edit_clear */
@@ -248,6 +248,9 @@ void JuK::setupActions()
     act->setActionGroup(randomPlayGroup);
     connect(act, SIGNAL(triggered(bool)), SLOT(slotCheckAlbumNextAction(bool)));
     actionMenu->addAction(act);
+
+    clear->setText(i18n("Remove From Playlist"));
+    clear->setIcon(KIcon( QLatin1String( "list-remove")));
 
     act = collection->addAction("removeFromPlaylist", clear, SLOT(clear()));
     act->setText(i18n("Remove From Playlist"));
