@@ -95,6 +95,7 @@ public slots:
 protected:
     virtual void setupPlaylist(Playlist *playlist, const QString &iconName);
     virtual void removePlaylist(Playlist *playlist);
+    virtual void focusInEvent(QFocusEvent *e);
 
 signals:
     void signalPlaylistDestroyed(Playlist *);
@@ -131,6 +132,7 @@ private slots:
      */
     void slotPlaylistChanged();
     void slotDoubleClicked(Q3ListViewItem *);
+    void slotUpdateMenus();
     void slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int);
     void slotSetViewMode(int index);
     void slotSavePlaylistsToCache();

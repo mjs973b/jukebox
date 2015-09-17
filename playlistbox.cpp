@@ -312,6 +312,14 @@ void PlaylistBox::removePlaylist(Playlist *playlist)
     m_playlistDict.remove(playlist);
 }
 
+/* called when this widget gets mouse/keyboard focus */
+void PlaylistBox::focusInEvent(QFocusEvent *e) {
+    K3ListView::focusInEvent(e);
+    if (e->gotFocus()) {
+        slotUpdateMenus();
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // PlaylistBox private methods
 ////////////////////////////////////////////////////////////////////////////////
@@ -841,9 +849,7 @@ void PlaylistBox::slotPlaylistChanged()
     action("editSearch"        )->setEnabled(bCanEditSearch);
 
     // Edit menu
-    action("edit_copy"         )->setEnabled(bCanDuplicate); // copy playlist
-    action("edit_cut"          )->setEnabled(bCanDelete); // delete playlist
-    action("edit_paste"        )->setEnabled(bCanImport); // paste track(s)
+    slotUpdateMenus();
 
     if(m_k3bAction)
         m_k3bAction->setEnabled(selectCnt > 0);
@@ -874,6 +880,44 @@ void PlaylistBox::slotDoubleClicked(Q3ListViewItem *item)
     }
     else
         action("stop")->trigger();
+}
+
+/**
+ * Update menu items that depend on selection or focus. This method should 
+ * be called when this widget gets focus or the selected items change.
+ */
+void PlaylistBox::slotUpdateMenus() {
+   
+    QList<Item*> list = this->selectedBoxItems();
+    int nRow = list.count();
+    Playlist *pl = 0;
+    if(nRow == 1) {
+        Item *item = list.front();
+        pl = item->playlist();
+    }
+
+    // determine read/write status for the selected playlist
+    bool bMutable = false;
+    if (pl) {
+        bMutable = pl->canModifyContent() && pl->isContentMutable();
+    }
+
+    // Edit Menu
+
+    QAction *act = ActionCollection::action("edit_undo");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_copy");
+    act->setText(i18n("&Copy Tracks"));
+    act->setEnabled(false);
+
+    // TODO: check if abs file name(s) on clipboard
+    act = ActionCollection::action("edit_paste");
+    act->setText(i18n("&Paste Tracks"));
+    act->setEnabled(bMutable);
+
+    act = ActionCollection::action("edit_clear");
+    act->setEnabled(false);
 }
 
 void PlaylistBox::slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int)
