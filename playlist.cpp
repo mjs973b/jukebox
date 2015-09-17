@@ -1233,6 +1233,14 @@ void Playlist::decode(const QMimeData *s, PlaylistItem *item)
     addFiles(fileList, item);
 }
 
+/* this method is called when this widget gets keyboard/mouse focus */
+void Playlist::focusInEvent(QFocusEvent *e) {
+    K3ListView::focusInEvent(e);
+    if (e->gotFocus()) {
+        slotUpdateMenus();
+    }
+}
+
 bool Playlist::eventFilter(QObject *watched, QEvent *e)
 {
     if(watched == header()) {
@@ -1848,6 +1856,9 @@ void Playlist::setup()
 
     connect(m_fetcher, SIGNAL(signalCoverChanged(int)), this, SLOT(slotCoverChanged(int)));
 
+    // update menu enable state
+    connect(this, SIGNAL(selectionChanged()), this, SLOT(slotUpdateMenus()));
+
     // Prevent list of selected items from changing while internet search is in
     // progress.
     connect(this, SIGNAL(selectionChanged()), m_fetcher, SLOT(abortSearch()));
@@ -2276,6 +2287,42 @@ void Playlist::slotAddToUpcoming()
     m_collection->upcomingPlaylist()->appendItems(selectedItems());
 }
 
+/**
+ * Update actions that depend on selected items or focus. This method 
+ * should be called when this widget gets focus or the selected items 
+ * change.
+ */
+void Playlist::slotUpdateMenus() {
+   
+    // this handles actions from the Edit Menu and the right-click menu
+    // if no rows are selected, then all these menu items are disabled
+    int nRow = selectedItems().count();
+
+    // use read/write status for this playlist
+    bool bMutable = this->canModifyContent() && this->isContentMutable();
+
+    // Edit Menu
+    QAction *act = ActionCollection::action("edit_undo");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_copy");
+    act->setText(i18n("&Copy Tracks"));
+    act->setEnabled(nRow > 0);
+
+    // TODO: check that there's abs filename(s) on clipboard
+    act = ActionCollection::action("edit_paste");
+    act->setText(i18n("&Paste Tracks"));
+    act->setEnabled(bMutable);
+
+    // remove track from playlist
+    act = ActionCollection::action("edit_clear");
+    act->setEnabled(nRow > 0 && bMutable);
+
+    // TODO: check that cover exists
+    act = ActionCollection::action("viewCover" );
+    act->setEnabled(nRow > 0);
+}
+
 /* right-click context menu for table. Called when mouse button pressed. */
 void Playlist::slotShowRMBMenu(Q3ListViewItem *item, const QPoint &point, int column)
 {
@@ -2293,23 +2340,13 @@ void Playlist::slotShowRMBMenu(Q3ListViewItem *item, const QPoint &point, int co
         m_rmbMenu->addSeparator();
 
         m_rmbMenu->addAction( ActionCollection::action("edit_copy") );
-        m_rmbMenu->addAction( ActionCollection::action("edit_cut") );
         m_rmbMenu->addAction( ActionCollection::action("edit_paste") );
         m_rmbMenu->addSeparator();
         m_rmbMenu->addAction( ActionCollection::action("viewCover") );
         m_rmbMenu->addAction( ActionCollection::action("showEditor") );
     }
 
-    // if no rows are selected, then all menu items get disabled
-    int nRow = selectedItems().count();
-
-    // use read/write status for this playlist
-    bool bMutable = nRow > 0 && this->canModifyContent() && this->isContentMutable();
-
-    ActionCollection::action("edit_copy") ->setEnabled(nRow > 0);
-    ActionCollection::action("edit_cut")  ->setEnabled(bMutable);
-    ActionCollection::action("edit_paste")->setEnabled(bMutable);
-    ActionCollection::action("viewCover") ->setEnabled(nRow > 0);
+    //slotUpdateMenus();
 
     m_rmbMenu->popup(point);
 

@@ -37,6 +37,7 @@ class KMenu;
 class KActionMenu;
 
 class QFileInfo;
+class QFocusEvent;
 class QMimeData;
 class QDrag;
 class QAction;
@@ -517,6 +518,7 @@ protected:
 
     // the following are all reimplemented from base classes
 
+    virtual void focusInEvent(QFocusEvent *e);
     virtual bool eventFilter(QObject *watched, QEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual Q3DragObject *dragObject(QWidget *parent);
@@ -685,6 +687,11 @@ private slots:
     void slotUpdateColumnWidths();
 
     void slotAddToUpcoming();
+
+    /**
+     * Update menu items that are affected by focus or selection changes.
+     */
+    void slotUpdateMenus();
 
     /**
      * Show the RMB menu.  Matches the signature for the signal
