@@ -40,6 +40,7 @@ public Q_SLOTS:
 
 protected:
     virtual void showEvent(QShowEvent*);
+    virtual bool eventFilter(QObject *watched, QEvent *e);
 
 private:
     void makeLyricsRequest();
@@ -48,7 +49,7 @@ private Q_SLOTS:
     void receiveListReply(QNetworkReply*);
     void receiveLyricsReply(QNetworkReply*);
     void saveConfig();
-
+    void slotUpdateMenus();
 
 private:
     FileHandle m_playingFile;

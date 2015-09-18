@@ -48,6 +48,8 @@ LyricsWidget::LyricsWidget(QWidget* parent): QTextBrowser(parent),
     bool shown = config.readEntry("Show", false);
     show->setChecked(shown);
     setVisible(shown);
+
+    this->installEventFilter(this);
 }
 
 LyricsWidget::~LyricsWidget()
@@ -60,6 +62,27 @@ void LyricsWidget::saveConfig()
 {
     KConfigGroup config(KGlobal::config(), "LyricsWidget");
     config.writeEntry("Show", ActionCollection::action<KToggleAction>("showLyrics")->isChecked());
+}
+
+/**
+ * Update actions that depend on focus. This method should be called when 
+ * this widget gets focus.
+ */
+void LyricsWidget::slotUpdateMenus() {
+   
+    // Edit Menu
+    QAction *act = ActionCollection::action("edit_undo");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_copy");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_paste");
+    act->setEnabled(false);
+
+    // remove track from playlist
+    act = ActionCollection::action("edit_clear");
+    act->setEnabled(false);
 }
 
 void LyricsWidget::makeLyricsRequest()
@@ -99,6 +122,15 @@ void LyricsWidget::showEvent(QShowEvent *)
     if(!m_lyricsCurrent) {
         makeLyricsRequest();
     }
+}
+
+bool LyricsWidget::eventFilter(QObject *watched, QEvent *e) {
+    bool rv = QTextBrowser::eventFilter(watched, e);
+    if (e->type() == QEvent::FocusIn) {
+        //kDebug() << "FocusIn";
+        slotUpdateMenus();
+    }
+    return rv;
 }
 
 void LyricsWidget::receiveListReply(QNetworkReply* reply)
