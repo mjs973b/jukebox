@@ -518,7 +518,6 @@ protected:
 
     // the following are all reimplemented from base classes
 
-    virtual void focusInEvent(QFocusEvent *e);
     virtual bool eventFilter(QObject *watched, QEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual Q3DragObject *dragObject(QWidget *parent);

@@ -1233,14 +1233,6 @@ void Playlist::decode(const QMimeData *s, PlaylistItem *item)
     addFiles(fileList, item);
 }
 
-/* this method is called when this widget gets keyboard/mouse focus */
-void Playlist::focusInEvent(QFocusEvent *e) {
-    K3ListView::focusInEvent(e);
-    if (e->gotFocus()) {
-        slotUpdateMenus();
-    }
-}
-
 bool Playlist::eventFilter(QObject *watched, QEvent *e)
 {
     if(watched == header()) {
@@ -1274,7 +1266,13 @@ bool Playlist::eventFilter(QObject *watched, QEvent *e)
         }
     }
 
-    return K3ListView::eventFilter(watched, e);
+    bool rv = K3ListView::eventFilter(watched, e);
+
+    if (e->type() == QEvent::FocusIn) {
+        slotUpdateMenus();
+    }
+
+    return rv;
 }
 
 void Playlist::keyPressEvent(QKeyEvent *event)
