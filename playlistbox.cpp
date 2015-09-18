@@ -253,10 +253,21 @@ QList<Playlist*> PlaylistBox::getAllPlaylists() const {
 // PlaylistBox public slots
 ////////////////////////////////////////////////////////////////////////////////
 
+/* slot for edit_paste */
 void PlaylistBox::paste()
 {
     Item *i = static_cast<Item *>(currentItem());
     decode(QApplication::clipboard()->mimeData(), i);
+}
+
+/* slot for edit_clear */
+void PlaylistBox::clear() {
+    // do nothing
+}
+
+/* slot for edit_select_all */
+void PlaylistBox::selectAll() {
+    K3ListView::selectAll(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

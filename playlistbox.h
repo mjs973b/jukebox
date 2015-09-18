@@ -84,13 +84,17 @@ public:
     void savePlaylistsToDisk(bool bDialogOK);
 
 public slots:
-    void paste();
-    void clear() {}
+    virtual void paste();
+    virtual void clear();
+    virtual void selectAll();       /* see using...selectAll; below */
 
     void slotFreezePlaylists();
     void slotUnfreezePlaylists();
     void slotPlaylistDataChanged();
     void slotSetHistoryPlaylistEnabled(bool enable);
+
+private:
+    using K3ListView::selectAll; // Avoid warning about hiding this function.
 
 protected:
     virtual void setupPlaylist(Playlist *playlist, const QString &iconName);
