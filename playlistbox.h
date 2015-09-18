@@ -95,7 +95,7 @@ public slots:
 protected:
     virtual void setupPlaylist(Playlist *playlist, const QString &iconName);
     virtual void removePlaylist(Playlist *playlist);
-    virtual void focusInEvent(QFocusEvent *e);
+    virtual bool eventFilter(QObject *watched, QEvent *e);
 
 signals:
     void signalPlaylistDestroyed(Playlist *);

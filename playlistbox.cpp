@@ -161,6 +161,8 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     //m_showTimer = new QTimer(this);
     //connect(m_showTimer, SIGNAL(timeout()), SLOT(slotShowDropTarget()));
 
+    this->installEventFilter(this);
+
     // hook up to the D-Bus
     (void) new DBusCollectionProxy(this, this);
 }
@@ -312,12 +314,15 @@ void PlaylistBox::removePlaylist(Playlist *playlist)
     m_playlistDict.remove(playlist);
 }
 
-/* called when this widget gets mouse/keyboard focus */
-void PlaylistBox::focusInEvent(QFocusEvent *e) {
-    K3ListView::focusInEvent(e);
-    if (e->gotFocus()) {
+bool PlaylistBox::eventFilter(QObject *watched, QEvent *e) {
+    bool rv = K3ListView::eventFilter(watched, e);
+
+    if (e->type() == QEvent::FocusIn) {
+        kDebug() << "FocusIn";
         slotUpdateMenus();
     }
+
+    return rv;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
