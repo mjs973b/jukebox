@@ -871,13 +871,13 @@ void Playlist::paste()
     decode(QApplication::clipboard()->mimeData(), static_cast<PlaylistItem *>(currentItem()));
 }
 
+/* entry point for edit_clear action */
 void Playlist::clear()
 {
     PlaylistItemList l = selectedItems();
-    if(l.isEmpty())
-        l = items();
-
-    clearItems(l);
+    if(!l.isEmpty()) {
+        clearItems(l);
+    }
 }
 
 void Playlist::slotRefresh()
