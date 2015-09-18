@@ -76,6 +76,7 @@ private slots:
     void slotDataChanged(bool c = true);
     void slotItemRemoved(PlaylistItem *item);
     void slotPlaylistRemoved() { m_currentPlaylist = 0; }
+    void slotUpdateMenus();
 
 private:
     typedef QMap<QWidget *, QCheckBox *> BoxMap;

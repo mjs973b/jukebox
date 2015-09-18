@@ -145,6 +145,7 @@ TagEditor::TagEditor(QWidget *parent) :
     m_collectionChanged = false;
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    this->installEventFilter(this);
 }
 
 TagEditor::~TagEditor()
@@ -637,9 +638,26 @@ void TagEditor::showEvent(QShowEvent *e)
 
 bool TagEditor::eventFilter(QObject *watched, QEvent *e)
 {
-    QKeyEvent *ke = static_cast<QKeyEvent*>(e);
-    if(watched->inherits("QSpinBox") && e->type() == QEvent::KeyRelease && ke->modifiers() == 0)
-        slotDataChanged();
+    Q_UNUSED(watched);
+#if 0
+    /* this debug statement never prints, so prior to my changes on 
+     * 2015-09-17, this method was not hooked up. Disable this code 
+     * since I'm not sure what it's doing (mjs)
+     */
+    //kDebug() << "called";
+    //if(e->type() == QEvent::KeyRelease) {
+    //    QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+    //    if(watched->inherits("QSpinBox") && ke->modifiers() == 0) {
+    //        slotDataChanged();
+    //    }
+    //}
+#endif
+
+    // we usually use QEvent::FocusIn, but that's not firing for this widget
+    if(e->type() == QEvent::Enter) {
+        //kDebug() << "MouseEnteredWidget";
+        slotUpdateMenus();
+    }
 
     return false;
 }
@@ -658,6 +676,27 @@ void TagEditor::slotItemRemoved(PlaylistItem *item)
     m_items.removeAll(item);
     if(m_items.isEmpty())
         slotRefresh();
+}
+
+/**
+ * Update actions that depend on focus. This method should be called when 
+ * this widget gets focus.
+ */
+void TagEditor::slotUpdateMenus() {
+   
+    // Edit Menu
+    QAction *act = ActionCollection::action("edit_undo");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_copy");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_paste");
+    act->setEnabled(false);
+
+    // remove track from playlist
+    act = ActionCollection::action("edit_clear");
+    act->setEnabled(false);
 }
 
 void TagEditor::slotPlaylistDestroyed(Playlist *p)
