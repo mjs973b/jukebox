@@ -2306,18 +2306,17 @@ void Playlist::slotUpdateMenus() {
     act->setEnabled(false);
 
     act = ActionCollection::action("edit_copy");
-    act->setText(i18n("&Copy Tracks"));
     act->setEnabled(nRow > 0);
 
     // TODO: check that there's abs filename(s) on clipboard
     act = ActionCollection::action("edit_paste");
-    act->setText(i18n("&Paste Tracks"));
     act->setEnabled(bMutable);
 
     // remove track from playlist
     act = ActionCollection::action("edit_clear");
     act->setEnabled(nRow > 0 && bMutable);
 
+    // Context Menu
     // TODO: check that cover exists
     act = ActionCollection::action("viewCover" );
     act->setEnabled(nRow > 0);

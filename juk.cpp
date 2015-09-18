@@ -218,6 +218,12 @@ void JuK::setupActions()
     KStandardAction::selectAll(collection); /* edit_select_all */
     KStandardAction::keyBindings(this, SLOT(slotEditKeys()), collection);
 
+    QAction *act = collection->action("edit_copy");
+    act->setText(i18n("&Copy Tracks"));
+
+    act = collection->action("edit_paste");
+    act->setText(i18n("&Paste Tracks"));
+
     //
     // Player Menu
     //
@@ -230,7 +236,7 @@ void JuK::setupActions()
 
     QActionGroup* randomPlayGroup = new QActionGroup(this);
 
-    QAction *act = collection->add<KToggleAction>("disableRandomPlay");
+    act = collection->add<KToggleAction>("disableRandomPlay");
     act->setText(i18n("&Disable Random Play"));
     act->setIcon(KIcon( QLatin1String( "go-down" )));
     act->setActionGroup(randomPlayGroup);

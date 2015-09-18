@@ -908,12 +908,10 @@ void PlaylistBox::slotUpdateMenus() {
     act->setEnabled(false);
 
     act = ActionCollection::action("edit_copy");
-    act->setText(i18n("&Copy Tracks"));
     act->setEnabled(false);
 
     // TODO: check if abs file name(s) on clipboard
     act = ActionCollection::action("edit_paste");
-    act->setText(i18n("&Paste Tracks"));
     act->setEnabled(bMutable);
 
     act = ActionCollection::action("edit_clear");
