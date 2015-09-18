@@ -50,6 +50,7 @@ public:
 public slots:
     void clear();
     virtual void setFocus();
+    void slotUpdateMenus();
 
 protected:
     virtual bool eventFilter(QObject *watched, QEvent *e);

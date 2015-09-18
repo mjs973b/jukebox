@@ -141,14 +141,41 @@ void SearchLine::setFocus()
     m_lineEdit->setFocus();
 }
 
+/**
+ * Update actions that depend on focus. This method should be called when 
+ * this widget gets focus.
+ */
+void SearchLine::slotUpdateMenus() {
+   
+    // Edit Menu
+    QAction *act = ActionCollection::action("edit_undo");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_copy");
+    act->setEnabled(false);
+
+    act = ActionCollection::action("edit_paste");
+    act->setEnabled(false);
+
+    // remove track from playlist
+    act = ActionCollection::action("edit_clear");
+    act->setEnabled(false);
+}
+
 bool SearchLine::eventFilter(QObject *watched, QEvent *e)
 {
-    if(watched != m_lineEdit || e->type() != QEvent::KeyPress)
-        return QFrame::eventFilter(watched, e);
+
+    if(watched == m_lineEdit && e->type() == QEvent::KeyPress) {
 
     QKeyEvent *key = static_cast<QKeyEvent *>(e);
     if(key->key() == Qt::Key_Down)
         emit signalDownPressed();
+    }
+
+    if(e->type() == QEvent::FocusIn) {
+        //kDebug() << "FocusIn";
+        this->slotUpdateMenus();
+    }
 
     return QFrame::eventFilter(watched, e);
 }
