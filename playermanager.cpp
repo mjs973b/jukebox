@@ -304,25 +304,34 @@ void PlayerManager::stop()
     }
 }
 
-/* set volume on current output path. if not currently in the PlayingState, 
- * we'll cache the value for later use. Either way, volumeChanged() signal
- * is emitted.
+/**
+ * Set output volume. If new volume is different than current volume,
+ * the volumeChanged() signal is emitted. Out-of-range values are 
+ * not applied (so that the code gets fixed.)
+ *
+ * @param volume  legal range is 0.0 to 1.0.
  */
 void PlayerManager::setVolume(float volume)
 {
     if(!m_setup)
         setup();
 
-    //kDebug() << "new volume = " << volume;
+    kDebug() << "new volume = " << volume;
+    if (volume < 0.0 || volume > 1.0 || volume == m_curVolume) {
+        return;
+    }
+
     m_curVolume = volume;
+    /* true means applied to AudioOutput when MediaObject in PlayingState */
     m_outputVolumeSet[0] = false;
     m_outputVolumeSet[1] = false;
 
-    // if in PlayingState, apply new volume to AudioOutput
     Phonon::MediaObject *media = m_media[m_curOutputPath];
     Phonon::AudioOutput *out = m_output[m_curOutputPath];
-    if (out && media && media->state() == Phonon::PlayingState ) {
-        m_outputVolumeSet[m_curOutputPath] = true;
+    if (out) {
+        if (media && media->state() == Phonon::PlayingState) {
+            m_outputVolumeSet[m_curOutputPath] = true;
+        }
         out->setVolume(volume);
         // AudioOutput will emit volumeChanged() signal
     } else {
@@ -575,6 +584,7 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
          * See disucssion in bugs.kde.org #321172.
          */
         if (!m_outputVolumeSet[m_curOutputPath]) {
+            kDebug() << "volume=" << m_curVolume;
             m_outputVolumeSet[m_curOutputPath] = true;
             m_output[m_curOutputPath]->setVolume( m_curVolume );
         }
