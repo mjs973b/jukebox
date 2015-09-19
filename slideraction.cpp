@@ -66,6 +66,7 @@ void TrackPositionAction::slotSeekableChanged(bool seekable)
 /* called by player when song characteristics change */
 void TrackPositionAction::slotTotalTimeChanged(int ms)
 {
+    m_slider->setValue(0);
     m_slider->setRange(0, ms);
 }
 
