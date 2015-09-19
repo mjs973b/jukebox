@@ -372,12 +372,13 @@ void JuK::setupActions()
         action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
-/* called when a new song starts playing. Show a popup with Artist and 
- * Track Title for about 8 seconds.
+/**
+ * This slot called when a new song starts playing. Show a popup with 
+ * Artist and Track Title for about 8 seconds, if enabled.
  */
 void JuK::slotPlayTrack()
 {
-    if (m_systemTray && m_player) {
+    if (m_systemTray && m_player && m_togglePopupsAction->isChecked()) {
         const Tag *tag  = m_player->playingFile().tag();
         m_systemTray->showMessage(tag->artist(), tag->title(),
           QSystemTrayIcon::Information, 8*1000);
@@ -406,13 +407,11 @@ void JuK::slotSetupSystemTray()
 #endif
 
         m_toggleDockOnCloseAction->setEnabled(true);
-        m_togglePopupsAction->setEnabled(true);
         kDebug() << "Finished setting up systray, took" << stopwatch.elapsed() << "ms";
     }
     else {
         m_systemTray = 0;
         m_toggleDockOnCloseAction->setEnabled(false);
-        m_togglePopupsAction->setEnabled(false);
     }
 }
 
@@ -519,7 +518,7 @@ void JuK::readConfig()
     bool dockOnClose = settingsConfig.readEntry("DockOnClose", true);
     m_toggleDockOnCloseAction->setChecked(dockOnClose);
 
-    bool showPopups = settingsConfig.readEntry("TrackPopup", false);
+    bool showPopups = settingsConfig.readEntry("TrackPopup", true);
     m_togglePopupsAction->setChecked(showPopups);
 
     m_toggleSplashAction->setChecked(m_showSplash);
