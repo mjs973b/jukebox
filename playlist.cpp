@@ -1125,6 +1125,7 @@ void Playlist::removeFromDisk(const PlaylistItemList &items)
                    (shouldDelete && QFile::remove(removePath)))
                 {
                     delete item->collectionItem();
+                    m_bFileListChanged = true;
                 }
                 else
                     errorFiles.append(item->file().absFilePath());
