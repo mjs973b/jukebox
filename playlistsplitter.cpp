@@ -336,6 +336,11 @@ void PlaylistSplitter::slotEnable()
     kDebug() << "Finished enabling GUI, took" << stopwatch.elapsed() << "ms";
 
     (void) new Mpris2(this);
+
+    // try to select playlist from the previous app run
+    if (m_playlistBox) {
+        m_playlistBox->restorePrevSelection();
+    }
 }
 
 #include "playlistsplitter.moc"

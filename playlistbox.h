@@ -59,6 +59,8 @@ public:
     // Called after files loaded to pickup any new files that might be present
     // in managed directories.
     virtual void scanFolders();
+    // try to select playlist from previous app run
+    virtual void restorePrevSelection();
 
     /**
      * @return  a list with all the Playlist objects managed by this playlistbox.

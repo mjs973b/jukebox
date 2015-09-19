@@ -237,6 +237,22 @@ void PlaylistBox::scanFolders()
     emit startupComplete();
 }
 
+/**
+ * Try to restore the playlist selection from the last time app was run. If the 
+ * playlist name no longer exists, do nothing.
+ */
+void PlaylistBox::restorePrevSelection() {
+    KConfigGroup config(KGlobal::config(), "PlaylistBox");
+    QString lastName = config.readEntry("LastSelect", "");
+    if (!lastName.isEmpty()) {
+        Q3ListViewItem *item = this->findItem(lastName, /*col*/ 0);
+        if (item) {
+            this->clearSelection();
+            this->setSelected(item, true);
+        }
+    }
+}
+
 QList<Playlist*> PlaylistBox::getAllPlaylists() const {
     QList<Playlist*> list;
     for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
@@ -350,6 +366,18 @@ void PlaylistBox::saveConfig()
 {
     KConfigGroup config(KGlobal::config(), "PlaylistBox");
     config.writeEntry("ViewMode", action<KSelectAction>("viewModeMenu")->currentItem());
+
+    // remember the name of the selected icon, force to "" if none
+    QList<PlaylistBox::Item *> items = this->selectedBoxItems();
+    QString itemName;
+    if (!items.isEmpty()) {
+        PlaylistBox::Item *item = dynamic_cast<PlaylistBox::Item *>(items.front());
+        if (item && item->playlist()) {
+            itemName = item->playlist()->name();
+        }
+    }
+    config.writeEntry("LastSelect", itemName);
+
     KGlobal::config()->sync();
 }
 
@@ -985,9 +1013,6 @@ void PlaylistBox::slotLoadCachedPlaylists()
     m_savePlaylistTimer->setInterval(3000); // 3 seconds with no change? -> commit
     m_savePlaylistTimer->setSingleShot(true);
     connect(m_savePlaylistTimer, SIGNAL(timeout()), SLOT(slotSavePlaylistsToCache()));
-
-    clearSelection();
-    setSelected(m_playlistDict[CollectionList::instance()], true);
 
     QTimer::singleShot(0, CollectionList::instance(), SLOT(slotCheckCache()));
     QTimer::singleShot(0, object(), SLOT(slotScanFolders()));
