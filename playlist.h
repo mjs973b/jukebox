@@ -491,6 +491,7 @@ public slots:
 
     virtual void dataChanged();
 
+public:
     /**
      * Force the state of the FileListChanged flag.
      */
@@ -642,6 +643,8 @@ private:
                  PlaylistItem **after);
     void addFileHelper(FileHandleList &files, PlaylistItem **after,
                        bool ignoreTimer = false);
+
+    void importRecentPlaylistFile(const QFileInfo& fileInfo);
 
     void redisplaySearch() { setSearch(m_search); }
 

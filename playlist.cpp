@@ -1890,6 +1890,7 @@ void Playlist::setup()
     slotInitialize();
 }
 
+/* fileName must be an .m3u file */
 void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 {
     QFile file(fileName);
@@ -2077,12 +2078,8 @@ void Playlist::addFile(const QString &file, FileHandleList &files, bool importPl
         }
     }
 
-    if(importPlaylists && MediaFiles::isPlaylistFile(file) &&
-       !m_collection->containsPlaylistFile(canonicalPath))
-    {
-        Playlist *pl = new Playlist(m_collection, fileInfo);
-        // set the isContentMutable() flag
-        pl->checkForReadOnlyM3uFile();
+    if(importPlaylists && MediaFiles::isPlaylistFile(file)) {
+        importRecentPlaylistFile(fileInfo);
         return;
     }
 
@@ -2134,6 +2131,42 @@ void Playlist::addFileHelper(FileHandleList &files, PlaylistItem **after, bool i
 
         if(focus)
             setFocus();
+    }
+}
+
+/**
+ * Handle an m3u file found during directory scan. The complication is that,
+ * if this playlist object already exists, we need to determine whether 
+ * this new one or the existing one is newest, and keep that one.
+ *
+ * @param fileInfo  the new .m3u file
+ */
+void Playlist::importRecentPlaylistFile(const QFileInfo& fileInfo) {
+    QString fname = fileInfo.canonicalFilePath();
+    // check if this playlist already exists in collection
+    Playlist *pl = m_collection->findPlaylistByFilename(fname);
+    if(pl) {
+        /* we already have a playlist with this .m3u name. We intentionally
+         * ignore the pl->isContentMutable() state, as pl->slotReload() knows
+         * how to handle that. If the user changes that .m3u file, it
+         * should be used.
+         */
+
+        // check timestamps
+        if(fileInfo.lastModified() > pl->m_fileListLastModified) {
+            // this might happen if .m3u was modified outside of this app
+            // clear the existing pl object and populate from m3u disk file
+            pl->slotReload();
+            return;
+        }
+        // else the existing pl object is the latest one
+
+    } else {
+        // create new playlist and read file
+        pl = new Playlist(m_collection, fileInfo);
+
+        // set the isContentMutable() flag
+        pl->checkForReadOnlyM3uFile();
     }
 }
 
