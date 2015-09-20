@@ -23,6 +23,7 @@
 #include <kdebug.h>
 
 #include <QVector>
+#include <QDateTime>
 #include <QEvent>
 #include <QList>
 
@@ -509,6 +510,11 @@ public slots:
      */
     bool saveFile(const QString& fileName, bool bDialogOk);
 
+    /**
+     * Directly set the last modified timestamp. Needed by Cache class.
+     */
+    void setFileListLastModified(const QDateTime& t);
+
 protected:
     /**
      * Remove \a items from the playlist and disk.  This will ignore items that
@@ -827,6 +833,14 @@ private:
      *  was done after m3u file was read from disk, or was newly created..
      */
     bool m_bFileListChanged;
+
+    /**
+     * The timestamp for when a track filename was last added, deleted or 
+     * renamed in this playlist. If the playlist is read from an m3u file, 
+     * this gets the lastModified() time of that file. If playlist is read 
+     * from cache, it gets the lastModifed() time of the cache file.
+     */
+    QDateTime m_fileListLastModified;
 
     /** 
      * Flag to allow modification of track data. Does not protect the 

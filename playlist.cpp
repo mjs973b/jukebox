@@ -592,8 +592,13 @@ bool Playlist::saveFile(const QString& fileName, bool bDialogOk)
     file.close();
 
     m_bFileListChanged = false;
+    m_fileListLastModified = QFileInfo(file).lastModified();
 
     return true;
+}
+
+void Playlist::setFileListLastModified(const QDateTime& t) {
+    m_fileListLastModified = t;
 }
 
 /* call initiated from File Menu. Ok to show dialog to user. If fileName
@@ -921,6 +926,7 @@ void Playlist::slotRenameFile()
     renamer.rename(items);
 
     m_bFileListChanged = true;
+    m_fileListLastModified = QDateTime::currentDateTime();
 
     m_blockDataChanged = false;
     dataChanged();
@@ -1126,6 +1132,7 @@ void Playlist::removeFromDisk(const PlaylistItemList &items)
                 {
                     delete item->collectionItem();
                     m_bFileListChanged = true;
+                    m_fileListLastModified = QDateTime::currentDateTime();
                 }
                 else
                     errorFiles.append(item->file().absFilePath());
@@ -1506,6 +1513,7 @@ void Playlist::addFiles(const QStringList &files, PlaylistItem *after)
 
     if (queue.size() > 0) {
         m_bFileListChanged = true;
+        m_fileListLastModified = QDateTime::currentDateTime();
     }
 
     addFileHelper(queue, &after, true);
@@ -1924,6 +1932,7 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 
     // this playlist content matches the disk file
     m_bFileListChanged = false;
+    m_fileListLastModified = QFileInfo(file).lastModified();
 
     dataChanged();
 
