@@ -77,6 +77,8 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
     fs >> version;
     kDebug() << "Playlists file is version" << version;
 
+    QDateTime cacheLastModified = QFileInfo(f).lastModified();
+
     switch(version) {
     case 3:
         dataStreamVersion = QDataStream::Qt_4_3;
@@ -178,6 +180,10 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                     playlist = p;
                     break;
                 } // switch
+
+                if (playlist) {
+                    playlist->setFileListLastModified(cacheLastModified);
+                }
 
                 if(version >= 2) {
                     qint32 sortColumn;
