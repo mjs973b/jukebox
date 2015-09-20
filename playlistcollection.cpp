@@ -861,6 +861,18 @@ Playlist *PlaylistCollection::playlistByName(const QString &name) const
     return 0;
 }
 
+Playlist *PlaylistCollection::findPlaylistByFilename(const QString &canonical) const
+{
+    for(int i = 0; i < m_playlistStack->count(); ++i) {
+        Playlist *p = qobject_cast<Playlist *>(m_playlistStack->widget(i));
+        if(p && p->fileName() == canonical) {
+            return p;
+        }
+    }
+
+    return 0;
+}
+
 void PlaylistCollection::newItems(const KFileItemList &list) const
 {
     // Make fast-path for the normal case

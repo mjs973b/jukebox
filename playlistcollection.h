@@ -200,6 +200,12 @@ protected:
 
     Playlist *playlistByName(const QString &name) const;
 
+    /**
+     * Find a playlist object by canonical file name. Return 0 if no
+     * match is found.
+     */
+    Playlist *findPlaylistByFilename(const QString &canonical) const;
+
 private:
     void readConfig();
     void saveConfig();
