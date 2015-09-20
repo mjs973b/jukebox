@@ -19,6 +19,9 @@
 
 #include "playlist.h"
 
+/**
+ * This class represents a run-of-the-mill m3u playlist.
+ */
 class NormalPlaylist : public Playlist
 {
     Q_OBJECT
@@ -29,7 +32,7 @@ public:
     }
 
     NormalPlaylist(PlaylistCollection *collection, const PlaylistItemList &items,
-             const QString &name /*= QString()*/) :
+             const QString &name) :
         Playlist(collection, items, name)
     {
     }
@@ -50,62 +53,21 @@ public:
     virtual int getType() { return Playlist::Type::Normal; }
 
     void read(QDataStream &s);
+
+    virtual bool canModifyContent() const { return true; }
+
+    virtual bool canRename() const { return true; }
+
+    virtual bool canDelete() const { return true; }
+
+    virtual bool canReload() const { return true; }
+
 };
 
 QDataStream &operator<<(QDataStream &s, const NormalPlaylist &p);
 
 QDataStream &operator>>(QDataStream &s, NormalPlaylist &p);
 
-#if 0
-// template method implementations
-
-template <class ItemType>
-ItemType *NormalPlaylist::createItem(const FileHandle &file, Q3ListViewItem *after,
-                               bool emitChanged)
-{
-    CollectionListItem *item = collectionListItem(file);
-    if(item && (!m_members.insert(file.absFilePath()) || m_allowDuplicates)) {
-
-        ItemType *i = after ? new ItemType(item, this, after) : new ItemType(item, this);
-        setupItem(i);
-
-        if(emitChanged)
-            dataChanged();
-
-        return i;
-    }
-    else
-        return 0;
-}
-
-template <class ItemType, class SiblingType>
-ItemType *NormalPlaylist::createItem(SiblingType *sibling, ItemType *after)
-{
-    m_disableColumnWidthUpdates = true;
-
-    if(!m_members.insert(sibling->file().absFilePath()) || m_allowDuplicates) {
-        after = new ItemType(sibling->collectionItem(), this, after);
-        setupItem(after);
-    }
-
-    m_disableColumnWidthUpdates = false;
-
-    return after;
-}
-
-template <class ItemType, class SiblingType>
-void NormalPlaylist::createItems(const QList<SiblingType *> &siblings, ItemType *after)
-{
-    if(siblings.isEmpty())
-        return;
-
-    foreach(SiblingType *sibling, siblings)
-        after = createItem(sibling, after);
-
-    dataChanged();
-    slotWeightDirty();
-}
-#endif
 #endif
 
 // vim: set et sw=4 tw=0 sta:

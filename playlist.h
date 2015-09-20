@@ -354,28 +354,28 @@ public:
      * for this .m3u playlist BY USER ACTION. The default is true, but it 
      * can be changed by a subclass. This is class policy, not mutable state.
      */
-    virtual bool canModifyContent() const { return true; }
+    virtual bool canModifyContent() const = 0;
 
     /**
      * Report whether the label on this playlist is permitted to be 
      * changed BY USER ACTION. The default is true, but it can be changed 
      * by a subclass. This is class policy, not mutable state.
      */
-    virtual bool canRename() const { return true; }
+    virtual bool canRename() const = 0;
 
     /**
      * Report whether this playlist is permitted to be deleted (both in 
      * RAM and on disk) BY USER ACTION. The default is true, but it be 
      * changed by a subclass. This is class policy, not mutable state.
      */
-    virtual bool canDelete() const { return true; }
+    virtual bool canDelete() const = 0;
 
     /**
      * Returns true if it's ok to reread/regenerate this playlist
      * BY USER ACTION. This is class policy, not mutable state. Default is true,
      * but it can be changed by a subclass.
      */
-    virtual bool canReload() const { return true; }
+    virtual bool canReload() const = 0;
 
     /**
      * Returns true if the playlist is a search playlist and the search should be
