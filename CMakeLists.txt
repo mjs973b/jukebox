@@ -84,6 +84,7 @@ set(juk_SRCS  ${tunepimp_SRCS}
    mpris2/mediaplayer2player.cpp
    mpris2/mpris2.cpp
    musicbrainzquery.cpp
+   normalplaylist.cpp
    nowplaying.cpp
    playermanager.cpp
    playlist.cpp

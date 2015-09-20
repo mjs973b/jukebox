@@ -102,6 +102,8 @@ public:
      */
     enum UniqueSetType { Artists = 0, Albums = 1, Genres = 2 };
 
+    virtual int getType() { return Playlist::Type::CollectionList; }
+
     static CollectionList *instance();
     static void initialize(PlaylistCollection *collection);
 

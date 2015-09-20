@@ -44,6 +44,8 @@ public:
     HistoryPlaylist(PlaylistCollection *collection);
     virtual ~HistoryPlaylist();
 
+    virtual int getType() { return Playlist::Type::History; }
+
     virtual HistoryPlaylistItem *createItem(const FileHandle &file, Q3ListViewItem *after = 0,
                                             bool emitChanged = true);
     virtual void createItems(const PlaylistItemList &siblings);

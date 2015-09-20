@@ -29,6 +29,8 @@ public:
                    bool setupPlaylist = true,
                    bool synchronizePlaying = false);
 
+    virtual int getType() { return Playlist::Type::Search; }
+
     PlaylistSearch playlistSearch() const { return m_search; }
     void setPlaylistSearch(const PlaylistSearch &s, bool update = true);
     virtual bool canEditSearchPattern() const { return true; }

@@ -28,6 +28,8 @@ public:
                    const QString &name = QString());
     virtual ~FolderPlaylist();
 
+    virtual int getType() { return Playlist::Type::Folder; }
+
     QString folder() const;
     void setFolder(const QString &s);
 

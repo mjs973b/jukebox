@@ -45,6 +45,7 @@
 #include "actioncollection.h"
 #include "advancedsearchdialog.h"
 #include "coverinfo.h"
+#include "normalplaylist.h"
 #include "searchplaylist.h"
 #include "folderplaylist.h"
 #include "historyplaylist.h"
@@ -194,7 +195,7 @@ QStringList PlaylistCollection::playlists() const
 
 void PlaylistCollection::createPlaylist(const QString &name)
 {
-    raise(new Playlist(this, name));
+    raise(new NormalPlaylist(this, name));
 }
 
 void PlaylistCollection::createDynamicPlaylist(const PlaylistList &playlists)
@@ -443,7 +444,7 @@ void PlaylistCollection::duplicate()
     if(name.isEmpty())
         return;
 
-    raise(new Playlist(this, visiblePlaylist()->items(), name));
+    raise(new NormalPlaylist(this, visiblePlaylist()->items(), name));
 }
 
 void PlaylistCollection::save()
@@ -537,7 +538,7 @@ void PlaylistCollection::createPlaylist()
 {
     QString name = playlistNameDialog();
     if(!name.isEmpty())
-        raise(new Playlist(this, name));
+        raise(new NormalPlaylist(this, name));
 }
 
 void PlaylistCollection::createSearchPlaylist()

@@ -62,6 +62,7 @@
 #include <time.h>
 #include <cmath>
 
+#include "normalplaylist.h"
 #include "playlistitem.h"
 #include "playlistcollection.h"
 #include "playlistsearch.h"
@@ -2163,7 +2164,7 @@ void Playlist::importRecentPlaylistFile(const QFileInfo& fileInfo) {
 
     } else {
         // create new playlist and read file
-        pl = new Playlist(m_collection, fileInfo);
+        pl = new NormalPlaylist(m_collection, fileInfo);
 
         // set the isContentMutable() flag
         pl->checkForReadOnlyM3uFile();
@@ -2546,7 +2547,7 @@ void Playlist::slotCreateGroup()
     QString name = m_collection->playlistNameDialog(i18n("Create New Playlist"));
 
     if(!name.isEmpty())
-        new Playlist(m_collection, selectedItems(), name);
+        new NormalPlaylist(m_collection, selectedItems(), name);
 }
 
 void Playlist::notifyUserColumnWidthModeChanged()
@@ -2582,6 +2583,7 @@ void Playlist::slotPlayCurrent()
 // helper functions
 ////////////////////////////////////////////////////////////////////////////////
 
+#if 0
 QDataStream &operator<<(QDataStream &s, const Playlist &p)
 {
     qDebug() << "Playlist::operator<<: Write " << p.name();
@@ -2597,6 +2599,7 @@ QDataStream &operator>>(QDataStream &s, Playlist &p)
     p.read(s);
     return s;
 }
+#endif
 
 bool processEvents()
 {

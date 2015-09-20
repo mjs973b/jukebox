@@ -41,7 +41,7 @@
 #include <QApplication>
 #include <QClipboard>
 
-#include "playlist.h"
+#include "normalplaylist.h"
 #include "collectionlist.h"
 #include "dynamicplaylist.h"
 #include "upcomingplaylist.h"
@@ -212,7 +212,8 @@ void PlaylistBox::duplicate()
     if(name.isNull())
         return;
 
-    Playlist *p = new Playlist(this, name);
+    //FIXME: duplicate only works for Normal playlist
+    Playlist *p = new NormalPlaylist(this, name);
     p->createItems(item->playlist()->items());
 }
 

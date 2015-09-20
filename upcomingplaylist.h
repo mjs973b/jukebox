@@ -62,6 +62,8 @@ public:
      */
     virtual ~UpcomingPlaylist();
 
+    virtual int getType() { return Playlist::Type::Upcoming; }
+
     /**
      * This function initializes the upcoming playlist, so that you can create
      * it before the GUI has been completely setup.  If a song is playing when

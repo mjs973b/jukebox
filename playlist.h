@@ -78,6 +78,27 @@ public:
 
     virtual ~Playlist();
 
+    /* values 0-4 are written in cache file, so can't be changed without
+     * breaking backward compatiblity.
+     */
+    class Type {
+    public:
+        const static int Normal   = 0;
+        const static int Search   = 1;
+        const static int History  = 2;
+        const static int Upcoming = 3;
+        const static int Folder   = 4;
+        const static int Dynamic  = 5;
+        const static int CollectionList = 6;
+    };
+
+    /**
+     * An quick and efficent method to determine the most specific 
+     * type of a Playlist object.
+     *
+     * @return a unique integer for the type of Playlist object.
+     */
+    virtual int getType() = 0;
 
     // The following group of functions implement the PlaylistInterface API.
 
@@ -869,8 +890,8 @@ public:
     static const Type id = static_cast<Type>(QEvent::User + 1);
 };
 
-QDataStream &operator<<(QDataStream &s, const Playlist &p);
-QDataStream &operator>>(QDataStream &s, Playlist &p);
+//QDataStream &operator<<(QDataStream &s, const Playlist &p);
+//QDataStream &operator>>(QDataStream &s, Playlist &p);
 
 // template method implementations
 

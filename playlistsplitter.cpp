@@ -335,6 +335,7 @@ void PlaylistSplitter::slotEnable()
     m_playlistStack->show();
     kDebug() << "Finished enabling GUI, took" << stopwatch.elapsed() << "ms";
 
+    // create an app-specific volume control in the KMix icon in system tray
     (void) new Mpris2(this);
 
     // try to select playlist from the previous app run

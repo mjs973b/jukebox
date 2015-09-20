@@ -41,6 +41,8 @@ public:
 
     virtual ~DynamicPlaylist();
 
+    virtual int getType() { return Playlist::Type::Dynamic; }
+
     virtual bool canReload() const { return false; }
     virtual bool canDelete() const { return false; }
     virtual bool canModifyContent() const { return false; }

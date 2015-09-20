@@ -30,6 +30,7 @@
 #include <QBuffer>
 
 #include "tag.h"
+#include "normalplaylist.h"
 #include "searchplaylist.h"
 #include "historyplaylist.h"
 #include "upcomingplaylist.h"
@@ -41,15 +42,6 @@ using namespace ActionCollection;
 
 const int Cache::playlistListCacheVersion = 3;
 const int Cache::playlistItemsCacheVersion = 2;
-
-enum PlaylistType
-{
-    Normal   = 0,
-    Search   = 1,
-    History  = 2,
-    Upcoming = 3,
-    Folder   = 4
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 // public methods
@@ -119,7 +111,7 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                 Playlist *playlist = 0;
 
                 switch(playlistType) {
-                case Search:
+                case Playlist::Type::Search:
                 {
                     SearchPlaylist *p = new SearchPlaylist(collection);
                     createdPlaylists.append(p);
@@ -127,7 +119,7 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                     playlist = p;
                     break;
                 }
-                case History:
+                case Playlist::Type::History:
                 {
                     action<KToggleAction>("showHistory")->setChecked(true);
                     collection->setHistoryPlaylistEnabled(true);
@@ -135,7 +127,7 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                     playlist = collection->historyPlaylist();
                     break;
                 }
-                case Upcoming:
+                case Playlist::Type::Upcoming:
                 {
                     /*
                     collection->setUpcomingPlaylistEnabled(true);
@@ -146,7 +138,7 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                     */
                     break;
                 }
-                case Folder:
+                case Playlist::Type::Folder:
                 {
                     FolderPlaylist *p = new FolderPlaylist(collection);
                     createdPlaylists.append(p);
@@ -155,7 +147,7 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                     break;
                 }
                 default:
-                    Playlist *p = new Playlist(collection, true);
+                    NormalPlaylist *p = new NormalPlaylist(collection, true);
                     createdPlaylists.append(p);
                     // adds name and filename to hash tables
                     s >> *p;
@@ -237,7 +229,7 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
         f.reset();
 
          while(!fs.atEnd()) {
-            Playlist *p = new Playlist(collection);
+            NormalPlaylist *p = new NormalPlaylist(collection);
             fs >> *p;
         }
         break;
@@ -265,27 +257,29 @@ void Cache::savePlaylists(const PlaylistList &playlists)
     for(PlaylistList::ConstIterator it = playlists.begin(); it != playlists.end(); ++it) {
         if(*it) {
             if(dynamic_cast<HistoryPlaylist *>(*it)) {
-                s << qint32(History)
+                s << qint32(Playlist::Type::History)
                   << *static_cast<HistoryPlaylist *>(*it);
             }
             else if(dynamic_cast<SearchPlaylist *>(*it)) {
-                s << qint32(Search)
+                s << qint32(Playlist::Type::Search)
                   << *static_cast<SearchPlaylist *>(*it);
             }
             else if(dynamic_cast<UpcomingPlaylist *>(*it)) {
                 if(!action<KToggleAction>("saveUpcomingTracks")->isChecked())
                     continue;
-                s << qint32(Upcoming)
+                s << qint32(Playlist::Type::Upcoming)
                   << *static_cast<UpcomingPlaylist *>(*it);
             }
             else if(dynamic_cast<FolderPlaylist *>(*it)) {
-                s << qint32(Folder)
+                s << qint32(Playlist::Type::Folder)
                   << *static_cast<FolderPlaylist *>(*it);
             }
-            else {
-                s << qint32(Normal)
-                  << *(*it);
+            //else {
+            else if(dynamic_cast<NormalPlaylist *>(*it)) {
+                s << qint32(Playlist::Type::Normal)
+                  << *static_cast<NormalPlaylist *>(*it);
             }
+            // else error
             s << qint32((*it)->sortColumn());
         }
     }
