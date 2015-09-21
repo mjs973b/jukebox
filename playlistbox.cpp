@@ -830,7 +830,7 @@ void PlaylistBox::slotPlaylistChanged()
         Playlist *p = (*it)->playlist();
         if(p) {
             // the canXYZ() methods are class policy, not mutable state
-            bool isNormal = p->canDelete() && p->canRename() && p->canModifyContent();
+            bool isNormal = p->getType() == Playlist::Type::Normal;
             if(!p->canReload()) {
                 bCanReload = false;
             } else if(isNormal && p->fileName().isEmpty()) {

@@ -636,8 +636,7 @@ void Playlist::saveAs()
     bool bSuccess = saveFile(fileName, true);
 
     // TODO: we need a better way to do this
-    bool bIsNormal = this->canRename() && this->canModifyContent() && 
-                     this->canDelete();
+    bool bIsNormal = this->getType() == Playlist::Type::Normal;
 
     if (bSuccess && bIsNormal) {
 
@@ -823,7 +822,7 @@ void Playlist::setContentMutable(bool b) {
 
 void Playlist::checkForReadOnlyM3uFile() {
     bool bMutable = true;
-    bool bIsNormal = this->canRename() && this->canModifyContent() && this->canDelete();
+    bool bIsNormal = this->getType() == Playlist::Type::Normal;
     QString fname = this->fileName();
     if (bIsNormal && !fname.isEmpty()) {
        QFileInfo fileInfo(fname);
