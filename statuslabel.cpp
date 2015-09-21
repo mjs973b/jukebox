@@ -107,6 +107,10 @@ void StatusLabel::updateCurrent()
 {
     if(playlist()->playing()) {
         FileHandle file = playlist()->currentFile();
+        // isNull() when try to advance after final track in playlist
+        if(file.isNull()) {
+            return;
+        }
 
         QString mid =  file.tag()->artist().isEmpty() || file.tag()->title().isEmpty()
             ? QString::null : QString(" - ");	//krazy:exclude=nullstrassign for old broken gcc
