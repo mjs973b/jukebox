@@ -378,12 +378,6 @@ public:
     virtual bool canReload() const = 0;
 
     /**
-     * Returns true if the playlist is a search playlist and the search should be
-     * editable. This is class policy, not mutable state.
-     */
-    virtual bool canEditSearchPattern() const { return false; }
-
-    /**
      * Determine if this playlist content can be modified by the app.
      * This is _state_ that can be changed programatically at any time.
      * This flag is completely distinct from canModifyContent(),

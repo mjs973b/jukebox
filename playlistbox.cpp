@@ -818,7 +818,6 @@ void PlaylistBox::slotPlaylistChanged()
     bool bCanModifyContent = true;
     bool bIsContentMutable = true;
     bool bFileListChanged  = true;
-    bool bCanEditSearch    = true;
 
     PlaylistList playlists;
 
@@ -851,9 +850,6 @@ void PlaylistBox::slotPlaylistChanged()
             if(!p->hasFileListChanged()) {
                 bFileListChanged = false;
             }
-            if(!p->canEditSearchPattern()) {
-                bCanEditSearch = false;
-            }
             playlists.append(p);
         }
     }
@@ -864,6 +860,7 @@ void PlaylistBox::slotPlaylistChanged()
     bool bCanSave = bCanModifyContent && bFileListChanged;
 
     bool bCanDuplicate = false;
+    bool bCanEditSearch = false;
     bool bCanExport = false;
     bool bCanImport = false;
     int selectCnt = playlists.count();
@@ -872,15 +869,14 @@ void PlaylistBox::slotPlaylistChanged()
         bCanReload = false;
         bCanDelete = false;
         bCanRename = false;
-        bCanEditSearch = false;
         bCanSave = false;
     } else if (selectCnt == 1) {
         bCanDuplicate = playlists.front()->count() > 0;
+        bCanEditSearch = (playlists.front()->getType() == Playlist::Type::Search);;
         bCanExport = bCanDuplicate;
         bCanImport = bCanModifyContent && bIsContentMutable;
     } else if (selectCnt > 1) {
         bCanRename = false;
-        bCanEditSearch = false;
     }
 
     // File menu
