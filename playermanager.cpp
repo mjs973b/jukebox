@@ -317,7 +317,7 @@ void PlayerManager::setVolume(float volume)
         setup();
 
     kDebug() << "new volume = " << volume;
-    if (volume < 0.0 || volume > 1.0 || volume == m_curVolume) {
+    if (volume < 0.0 || volume > 1.0 || int(100*volume) == int(100*m_curVolume)) {
         return;
     }
 
@@ -328,15 +328,13 @@ void PlayerManager::setVolume(float volume)
 
     Phonon::MediaObject *media = m_media[m_curOutputPath];
     Phonon::AudioOutput *out = m_output[m_curOutputPath];
-    if (out) {
-        if (media && media->state() == Phonon::PlayingState) {
-            m_outputVolumeSet[m_curOutputPath] = true;
-        }
+    if (out  && media && media->state() == Phonon::PlayingState) {
+        m_outputVolumeSet[m_curOutputPath] = true;
         out->setVolume(volume);
         // AudioOutput will emit volumeChanged() signal
-    } else {
-        emit volumeChanged(volume);
+        return;
     }
+    emit volumeChanged(volume);
 }
 
 /* seekTime in milliseconds */
@@ -604,8 +602,12 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
 
         emit signalPlay();
     }
-    // else {    /* Buffering State */
-    //}
+    else if(newstate == Phonon::BufferingState) {
+        if (!m_outputVolumeSet[m_curOutputPath]) {
+            m_output[m_curOutputPath]->setVolume( m_curVolume );
+        }
+    }
+    // else ignore it
 }
 
 void PlayerManager::slotSeekableChanged(bool isSeekable)
