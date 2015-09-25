@@ -1199,10 +1199,15 @@ bool Playlist::acceptDrag(QDropEvent *e) const
     return CoverDrag::isCover(e->mimeData()) || KUrl::List::canDecode(e->mimeData());
 }
 
+/* create PlaylistItems from Url(s) on clipboard, and add immediately following item */
 void Playlist::decode(const QMimeData *s, PlaylistItem *item)
 {
     if(!this->isContentMutable()) {
         kError() << "Attempt to drop track(s) on read-only playlist";
+        return;
+    }
+
+    if(!s->hasUrls()) {         /* introduced in Qt4.2 */
         return;
     }
 
@@ -2342,6 +2347,15 @@ void Playlist::slotUpdateMenus() {
     // use read/write status for this playlist
     bool bMutable = this->canModifyContent() && this->isContentMutable();
 
+    bool bEnablePaste = false;
+    if(bMutable) {
+        // looking for mime-type "text/uri-list"
+        const QMimeData *mime = QApplication::clipboard()->mimeData();
+        if (mime && mime->hasUrls()) {
+            bEnablePaste = true;
+        }
+    }
+
     // Edit Menu
     QAction *act = ActionCollection::action("edit_undo");
     act->setEnabled(false);
@@ -2351,7 +2365,7 @@ void Playlist::slotUpdateMenus() {
 
     // TODO: check that there's abs filename(s) on clipboard
     act = ActionCollection::action("edit_paste");
-    act->setEnabled(bMutable);
+    act->setEnabled(bEnablePaste);
 
     // remove track from playlist
     act = ActionCollection::action("edit_clear");

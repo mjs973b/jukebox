@@ -346,7 +346,7 @@ bool PlaylistBox::eventFilter(QObject *watched, QEvent *e) {
     bool rv = K3ListView::eventFilter(watched, e);
 
     if (e->type() == QEvent::FocusIn) {
-        kDebug() << "FocusIn";
+        //kDebug() << "FocusIn";
         slotUpdateMenus();
     }
 
@@ -937,10 +937,15 @@ void PlaylistBox::slotUpdateMenus() {
         pl = item->playlist();
     }
 
-    // determine read/write status for the selected playlist
-    bool bMutable = false;
+    bool bEnablePaste = false;
     if (pl) {
-        bMutable = pl->canModifyContent() && pl->isContentMutable();
+        // determine read/write status for the selected playlist
+        bEnablePaste = pl->canModifyContent() && pl->isContentMutable();
+        if (bEnablePaste) {
+            // looking for mime-type "text/uri-list"
+            const QMimeData *mime = QApplication::clipboard()->mimeData();
+            bEnablePaste = mime && mime->hasUrls();
+        }
     }
 
     // Edit Menu
@@ -953,7 +958,7 @@ void PlaylistBox::slotUpdateMenus() {
 
     // TODO: check if abs file name(s) on clipboard
     act = ActionCollection::action("edit_paste");
-    act->setEnabled(bMutable);
+    act->setEnabled(bEnablePaste);
 
     act = ActionCollection::action("edit_clear");
     act->setEnabled(false);
