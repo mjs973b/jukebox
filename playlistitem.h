@@ -161,8 +161,12 @@ public:
 
 protected:
     /**
-     * Items should always be created using Playlist::createItem() or through a
-     * subclass or friend class.
+     * Create a new track entry in a playlist.
+     * Items should always be created using Playlist::createItem(), not directly
+     * using new..
+     *
+     * @param item  the corresponding existing track entry in the CollectionList.
+     * @param parent  the playlist that is item is added to.
      */
     PlaylistItem(CollectionListItem *item, Playlist *parent);
     PlaylistItem(CollectionListItem *item, Playlist *parent, Q3ListViewItem *after);
