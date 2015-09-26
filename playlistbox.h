@@ -158,7 +158,6 @@ private:
     int m_viewModeIndex;
     QList<ViewMode *> m_viewModes;
     KAction *m_k3bAction;
-    bool m_hasSelection;
     bool m_doingMultiSelect;
     Item *m_dropItem;
     QTimer *m_showTimer;

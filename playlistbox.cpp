@@ -67,7 +67,6 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     K3ListView(parent),
     PlaylistCollection(player, playlistStack),
     m_viewModeIndex(0),
-    m_hasSelection(false),
     m_doingMultiSelect(false),
     m_dropItem(0),
     m_showTimer(0)
@@ -808,7 +807,6 @@ void PlaylistBox::slotSelectionChanged()
         return;
 
     ItemList items = selectedBoxItems();
-    m_hasSelection = !items.isEmpty();
 
     /* set the enable/disable state of the menu items */
 
