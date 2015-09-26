@@ -182,7 +182,8 @@ void DynamicPlaylist::slotUpdateItems()
     // This should be optimized to check to see which items are already in the
     // list and just adding those and removing the ones that aren't.
 
-    clear();
+    this->clearItems( this->items() );
+    //kDebug() << "playlist item cnt = " << m_siblings.count();
     createItems(m_siblings);
     if(m_synchronizePlaying)
         synchronizePlayingItems(m_playlists, true);
