@@ -336,7 +336,7 @@ Playlist::Playlist(PlaylistCollection *collection, const QString &name,
     m_collection(collection),
     m_fetcher(new WebImageFetcher(this)),
     m_selectedCount(0),
-    m_allowDuplicates(false),
+    m_allowDuplicates(true),
     m_applySharedSettings(true),
     m_columnWidthModeChanged(false),
     m_disableColumnWidthUpdates(true),
@@ -361,7 +361,7 @@ Playlist::Playlist(PlaylistCollection *collection, const PlaylistItemList &items
     m_collection(collection),
     m_fetcher(new WebImageFetcher(this)),
     m_selectedCount(0),
-    m_allowDuplicates(false),
+    m_allowDuplicates(true),
     m_applySharedSettings(true),
     m_columnWidthModeChanged(false),
     m_disableColumnWidthUpdates(true),
@@ -387,7 +387,7 @@ Playlist::Playlist(PlaylistCollection *collection, const QFileInfo &playlistFile
     m_collection(collection),
     m_fetcher(new WebImageFetcher(this)),
     m_selectedCount(0),
-    m_allowDuplicates(false),
+    m_allowDuplicates(true),
     m_applySharedSettings(true),
     m_columnWidthModeChanged(false),
     m_disableColumnWidthUpdates(true),
@@ -412,7 +412,7 @@ Playlist::Playlist(PlaylistCollection *collection, bool delaySetup, int extraCol
     m_collection(collection),
     m_fetcher(new WebImageFetcher(this)),
     m_selectedCount(0),
-    m_allowDuplicates(false),
+    m_allowDuplicates(true),
     m_applySharedSettings(true),
     m_columnWidthModeChanged(false),
     m_disableColumnWidthUpdates(true),
@@ -1875,7 +1875,8 @@ void Playlist::setup()
     // progress.
     connect(this, SIGNAL(selectionChanged()), m_fetcher, SLOT(abortSearch()));
 
-    setSorting(1);
+    // use insert order
+    setSorting(-1);
 
     /* This apparently must be created very early in initialization for other
      * Playlist code requiring m_headerMenu. m_columnVisibleAction and 
