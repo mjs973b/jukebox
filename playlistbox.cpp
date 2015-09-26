@@ -129,7 +129,7 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     connect(viewModeAction, SIGNAL(triggered(int)), this, SLOT(slotSetViewMode(int)));
 
     connect(this, SIGNAL(selectionChanged()),
-            this, SLOT(slotPlaylistChanged()));
+            this, SLOT(slotSelectionChanged()));
 
     connect(this, SIGNAL(doubleClicked(Q3ListViewItem*)),
             this, SLOT(slotDoubleClicked(Q3ListViewItem*)));
@@ -198,7 +198,7 @@ void PlaylistBox::raise(Playlist *playlist)
     else
         PlaylistCollection::raise(playlist);
 
-    slotPlaylistChanged();
+    slotSelectionChanged();
 }
 
 void PlaylistBox::duplicate()
@@ -757,7 +757,7 @@ void PlaylistBox::contentsMouseReleaseEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton) {
         m_doingMultiSelect = false;
-        slotPlaylistChanged();
+        slotSelectionChanged();
     }
     K3ListView::contentsMouseReleaseEvent(e);
 }
@@ -773,7 +773,7 @@ void PlaylistBox::keyReleaseEvent(QKeyEvent *e)
 {
     if(m_doingMultiSelect && e->key() == Qt::Key_Shift) {
         m_doingMultiSelect = false;
-        slotPlaylistChanged();
+        slotSelectionChanged();
     }
     K3ListView::keyReleaseEvent(e);
 }
@@ -800,7 +800,7 @@ void PlaylistBox::setSingleItem(Q3ListViewItem *item)
 // PlaylistBox private slots
 ////////////////////////////////////////////////////////////////////////////////
 
-void PlaylistBox::slotPlaylistChanged()
+void PlaylistBox::slotSelectionChanged()
 {
     // Don't update while the mouse is pressed down.
 
