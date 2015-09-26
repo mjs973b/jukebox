@@ -409,6 +409,10 @@ void PlaylistItem::setTrackId(quint32 id)
 
 void PlaylistItem::setup(CollectionListItem *item)
 {
+    if(!item || !item->d) {
+        kError() << "internal error: item or item->d is null";
+        return;
+    }
     m_collectionItem = item;
 
     d = item->d;
