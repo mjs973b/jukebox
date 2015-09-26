@@ -67,7 +67,6 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     K3ListView(parent),
     PlaylistCollection(player, playlistStack),
     m_viewModeIndex(0),
-    m_doingMultiSelect(false),
     m_dropItem(0),
     m_showTimer(0)
 {
@@ -745,37 +744,6 @@ void PlaylistBox::contentsDragLeaveEvent(QDragLeaveEvent *e)
     K3ListView::contentsDragLeaveEvent(e);
 }
 
-void PlaylistBox::contentsMousePressEvent(QMouseEvent *e)
-{
-    if(e->button() == Qt::LeftButton)
-        m_doingMultiSelect = true;
-    K3ListView::contentsMousePressEvent(e);
-}
-
-void PlaylistBox::contentsMouseReleaseEvent(QMouseEvent *e)
-{
-    if(e->button() == Qt::LeftButton) {
-        m_doingMultiSelect = false;
-        slotSelectionChanged();
-    }
-    K3ListView::contentsMouseReleaseEvent(e);
-}
-
-void PlaylistBox::keyPressEvent(QKeyEvent *e)
-{
-    if((e->key() == Qt::Key_Up || e->key() == Qt::Key_Down) && e->modifiers() == Qt::ShiftButton)
-        m_doingMultiSelect = true;
-    K3ListView::keyPressEvent(e);
-}
-
-void PlaylistBox::keyReleaseEvent(QKeyEvent *e)
-{
-    if(m_doingMultiSelect && e->key() == Qt::Key_Shift) {
-        m_doingMultiSelect = false;
-        slotSelectionChanged();
-    }
-    K3ListView::keyReleaseEvent(e);
-}
 
 PlaylistBox::ItemList PlaylistBox::selectedBoxItems() const
 {
@@ -801,10 +769,6 @@ void PlaylistBox::setSingleItem(Q3ListViewItem *item)
 
 void PlaylistBox::slotSelectionChanged()
 {
-    // Don't update while the mouse is pressed down.
-
-    if(m_doingMultiSelect)
-        return;
 
     ItemList items = selectedBoxItems();
 

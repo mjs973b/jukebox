@@ -116,10 +116,6 @@ private:
     virtual void contentsDropEvent(QDropEvent *e);
     virtual void contentsDragMoveEvent(QDragMoveEvent *e);
     virtual void contentsDragLeaveEvent(QDragLeaveEvent *e);
-    virtual void contentsMousePressEvent(QMouseEvent *e);
-    virtual void contentsMouseReleaseEvent(QMouseEvent *e);
-    virtual void keyPressEvent(QKeyEvent *e);
-    virtual void keyReleaseEvent(QKeyEvent *e);
 
     // selectedItems already used for something different
 
@@ -158,7 +154,6 @@ private:
     int m_viewModeIndex;
     QList<ViewMode *> m_viewModes;
     KAction *m_k3bAction;
-    bool m_doingMultiSelect;
     Item *m_dropItem;
     QTimer *m_showTimer;
     QTimer *m_savePlaylistTimer;
