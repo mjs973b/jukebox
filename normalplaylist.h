@@ -26,27 +26,14 @@ class NormalPlaylist : public Playlist
 {
     Q_OBJECT
 public:
-    NormalPlaylist(PlaylistCollection *collection, const QString& name = QString()) :
-        Playlist(collection, name)
-    {
-    }
+    NormalPlaylist(PlaylistCollection *collection, const QString& name = QString());
 
     NormalPlaylist(PlaylistCollection *collection, const PlaylistItemList &items,
-             const QString &name) :
-        Playlist(collection, items, name)
-    {
-    }
+             const QString &name);
 
-    NormalPlaylist(PlaylistCollection *collection, const QFileInfo& playlistFile) :
-        Playlist(collection, playlistFile)
-    {
-    }
+    NormalPlaylist(PlaylistCollection *collection, const QFileInfo& playlistFile);
 
-    NormalPlaylist(PlaylistCollection *collection,
-                   bool delaySetup) :
-        Playlist(collection, delaySetup)
-    {
-    }
+    NormalPlaylist(PlaylistCollection *collection, bool delaySetup);
 
     virtual ~NormalPlaylist() { };
 

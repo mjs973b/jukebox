@@ -21,6 +21,30 @@
 //#include "juk-exception.h"  // BICStreamException
 #include "normalplaylist.h"
 
+NormalPlaylist::NormalPlaylist(PlaylistCollection *collection, const QString& name) :
+    Playlist(collection, name)
+{
+}
+
+NormalPlaylist::NormalPlaylist(PlaylistCollection *collection, 
+        const PlaylistItemList &items,
+        const QString &name) :
+    Playlist(collection, items, name)
+{
+}
+
+NormalPlaylist::NormalPlaylist(PlaylistCollection *collection, 
+        const QFileInfo& playlistFile) :
+    Playlist(collection, playlistFile)
+{
+}
+
+NormalPlaylist::NormalPlaylist(PlaylistCollection *collection,
+        bool delaySetup) :
+    Playlist(collection, delaySetup)
+{
+}
+
 #if 1
 void NormalPlaylist::read(QDataStream &s) {
     Playlist::read(s);
