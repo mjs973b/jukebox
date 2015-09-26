@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2002-2004 Scott Wheeler <wheeler@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -117,15 +118,33 @@ private:
     virtual void contentsDragMoveEvent(QDragMoveEvent *e);
     virtual void contentsDragLeaveEvent(QDragLeaveEvent *e);
 
-    // selectedItems already used for something different
+    /**
+     * @return the list of selected items, in top-to-bottom sequence.
+     */
+    QList<Item*> getQ3SelectedItems() const;
 
-    ItemList selectedBoxItems() const;
+    /**
+     * @return the list of selected items, in the order that user ctrl-clicked
+     * on them. Note that name 'selectedItems' is already in use for something
+     * different.
+     */
+    QList<Item*> selectedBoxItems() const;
+
     void setSingleItem(Q3ListViewItem *item);
+
+    /**
+     * Count this widget's Playlist items. The tricky case is the
+     * CollectionList in tree mode, where the top 3 levels need to be
+     * considered.
+     * @return  the number of Playlists found
+     */
+    int countPlaylistInView();
 
     void setupItem(Item *item);
     void setupUpcomingPlaylist();
     int viewModeIndex() const { return m_viewModeIndex; }
     ViewMode *viewMode() const { return m_viewModes[m_viewModeIndex]; }
+    void updateLocalSelectionList();
 
 private slots:
     /**
@@ -157,6 +176,8 @@ private:
     Item *m_dropItem;
     QTimer *m_showTimer;
     QTimer *m_savePlaylistTimer;
+    /** a user-ordered list of selected PlaylistBox Items */
+    QList<Item*> m_selectedList;
 };
 
 class PlaylistBox::Item : public QObject, public K3ListViewItem, public PlaylistObserver

@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2002-2004 Scott Wheeler <wheeler@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -744,8 +745,8 @@ void PlaylistBox::contentsDragLeaveEvent(QDragLeaveEvent *e)
     K3ListView::contentsDragLeaveEvent(e);
 }
 
-
-PlaylistBox::ItemList PlaylistBox::selectedBoxItems() const
+/* Q3ListBox items, in top-to-bottom sequence */
+PlaylistBox::ItemList PlaylistBox::getQ3SelectedItems() const
 {
     ItemList l;
 
@@ -756,11 +757,83 @@ PlaylistBox::ItemList PlaylistBox::selectedBoxItems() const
     return l;
 }
 
+/* return copy of our local user-ordered selection list */
+QList<Item*> PlaylistBox::selectedBoxItems() const
+{
+    QList<Item*> l(m_selectedList);
+    return l;
+}
+
 void PlaylistBox::setSingleItem(Q3ListViewItem *item)
 {
     setSelectionModeExt(Single);
     K3ListView::setCurrentItem(item);
     setSelectionModeExt(Extended);
+}
+
+/* Count this widget's Playlist child items. Includes pre-defined ones like
+ * "Artist" if tree mode is active.
+ */
+int PlaylistBox::countPlaylistInView()
+{
+    int sum = this->childCount();     // level 1 items
+    if(m_viewModeIndex == 2) {
+        /* assume only the first level 1 child has children, and assume all
+         * items in level 1-3 are Playlists.
+         */
+        const Q3ListViewItem *levelOne = this->firstChild();
+        if(levelOne) {
+            sum += levelOne->childCount();      // level 2 items
+            const Q3ListViewItem *levelTwo = levelOne->firstChild();
+            while(levelTwo) {
+                sum += levelTwo->childCount();      // level 3 items
+                levelTwo = levelTwo->nextSibling();
+            }
+            levelOne = levelOne->nextSibling();
+        }
+    }
+    return sum;
+}
+
+/* Update our internal version of selected playlists. This is how we support
+ * a user-specified selection-order. This method is called when the K3ListView
+ * reports the PlaylistBox selection changed. We need to figure out what
+ * changed and update m_selectedList.
+ */
+void PlaylistBox::updateLocalSelectionList()
+{
+    int playlistInView = this->countPlaylistInView();
+    QList<Item*> listA = this->getQ3SelectedItems();
+
+    /* this first check matches frequently, so optimize for it. It's also
+     * good just in case m_selectedList somehow gets out of sync with the
+     * underlying K3ListView. If all are selected, then use top-to-bottom
+     * ordering.
+     */
+    if(listA.count() < 2 || listA.count() == playlistInView) {
+        m_selectedList = listA;
+    } else {
+        /* update m_selectedList the hard way */
+
+        // identify items that got un-selected
+        QList<Item*> deselectedItems;
+        foreach(Item *item, m_selectedList) {
+            if(!listA.contains(item)) {
+                deselectedItems.append(item);
+            }
+        }
+        // remove the un-selected items
+        foreach(Item *item, deselectedItems) {
+            m_selectedList.removeAll(item);
+        }
+        // identify items which are newly selected & append
+        foreach(Item *item, listA) {
+            if(!m_selectedList.contains(item)) {
+                m_selectedList.append(item);
+            }
+        }
+    }
+    //kDebug() << "m_selectedList.count=" << m_selectedList.count();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -769,8 +842,9 @@ void PlaylistBox::setSingleItem(Q3ListViewItem *item)
 
 void PlaylistBox::slotSelectionChanged()
 {
+    updateLocalSelectionList();
 
-    ItemList items = selectedBoxItems();
+    QList<Item*> items = selectedBoxItems();
 
     /* set the enable/disable state of the menu items */
 
