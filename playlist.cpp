@@ -475,8 +475,12 @@ int Playlist::time() const
 
     if(!m_addTime.isEmpty()) {
         foreach(const PlaylistItem *item, m_addTime) {
-            if(item)
-                m_time += item->file().tag()->seconds();
+            if(item) {
+                FileHandle fh = item->file();
+                if (!fh.isNull()) {
+                    m_time += fh.tag()->seconds();
+                }
+            }
         }
 
         m_addTime.clear();
@@ -484,8 +488,12 @@ int Playlist::time() const
 
     if(!m_subtractTime.isEmpty()) {
         foreach(const PlaylistItem *item, m_subtractTime) {
-            if(item)
-                m_time -= item->file().tag()->seconds();
+            if(item) {
+                FileHandle fh = item->file();
+                if (!fh.isNull()) {
+                    m_time -= fh.tag()->seconds();
+                }
+            }
         }
 
         m_subtractTime.clear();
