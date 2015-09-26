@@ -139,17 +139,18 @@ void DynamicPlaylist::paintEvent(QPaintEvent *e)
     Playlist::paintEvent(e);
 }
 
+/* m_playlists contains a list of playlists which form this DynamicPlaylist */
 void DynamicPlaylist::updateItems()
 {
-    PlaylistItemList siblings;
+    QList<PlaylistItem*> siblings;
 
-    for(PlaylistList::ConstIterator it = m_playlists.constBegin(); it != m_playlists.constEnd(); ++it)
-        siblings += (*it)->items();
+    foreach(Playlist *pl, m_playlists) {
+        siblings += pl->items();
+    }
 
-
-    PlaylistItemList newSiblings = siblings;
-    if(m_siblings != newSiblings) {
-        m_siblings = newSiblings;
+    // compare the content of the two QList
+    if(m_siblings != siblings) {
+        m_siblings = siblings;
         QTimer::singleShot(0, this, SLOT(slotUpdateItems()));
     }
 }
