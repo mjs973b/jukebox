@@ -241,7 +241,8 @@ void PlaylistBox::scanFolders()
  * Try to restore the playlist selection from the last time app was run. If the 
  * playlist name no longer exists, do nothing.
  */
-void PlaylistBox::restorePrevSelection() {
+void PlaylistBox::restorePrevSelection()
+{
     KConfigGroup config(KGlobal::config(), "PlaylistBox");
     QString lastName = config.readEntry("LastSelect", "");
     if (!lastName.isEmpty()) {
@@ -253,7 +254,8 @@ void PlaylistBox::restorePrevSelection() {
     }
 }
 
-QList<Playlist*> PlaylistBox::getAllPlaylists() const {
+QList<Playlist*> PlaylistBox::getAllPlaylists() const
+{
     QList<Playlist*> list;
     for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
         Item *item = static_cast<Item *>(i);
@@ -277,12 +279,14 @@ void PlaylistBox::paste()
 }
 
 /* slot for edit_clear */
-void PlaylistBox::clear() {
+void PlaylistBox::clear()
+{
     // do nothing
 }
 
 /* slot for edit_select_all */
-void PlaylistBox::selectAll() {
+void PlaylistBox::selectAll()
+{
     K3ListView::selectAll(true);
 }
 
@@ -390,7 +394,7 @@ void PlaylistBox::saveConfig()
  */
 void PlaylistBox::remove()
 {
-    ItemList items = selectedBoxItems();
+    QList<Item*> items = selectedBoxItems();
 
     QStringList files;
     QStringList names;
@@ -746,9 +750,9 @@ void PlaylistBox::contentsDragLeaveEvent(QDragLeaveEvent *e)
 }
 
 /* Q3ListBox items, in top-to-bottom sequence */
-PlaylistBox::ItemList PlaylistBox::getQ3SelectedItems() const
+QList<PlaylistBox::Item*> PlaylistBox::getQ3SelectedItems() const
 {
-    ItemList l;
+    QList<Item*> l;
 
     for(Q3ListViewItemIterator it(const_cast<PlaylistBox *>(this),
                                  Q3ListViewItemIterator::Selected); it.current(); ++it)
@@ -758,7 +762,7 @@ PlaylistBox::ItemList PlaylistBox::getQ3SelectedItems() const
 }
 
 /* return copy of our local user-ordered selection list */
-QList<Item*> PlaylistBox::selectedBoxItems() const
+QList<PlaylistBox::Item*> PlaylistBox::selectedBoxItems() const
 {
     QList<Item*> l(m_selectedList);
     return l;
@@ -860,9 +864,8 @@ void PlaylistBox::slotSelectionChanged()
     /* for multi-selection, all selected items must allow the operation
      * for the Menu item to get enabled.
      */
-    for(ItemList::ConstIterator it = items.constBegin(); it != items.constEnd(); ++it) {
-
-        Playlist *p = (*it)->playlist();
+    foreach(Item *it, items) {
+        Playlist *p = it->playlist();
         if(p) {
             // the canXYZ() methods are class policy, not mutable state
             bool isNormal = p->getType() == Playlist::Type::Normal;
@@ -963,8 +966,8 @@ void PlaylistBox::slotDoubleClicked(Q3ListViewItem *item)
  * Update menu items that depend on selection or focus. This method should 
  * be called when this widget gets focus or the selected items change.
  */
-void PlaylistBox::slotUpdateMenus() {
-   
+void PlaylistBox::slotUpdateMenus()
+{
     QList<Item*> list = this->selectedBoxItems();
     int nRow = list.count();
     Playlist *pl = 0;
