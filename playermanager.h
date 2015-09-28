@@ -134,6 +134,7 @@ private slots:
     void slotSeekableChanged(bool);
     void slotMutedChanged(bool);
     void slotVolumeChanged(qreal);
+    void slotDelayedPlay();
 
 private:
     // the current song
@@ -163,6 +164,7 @@ private:
     Phonon::MediaObject *m_media[2];
     Phonon::VolumeFaderEffect *m_fader[2];
 
+    bool   m_bVolDelayNeeded;
     qint64 m_prevTrackTime;
 };
 

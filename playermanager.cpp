@@ -62,6 +62,7 @@ PlayerManager::PlayerManager() :
     m_setup(false),
     m_crossfadeTracks(true),
     m_curOutputPath(0),
+    m_bVolDelayNeeded(true),
     m_prevTrackTime(-1)
 {
 }
@@ -586,6 +587,15 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
             m_outputVolumeSet[m_curOutputPath] = true;
             m_output[m_curOutputPath]->setVolume( m_curVolume );
         }
+        /* this works around a different bug in audio back end, where
+         * AudioOutput::setVolume() on first PlayingState is ignored.
+         * Seen with Phonon 4.6.2, phonon-vlc 0.6.2, PulseAudio disabled,
+         * dbus 1.6.8.
+         */
+        if (m_bVolDelayNeeded) {
+            QTimer::singleShot(50, this, SLOT(slotDelayedPlay()));
+            m_bVolDelayNeeded = false;
+        }
 
         ActionCollection::action("pause")->setEnabled(true);
         ActionCollection::action("stop")->setEnabled(true);
@@ -601,11 +611,6 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
             m_file.tag()->title()));
 
         emit signalPlay();
-    }
-    else if(newstate == Phonon::BufferingState) {
-        if (!m_outputVolumeSet[m_curOutputPath]) {
-            m_output[m_curOutputPath]->setVolume( m_curVolume );
-        }
     }
     // else ignore it
 }
@@ -649,6 +654,18 @@ void PlayerManager::slotVolumeChanged(qreal volume)
         return;
 
     emit volumeChanged(volume);
+}
+
+/**
+ * This slot called 20 milliseconds after we enter the PlayState for the very
+ * first time. Used to work around a bug in audio backend.
+ */
+void PlayerManager::slotDelayedPlay() {
+    kDebug() << "called";
+    Phonon::AudioOutput *out = m_output[m_curOutputPath];
+    if (out) {
+        out->setVolume(m_curVolume);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
