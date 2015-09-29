@@ -55,6 +55,7 @@
 #include "actioncollection.h"
 #include "cache.h"
 #include "playlistsplitter.h"
+#include "playlistcollection.h"
 #include "collectionlist.h"
 #include "covermanager.h"
 #include "tagtransactionmanager.h"
@@ -188,6 +189,7 @@ void JuK::setupLayout()
 
     // PlayerManager will emit signal each time a new track starts
     connect(m_player, SIGNAL(signalPlay()), this, SLOT(slotPlayTrack()));
+    connect(m_player, SIGNAL(signalStop()), this, SLOT(slotPlayerStopped()));
 
     m_splitter->setFocus();
 
@@ -383,6 +385,14 @@ void JuK::slotPlayTrack()
         m_systemTray->showMessage(tag->artist(), tag->title(),
           QSystemTrayIcon::Information, 8*1000);
     }
+}
+
+/**
+ * This slot called just after the m_player stops playing tracks.
+ */
+void JuK::slotPlayerStopped()
+{
+    PlaylistCollection::instance()->stop();
 }
 
 void JuK::slotSetupSystemTray()

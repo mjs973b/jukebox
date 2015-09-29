@@ -83,6 +83,7 @@ private slots:
     void slotProcessArgs();
     void slotClearOldCovers();
     void slotPlayTrack();
+    void slotPlayerStopped();
 
 private:
     PlaylistSplitter *m_splitter;
