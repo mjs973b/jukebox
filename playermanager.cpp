@@ -570,7 +570,7 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
 
         JuK::JuKInstance()->setWindowTitle(i18n("Jukebox"));
 
-        emit signalStop();
+        //emit signalStop();
     }
     else if(newstate == Phonon::PausedState) {
         emit signalPause();
@@ -731,8 +731,12 @@ void PlayerManager::setup()
 
 void PlayerManager::slotUpdateGuiIfStopped()
 {
-    if(m_media[0]->state() == Phonon::StoppedState && m_media[1]->state() == Phonon::StoppedState)
+    if(m_media[0]->state() == Phonon::StoppedState && m_media[1]->state() == Phonon::StoppedState) {
         stop();
+        slotTick(0);
+        slotLength(0);
+        emit signalStop();
+    }
 }
 
 /* setup newFile to become the current track, tell MediaObject to Play it,
