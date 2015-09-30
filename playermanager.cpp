@@ -63,6 +63,7 @@ PlayerManager::PlayerManager() :
     m_crossfadeTracks(true),
     m_curOutputPath(0),
     m_bVolDelayNeeded(true),
+    m_bStopRequested(false),
     m_prevTrackTime(-1)
 {
 }
@@ -215,6 +216,8 @@ void PlayerManager::play(const FileHandle &file)
     if(!m_media[0] || !m_media[1] || !m_playlistInterface)
         return;
 
+    m_bStopRequested = false;
+
     stopCrossfade();
 
     // The "currently playing" media object.
@@ -283,10 +286,37 @@ void PlayerManager::pause()
     m_media[m_curOutputPath]->pause();
 }
 
+/* By calling this method, we are requesting to stop the player.
+ * Ask Phonon to stop if its not already stopped.
+ */
 void PlayerManager::stop()
 {
     if(!m_setup || !m_playlistInterface)
         return;
+
+    // specify how to handle StoppedState
+    m_bStopRequested = true;
+
+    // Fading out playback is for chumps.
+    stopCrossfade();
+
+    if(m_media[m_curOutputPath]->state() != Phonon::StoppedState) {
+        // this may take some time
+        m_media[0]->stop();
+        m_media[1]->stop();
+    } else {
+        // MediaObject already in StoppedState, no need to wait for it
+        playerHasStopped();
+    }
+}
+
+/* MediaObject is now stopped. Clean up and notify rest of app. */
+void PlayerManager::playerHasStopped()
+{
+    if(!m_setup)
+        return;
+
+    JuK::JuKInstance()->setWindowTitle(i18n("Jukebox"));
 
     ActionCollection::action("pause")->setEnabled(false);
     ActionCollection::action("stop")->setEnabled(false);
@@ -294,15 +324,15 @@ void PlayerManager::stop()
     ActionCollection::action("forward")->setEnabled(false);
     ActionCollection::action("forwardAlbum")->setEnabled(false);
 
-    // Fading out playback is for chumps.
-    stopCrossfade();
-    m_media[0]->stop();
-    m_media[1]->stop();
-
     if(!m_file.isNull()) {
         m_file = FileHandle::null();
         emit signalItemChanged(m_file);
     }
+
+    slotTick(0);
+    slotLength(0);
+
+    emit signalStop();
 }
 
 /**
@@ -562,13 +592,15 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
         return;
 
     // Handle state changes for the playing media object.
-    if(newstate == Phonon::StoppedState && oldstate != Phonon::LoadingState) {
+    if(newstate == Phonon::StoppedState && m_bStopRequested) {
+        // intentionally stop the player
+        playerHasStopped();
+    }
+    else if(newstate == Phonon::StoppedState && oldstate != Phonon::LoadingState) {
         // If this occurs it should be due to a transitory shift (i.e. playing a different
         // song when one is playing now), since it didn't occur in the error handler.  Just
         // in case we really did abruptly stop, handle that case in a couple of seconds.
         QTimer::singleShot(2000, this, SLOT(slotUpdateGuiIfStopped()));
-
-        JuK::JuKInstance()->setWindowTitle(i18n("Jukebox"));
 
         //emit signalStop();
     }
@@ -733,9 +765,6 @@ void PlayerManager::slotUpdateGuiIfStopped()
 {
     if(m_media[0]->state() == Phonon::StoppedState && m_media[1]->state() == Phonon::StoppedState) {
         stop();
-        slotTick(0);
-        slotLength(0);
-        emit signalStop();
     }
 }
 

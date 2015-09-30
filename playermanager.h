@@ -122,6 +122,7 @@ private:
     void setup();
     void crossfadeToFile(const FileHandle &newFile);
     void stopCrossfade();
+    void playerHasStopped();
 
 private slots:
     void slotNeedNextUrl();
@@ -165,6 +166,7 @@ private:
     Phonon::VolumeFaderEffect *m_fader[2];
 
     bool   m_bVolDelayNeeded;
+    bool   m_bStopRequested;
     qint64 m_prevTrackTime;
 };
 
