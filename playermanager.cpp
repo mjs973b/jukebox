@@ -810,7 +810,7 @@ void PlayerManager::stopCrossfade()
     // 1 - curOutputPath is the other output path...
     m_fader[m_curOutputPath]->setVolume(1.0f);
     m_fader[1 - m_curOutputPath]->setVolume(0.0f);
-
+#if 0
     // We don't actually need to physically stop crossfading as the playback
     // code will call ->play() when necessary anyways.  If we hit stop()
     // here instead of pause() then we will trick our stateChanged handler
@@ -818,7 +818,12 @@ void PlayerManager::stopCrossfade()
     // unnecessarily.  (This isn't a problem after crossfade completes due to
     // the signals being disconnected).
 
-    m_media[1 - m_curOutputPath]->pause();
+    //m_media[1 - m_curOutputPath]->pause();
+#endif
+    /* above explanation is wrong. slotStateChanged() ignores background
+     * MediaObject. And leaving in paused state messes up error handling.
+     */
+    m_media[1 - m_curOutputPath]->stop();
 }
 
 QString PlayerManager::randomPlayMode() const
