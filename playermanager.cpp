@@ -232,25 +232,12 @@ void PlayerManager::play(const FileHandle &file)
         }
         else {
             m_playlistInterface->playNext();
-            m_file = m_playlistInterface->currentFile();
-
-            if(!m_file.isNull())
-            {
-                mediaObject->setCurrentSource(KUrl::fromPath(m_file.absFilePath()));
-                mediaObject->play();
-
-                emit signalItemChanged(m_file);
-            }
+            FileHandle file = m_playlistInterface->currentFile();
+            setForegroundTrack(file);
         }
     }
     else {
-        mediaObject->setCurrentSource(KUrl::fromPath(file.absFilePath()));
-        mediaObject->play();
-
-        if(m_file != file)
-            emit signalItemChanged(file);
-
-        m_file = file;
+        setForegroundTrack(file);
     }
 
     // Our state changed handler will perform the follow up actions necessary
@@ -333,6 +320,21 @@ void PlayerManager::playerHasStopped()
     slotLength(0);
 
     emit signalStop();
+}
+
+/**
+ * Set \a file as the current playing Track. If non-null, load the media
+ * object. Either way, emit signalItemChanged.
+ */
+void PlayerManager::setForegroundTrack(const FileHandle& file)
+{
+    m_file = file;
+    if (!file.isNull()) {
+        Phonon::MediaObject *mediaObject = m_media[m_curOutputPath];
+        mediaObject->setCurrentSource(KUrl::fromPath(file.absFilePath()));
+        mediaObject->play();
+    }
+    emit signalItemChanged(file);
 }
 
 /**
@@ -505,15 +507,12 @@ void PlayerManager::slotFinished()
         return;
 
     m_playlistInterface->playNext();
-    m_file = m_playlistInterface->currentFile();
+    FileHandle file = m_playlistInterface->currentFile();
 
-    if(m_file.isNull()) {
+    setForegroundTrack(file);
+    if(file.isNull()) {
+        // at end of playlist
         stop();
-    }
-    else {
-        emit signalItemChanged(m_file);
-        m_media[m_curOutputPath]->setCurrentSource(QUrl::fromLocalFile(m_file.absFilePath()));
-        m_media[m_curOutputPath]->play();
     }
 }
 

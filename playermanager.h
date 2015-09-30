@@ -123,6 +123,7 @@ private:
     void crossfadeToFile(const FileHandle &newFile);
     void stopCrossfade();
     void playerHasStopped();
+    void setForegroundTrack(const FileHandle& file);
 
 private slots:
     void slotNeedNextUrl();
