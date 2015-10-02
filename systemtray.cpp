@@ -163,13 +163,13 @@ SystemTray::SystemTray(PlayerManager *player, QWidget *parent) :
     // Just create this here so that it show up in the DBus interface and the
     // key bindings dialog.
 
-    KAction *rpaction = new KAction(i18n("Redisplay Popup"), this);
-    ActionCollection::actions()->addAction("showPopup", rpaction);
-    connect(rpaction, SIGNAL(triggered(bool)), SLOT(slotPlay()));
+    //KAction *rpaction = new KAction(i18n("Redisplay Popup"), this);
+    //ActionCollection::actions()->addAction("showPopup", rpaction);
+    //connect(rpaction, SIGNAL(triggered(bool)), SLOT(slotPlay()));
 
     KMenu *cm = contextMenu();
 
-    connect(m_player, SIGNAL(signalPlay()), this, SLOT(slotPlay()));
+    connect(m_player, SIGNAL(signalItemChanged(FileHandle)), this, SLOT(slotPlay(FileHandle)));
     connect(m_player, SIGNAL(signalPause()), this, SLOT(slotPause()));
     connect(m_player, SIGNAL(signalStop()), this, SLOT(slotStop()));
 
@@ -204,7 +204,7 @@ SystemTray::SystemTray(PlayerManager *player, QWidget *parent) :
             action("playPause"), SLOT(trigger()));
 
     if(m_player->playing())
-        slotPlay();
+        slotPlay(m_player->playingFile());
     else if(m_player->paused())
         slotPause();
 }
@@ -213,12 +213,13 @@ SystemTray::SystemTray(PlayerManager *player, QWidget *parent) :
 // public slots
 ////////////////////////////////////////////////////////////////////////////////
 
-void SystemTray::slotPlay()
+void SystemTray::slotPlay(const FileHandle& file)
 {
-    if(!m_player->playing())
+    if(file.isNull()) {
         return;
+    }
 
-    QPixmap cover = m_player->playingFile().coverInfo()->pixmap(CoverInfo::FullSize);
+    QPixmap cover = file.coverInfo()->pixmap(CoverInfo::FullSize);
 
     setOverlayIconByName("media-playback-start");
     setToolTip(m_player->playingString(), cover);

@@ -188,7 +188,7 @@ void JuK::setupLayout()
     m_player->setStatusLabel(m_statusLabel);
 
     // PlayerManager will emit signal each time a new track starts
-    connect(m_player, SIGNAL(signalPlay()), this, SLOT(slotPlayTrack()));
+    connect(m_player, SIGNAL(signalItemChanged(FileHandle)), this, SLOT(slotPlayTrack(FileHandle)));
     connect(m_player, SIGNAL(signalStop()), this, SLOT(slotPlayerStopped()));
 
     m_splitter->setFocus();
@@ -378,10 +378,10 @@ void JuK::setupActions()
  * This slot called when a new song starts playing. Show a popup with 
  * Artist and Track Title for about 8 seconds, if enabled.
  */
-void JuK::slotPlayTrack()
+void JuK::slotPlayTrack(const FileHandle& file)
 {
     if (m_systemTray && m_player && m_togglePopupsAction->isChecked()) {
-        const Tag *tag  = m_player->playingFile().tag();
+        const Tag *tag  = file.tag();
         m_systemTray->showMessage(tag->artist(), tag->title(),
           QSystemTrayIcon::Information, 8*1000);
     }

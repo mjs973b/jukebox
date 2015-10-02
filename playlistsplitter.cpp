@@ -234,6 +234,9 @@ void PlaylistSplitter::setupLayout()
     m_nowPlaying = new NowPlaying(top, m_playlistBox);
     connect(m_player, SIGNAL(signalItemChanged(FileHandle)),
             m_nowPlaying, SLOT(slotUpdate(FileHandle)));
+    connect(m_player, SIGNAL(signalStop()),
+            m_nowPlaying, SLOT(slotPlayerStopped()));
+
     connect(m_player, SIGNAL(signalItemChanged(FileHandle)),
             m_lyricsWidget, SLOT(playing(FileHandle)));
 

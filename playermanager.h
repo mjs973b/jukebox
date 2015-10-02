@@ -113,7 +113,6 @@ signals:
     void seeked(int newPos);
     void seekableChanged(bool muted);
 
-    void signalPlay();
     void signalPause();
     void signalStop();
     void signalItemChanged(const FileHandle &file);
@@ -166,8 +165,24 @@ private:
     Phonon::MediaObject *m_media[2];
     Phonon::VolumeFaderEffect *m_fader[2];
 
+    /**
+     * true when we need to issue another setVolume() call, a little while
+     * after we reach the PlayingState.
+     */
     bool   m_bVolDelayNeeded;
+
+    /**
+     * true when we want to completely stop the player the next time
+     * foreground MediaObject reaches the StoppedState.
+     */
     bool   m_bStopRequested;
+
+    /**
+     * true when we need to issue a signalItemChanged() when the PlayingState
+     * is reached.
+     */
+    bool   m_bItemPending;
+
     qint64 m_prevTrackTime;
 };
 

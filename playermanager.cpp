@@ -64,6 +64,7 @@ PlayerManager::PlayerManager() :
     m_curOutputPath(0),
     m_bVolDelayNeeded(true),
     m_bStopRequested(false),
+    m_bItemPending(false),
     m_prevTrackTime(-1)
 {
 }
@@ -313,7 +314,6 @@ void PlayerManager::playerHasStopped()
 
     if(!m_file.isNull()) {
         m_file = FileHandle::null();
-        emit signalItemChanged(m_file);
     }
 
     slotTick(0);
@@ -324,7 +324,7 @@ void PlayerManager::playerHasStopped()
 
 /**
  * Set \a file as the current playing Track. If non-null, load the media
- * object. Either way, emit signalItemChanged.
+ * object.
  */
 void PlayerManager::setForegroundTrack(const FileHandle& file)
 {
@@ -333,8 +333,8 @@ void PlayerManager::setForegroundTrack(const FileHandle& file)
         Phonon::MediaObject *mediaObject = m_media[m_curOutputPath];
         mediaObject->setCurrentSource(KUrl::fromPath(file.absFilePath()));
         mediaObject->play();
+        m_bItemPending = true;
     }
-    emit signalItemChanged(file);
 }
 
 /**
@@ -628,6 +628,12 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
             m_bVolDelayNeeded = false;
         }
 
+        /* PlayingState enterred multiple times as track plays, but we only need
+         * to execute this code once per track. Also, this flag prevents the
+         * system tray pop-up from showing up every time we seek.
+         */
+        if(m_bItemPending) {
+            m_bItemPending = false;
         ActionCollection::action("pause")->setEnabled(true);
         ActionCollection::action("stop")->setEnabled(true);
         ActionCollection::action("forward")->setEnabled(true);
@@ -641,7 +647,8 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
             m_file.tag()->artist(),
             m_file.tag()->title()));
 
-        emit signalPlay();
+            emit signalItemChanged(m_file);
+        }
     }
     // else ignore it
 }
@@ -781,9 +788,6 @@ void PlayerManager::crossfadeToFile(const FileHandle &newFile)
 
     m_fader[nextOutputPath]->setVolume(0.0f);
 
-    // fore-warn listeners that newFile is about to become the current track
-    emit signalItemChanged(newFile);
-
     m_media[nextOutputPath]->setCurrentSource(QUrl::fromLocalFile(newFile.absFilePath()));
     m_media[nextOutputPath]->play();
 
@@ -799,6 +803,7 @@ void PlayerManager::crossfadeToFile(const FileHandle &newFile)
     m_fader[nextOutputPath]->fadeTo(1.0f, 2000);
 
     m_curOutputPath = nextOutputPath;
+    m_bItemPending = true;
 }
 
 void PlayerManager::stopCrossfade()

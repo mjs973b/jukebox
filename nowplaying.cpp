@@ -106,6 +106,12 @@ void NowPlaying::slotUpdate(const FileHandle &file)
         item->update(file);
 }
 
+void NowPlaying::slotPlayerStopped()
+{
+    hide();
+    emit nowPlayingHidden();
+}
+
 void NowPlaying::slotReloadCurrentItem()
 {
     foreach(NowPlayingItem *item, m_items)

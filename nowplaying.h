@@ -48,6 +48,7 @@ public:
 
 public slots:
     void slotUpdate(const FileHandle &file);
+    void slotPlayerStopped();
     void slotReloadCurrentItem();
 
 signals:

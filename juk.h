@@ -82,7 +82,7 @@ private slots:
     void slotCheckAlbumNextAction(bool albumRandomEnabled);
     void slotProcessArgs();
     void slotClearOldCovers();
-    void slotPlayTrack();
+    void slotPlayTrack(const FileHandle& file);
     void slotPlayerStopped();
 
 private:

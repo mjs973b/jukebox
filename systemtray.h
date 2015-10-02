@@ -119,7 +119,7 @@ private:
     QColor interpolateColor(int step, int steps = STEPS);
 
 private slots:
-    void slotPlay();
+    void slotPlay(const FileHandle& file);
     void slotPause();
     void slotStop();
     void slotPopupDestroyed();
