@@ -275,18 +275,23 @@ void JuK::setupActions()
     act = collection->addAction("pause", m_player, SLOT(pause()));
     act->setText(i18n("P&ause"));
     act->setIcon(KIcon( QLatin1String( "media-playback-pause" )));
+    act->setEnabled(false);
 
     act = collection->addAction("stop", m_player, SLOT(stop()));
     act->setText(i18n("&Stop"));
     act->setIcon(KIcon( QLatin1String( "media-playback-stop" )));
+    act->setEnabled(false);
 
     act = new KToolBarPopupAction(KIcon( QLatin1String( "media-skip-backward") ), i18nc("previous track", "Previous" ), collection);
-    collection->addAction("back", act);
+    act = collection->addAction("back", act);
+    act->setEnabled(false);
+
     connect(act, SIGNAL(triggered(bool)), m_player, SLOT(back()));
 
     act = collection->addAction("forward", m_player, SLOT(forward()));
     act->setText(i18nc("next track", "&Next"));
     act->setIcon(KIcon( QLatin1String( "media-skip-forward" )));
+    act->setEnabled(false);
 
     act = collection->addAction("loopPlaylist");
     act->setText(i18n("&Loop Playlist"));
@@ -380,9 +385,24 @@ void JuK::setupActions()
  */
 void JuK::slotPlayTrack(const FileHandle& file)
 {
+    ActionCollection::action("pause")->setEnabled(true);
+    ActionCollection::action("stop")->setEnabled(true);
+    ActionCollection::action("forward")->setEnabled(true);
+    if(ActionCollection::action<KToggleAction>("albumRandomPlay")->isChecked())
+        ActionCollection::action("forwardAlbum")->setEnabled(true);
+    ActionCollection::action("back")->setEnabled(true);
+
+    const Tag *tag  = file.tag();
+    QString title = tag->title();
+    QString artist = tag->artist();
+    this->setWindowTitle(i18nc(
+        "%1 is the artist and %2 is the title of the currently playing track.", 
+        "%1 - %2 :: Jukebox",
+        artist,
+        title));
+
     if (m_systemTray && m_player && m_togglePopupsAction->isChecked()) {
-        const Tag *tag  = file.tag();
-        m_systemTray->showMessage(tag->artist(), tag->title(),
+        m_systemTray->showMessage(artist, title,
           QSystemTrayIcon::Information, 8*1000);
     }
 }
@@ -392,6 +412,14 @@ void JuK::slotPlayTrack(const FileHandle& file)
  */
 void JuK::slotPlayerStopped()
 {
+    this->setWindowTitle(i18n("Jukebox"));
+
+    ActionCollection::action("pause")->setEnabled(false);
+    ActionCollection::action("stop")->setEnabled(false);
+    ActionCollection::action("back")->setEnabled(false);
+    ActionCollection::action("forward")->setEnabled(false);
+    ActionCollection::action("forwardAlbum")->setEnabled(false);
+
     PlaylistCollection::instance()->stop();
 }
 

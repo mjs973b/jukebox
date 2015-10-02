@@ -971,10 +971,11 @@ PlaylistCollection::ActionHandler::ActionHandler(PlaylistCollection *collection)
 #endif
 
 
-    createAction(i18n("Play First Track"),SLOT(slotPlayFirst()),     "playFirst");
-    createAction(i18n("Play Next Album"), SLOT(slotPlayNextAlbum()), "forwardAlbum", "go-down-search");
-
     KAction *act;
+
+    createAction(i18n("Play First Track"),SLOT(slotPlayFirst()),     "playFirst");
+    act = createAction(i18n("Play Next Album"), SLOT(slotPlayNextAlbum()), "forwardAlbum", "go-down-search");
+    act->setEnabled(false);
 
     act = createAction(i18n("Import Playlist..."), SLOT(slotOpen()), "file_open");
     act->setStatusTip(i18n("Import m3u playlists or individual tracks"));

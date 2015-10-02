@@ -304,14 +304,6 @@ void PlayerManager::playerHasStopped()
     if(!m_setup)
         return;
 
-    JuK::JuKInstance()->setWindowTitle(i18n("Jukebox"));
-
-    ActionCollection::action("pause")->setEnabled(false);
-    ActionCollection::action("stop")->setEnabled(false);
-    ActionCollection::action("back")->setEnabled(false);
-    ActionCollection::action("forward")->setEnabled(false);
-    ActionCollection::action("forwardAlbum")->setEnabled(false);
-
     if(!m_file.isNull()) {
         m_file = FileHandle::null();
     }
@@ -634,18 +626,6 @@ void PlayerManager::slotStateChanged(Phonon::State newstate, Phonon::State oldst
          */
         if(m_bItemPending) {
             m_bItemPending = false;
-        ActionCollection::action("pause")->setEnabled(true);
-        ActionCollection::action("stop")->setEnabled(true);
-        ActionCollection::action("forward")->setEnabled(true);
-        if(ActionCollection::action<KToggleAction>("albumRandomPlay")->isChecked())
-            ActionCollection::action("forwardAlbum")->setEnabled(true);
-        ActionCollection::action("back")->setEnabled(true);
-
-        JuK::JuKInstance()->setWindowTitle(i18nc(
-            "%1 is the artist and %2 is the title of the currently playing track.", 
-            "%1 - %2 :: Jukebox",
-            m_file.tag()->artist(),
-            m_file.tag()->title()));
 
             emit signalItemChanged(m_file);
         }
@@ -755,14 +735,6 @@ void PlayerManager::setup()
     }
     connect(m_media[0], SIGNAL(tick(qint64)), SLOT(slotTick(qint64)));
     connect(m_media[0], SIGNAL(finished()), SLOT(slotFinished()));
-
-    // initialize action states
-
-    ActionCollection::action("pause")->setEnabled(false);
-    ActionCollection::action("stop")->setEnabled(false);
-    ActionCollection::action("back")->setEnabled(false);
-    ActionCollection::action("forward")->setEnabled(false);
-    ActionCollection::action("forwardAlbum")->setEnabled(false);
 
     QDBusConnection::sessionBus().registerObject("/Player", this);
 }
