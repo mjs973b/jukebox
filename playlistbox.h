@@ -53,7 +53,7 @@ public:
     PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget *playlistStack);
     virtual ~PlaylistBox();
 
-    virtual void raise(Playlist *playlist);
+    virtual void raise2(Playlist *playlist);
     virtual void duplicate();
     virtual void remove();
 

@@ -153,7 +153,7 @@ public:
     /**
      * Makes \a playlist the currently visible playlist.
      */
-    virtual void raise(Playlist *playlist);
+    virtual void raise3(Playlist *playlist);
 
     /**
      * @return true, if a playlist with the file name given in @p file is

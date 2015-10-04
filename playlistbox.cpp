@@ -123,7 +123,7 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     m_viewModes[m_viewModeIndex]->setShown(true);
 
     TrackSequenceManager::instance()->setCurrentPlaylist(CollectionList::instance());
-    raise(CollectionList::instance());
+    this->raise2(CollectionList::instance());
 
     connect(viewModeAction, SIGNAL(triggered(int)), this, SLOT(slotSetViewMode(int)));
 
@@ -180,7 +180,7 @@ PlaylistBox::~PlaylistBox()
     saveConfig();
 }
 
-void PlaylistBox::raise(Playlist *playlist)
+void PlaylistBox::raise2(Playlist *playlist)
 {
     if(!playlist)
         return;
@@ -195,7 +195,7 @@ void PlaylistBox::raise(Playlist *playlist)
         ensureItemVisible(currentItem());
     }
     else
-        PlaylistCollection::raise(playlist);
+        this->raise3(playlist);
 
     slotSelectionChanged();
 }
@@ -578,7 +578,7 @@ void PlaylistBox::slotShowDropTarget()
         return;
     }
 
-    raise(m_dropItem->playlist());
+    this->raise2(m_dropItem->playlist());
 }
 
 void PlaylistBox::slotAddItem(const QString &tag, unsigned column)
@@ -935,7 +935,7 @@ void PlaylistBox::slotSelectionChanged()
         m_k3bAction->setEnabled(selectCnt > 0);
 
     if(selectCnt == 1) {
-        PlaylistCollection::raise(playlists.front());
+        this->raise3(playlists.front());
     }
     else if(selectCnt > 1)
         createDynamicPlaylist(playlists);
@@ -1010,7 +1010,7 @@ void PlaylistBox::slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int
 
 void PlaylistBox::slotPlaylistItemsDropped(Playlist *p)
 {
-    raise(p);
+    this->raise2(p);
 }
 
 void PlaylistBox::slotSetViewMode(int index)

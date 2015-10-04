@@ -195,7 +195,7 @@ QStringList PlaylistCollection::playlists() const
 
 void PlaylistCollection::createPlaylist(const QString &name)
 {
-    raise(new NormalPlaylist(this, name));
+    this->raise3(new NormalPlaylist(this, name));
 }
 
 void PlaylistCollection::createDynamicPlaylist(const PlaylistList &playlists)
@@ -208,7 +208,7 @@ void PlaylistCollection::createDynamicPlaylist(const PlaylistList &playlists)
         PlaylistCollection::setupPlaylist(m_dynamicPlaylist, QString());
     }
 
-    PlaylistCollection::raise(m_dynamicPlaylist);
+    this->raise3(m_dynamicPlaylist);
 }
 
 void PlaylistCollection::showMore(const QString &artist, const QString &album)
@@ -249,12 +249,12 @@ void PlaylistCollection::showMore(const QString &artist, const QString &album)
     else
         m_showMorePlaylist = new SearchPlaylist(this, search, i18n("Now Playing"), false, true);
 
-    // The call to raise() below will end up clearing m_belowShowMorePlaylist,
+    // The call to raise3() below will end up clearing m_belowShowMorePlaylist,
     // so cache the value we want it to have now.
     Playlist *belowShowMore = visiblePlaylist();
 
     PlaylistCollection::setupPlaylist(m_showMorePlaylist, QString());
-    PlaylistCollection::raise(m_showMorePlaylist);
+    this->raise3(m_showMorePlaylist);
 
     m_belowShowMorePlaylist = belowShowMore;
 }
@@ -294,7 +294,7 @@ void PlaylistCollection::setPlaylist(const QString &playlist)
 {
     Playlist *p = playlistByName(playlist);
     if(p)
-        raise(p);
+        this->raise3(p);
 }
 
 QStringList PlaylistCollection::playlistTracks(const QString &playlist) const
@@ -444,7 +444,7 @@ void PlaylistCollection::duplicate()
     if(name.isEmpty())
         return;
 
-    raise(new NormalPlaylist(this, visiblePlaylist()->items(), name));
+    this->raise3(new NormalPlaylist(this, visiblePlaylist()->items(), name));
 }
 
 void PlaylistCollection::save()
@@ -538,7 +538,7 @@ void PlaylistCollection::createPlaylist()
 {
     QString name = playlistNameDialog();
     if(!name.isEmpty())
-        raise(new NormalPlaylist(this, name));
+        this->raise3(new NormalPlaylist(this, name));
 }
 
 void PlaylistCollection::createSearchPlaylist()
@@ -549,7 +549,7 @@ void PlaylistCollection::createSearchPlaylist()
         AdvancedSearchDialog(name, PlaylistSearch(), JuK::JuKInstance()).exec();
 
     if(r.result == AdvancedSearchDialog::Accepted)
-        raise(new SearchPlaylist(this, r.search, r.playlistName));
+        this->raise3(new SearchPlaylist(this, r.search, r.playlistName));
 }
 
 void PlaylistCollection::createFolderPlaylist()
@@ -563,7 +563,7 @@ void PlaylistCollection::createFolderPlaylist()
     name = playlistNameDialog(i18n("Create Folder Playlist"), name);
 
     if(!name.isEmpty())
-        raise(new FolderPlaylist(this, folder, name));
+        this->raise3(new FolderPlaylist(this, folder, name));
 }
 
 void PlaylistCollection::guessTagFromFile()
@@ -633,7 +633,7 @@ void PlaylistCollection::setUpcomingPlaylistEnabled(bool enable)
         bool raiseCollection = visiblePlaylist() == m_upcomingPlaylist;
 
         if(raiseCollection) {
-            raise(CollectionList::instance());
+            this->raise3(CollectionList::instance());
         }
 
         m_upcomingPlaylist->deleteLater();
@@ -665,7 +665,7 @@ Playlist *PlaylistCollection::visiblePlaylist() const
     return qobject_cast<Playlist *>(m_playlistStack->currentWidget());
 }
 
-void PlaylistCollection::raise(Playlist *playlist)
+void PlaylistCollection::raise3(Playlist *playlist)
 {
     if(m_showMorePlaylist && currentPlaylist() == m_showMorePlaylist)
         m_showMorePlaylist->lower(playlist);
@@ -754,9 +754,9 @@ void PlaylistCollection::clearShowMore(bool raisePlaylist)
 
     if(raisePlaylist) {
         if(m_belowShowMorePlaylist)
-            raise(m_belowShowMorePlaylist);
+            this->raise3(m_belowShowMorePlaylist);
         else
-            raise(CollectionList::instance());
+            this->raise3(CollectionList::instance());
     }
 
     m_belowShowMorePlaylist = 0;
