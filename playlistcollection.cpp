@@ -52,6 +52,7 @@
 #include "upcomingplaylist.h"
 #include "directorylist.h"
 #include "mediafiles.h"
+#include "playlistbox.h"
 #include "playermanager.h"
 #include "tracksequencemanager.h"
 #include "juk.h"
@@ -85,11 +86,12 @@ static QStringList canonicalizeFolderPaths(const QStringList &folders)
 // public methods
 ////////////////////////////////////////////////////////////////////////////////
 
-PlaylistCollection::PlaylistCollection(PlayerManager *player, QStackedWidget *playlistStack) :
+PlaylistCollection::PlaylistCollection(PlayerManager *player, QStackedWidget *playlistStack, PlaylistBox *playlistBox) :
     m_playlistStack(playlistStack),
     m_historyPlaylist(0),
     m_upcomingPlaylist(0),
     m_playerManager(player),
+    m_playlistBox(playlistBox),
     m_importPlaylists(true),
     m_searchEnabled(true),
     m_playing(false),
@@ -205,7 +207,7 @@ void PlaylistCollection::createDynamicPlaylist(const PlaylistList &playlists)
     else {
         m_dynamicPlaylist =
             new DynamicPlaylist(playlists, this, i18n("Dynamic List"), "audio-midi", false, true);
-        PlaylistCollection::setupPlaylist(m_dynamicPlaylist, QString());
+        setupPlaylist2(m_dynamicPlaylist, QString());
     }
 
     this->raise3(m_dynamicPlaylist);
@@ -253,7 +255,7 @@ void PlaylistCollection::showMore(const QString &artist, const QString &album)
     // so cache the value we want it to have now.
     Playlist *belowShowMore = visiblePlaylist();
 
-    PlaylistCollection::setupPlaylist(m_showMorePlaylist, QString());
+    setupPlaylist2(m_showMorePlaylist, QString());
     this->raise3(m_showMorePlaylist);
 
     m_belowShowMorePlaylist = belowShowMore;
@@ -715,7 +717,12 @@ QStackedWidget *PlaylistCollection::playlistStack() const
     return m_playlistStack;
 }
 
-void PlaylistCollection::setupPlaylist(Playlist *playlist, const QString &)
+void PlaylistCollection::setupPlaylist(Playlist *playlist, const QString &icon)
+{
+    m_playlistBox->setupPlaylist3(playlist, icon);
+}
+
+void PlaylistCollection::setupPlaylist2(Playlist *playlist, const QString &)
 {
     QString fname = playlist->fileName();
     if(!fname.isEmpty()) {

@@ -76,7 +76,7 @@ public:
 
     Item *dropItem() const { return m_dropItem; }
 
-    void setupPlaylist(Playlist *playlist, const QString &iconName, Item *parentItem = 0);
+    void setupPlaylist3(Playlist *playlist, const QString &iconName, Item *parentItem = 0);
 
     /**
      * Write modified playlists to disk.
@@ -100,7 +100,6 @@ private:
     using K3ListView::selectAll; // Avoid warning about hiding this function.
 
 protected:
-    virtual void setupPlaylist(Playlist *playlist, const QString &iconName);
     virtual void removePlaylist(Playlist *playlist);
     virtual bool eventFilter(QObject *watched, QEvent *e);
 

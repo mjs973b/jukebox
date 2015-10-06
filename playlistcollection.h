@@ -35,6 +35,7 @@ class HistoryPlaylist;
 class UpcomingPlaylist;
 class SearchPlaylist;
 class DynamicPlaylist;
+class PlaylistBox;
 class PlaylistItem;
 class Playlist;
 class PlayerManager;
@@ -53,7 +54,8 @@ class PlaylistCollection : public PlaylistInterface
     friend class DynamicPlaylist;
 
 public:
-    PlaylistCollection(PlayerManager *player, QStackedWidget *playlistStack);
+    PlaylistCollection(PlayerManager *player, QStackedWidget *playlistStack,
+                       PlaylistBox *playlistBox);
     virtual ~PlaylistCollection();
 
     static PlaylistCollection *instance() { return m_instance; }
@@ -184,6 +186,7 @@ public:
 protected:
     virtual QStackedWidget *playlistStack() const;
     virtual void setupPlaylist(Playlist *playlist, const QString &iconName);
+    virtual void setupPlaylist2(Playlist *playlist, const QString &iconName);
     virtual void removePlaylist(Playlist *playlist) = 0;
 
     bool importPlaylists() const;
@@ -215,6 +218,7 @@ private:
     UpcomingPlaylist *m_upcomingPlaylist;
     ActionHandler    *m_actionHandler;
     PlayerManager    *m_playerManager;
+    PlaylistBox      *m_playlistBox;
 
     KDirLister  m_dirLister;
     StringHash  m_playlistNames;
