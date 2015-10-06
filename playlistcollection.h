@@ -93,10 +93,10 @@ public:
     virtual void duplicate();
     virtual void save();
     virtual void exportFile();
-    virtual void remove() = 0;
+    virtual void remove();
     virtual void reload();
     virtual void editSearch();
-    virtual void setDynamicListsFrozen(bool) = 0;
+    virtual void setDynamicListsFrozen(bool);
 
     bool showMoreActive() const;
     void clearShowMore(bool raise = true);
@@ -187,7 +187,7 @@ protected:
     virtual QStackedWidget *playlistStack() const;
     virtual void setupPlaylist(Playlist *playlist, const QString &iconName);
     virtual void setupPlaylist2(Playlist *playlist, const QString &iconName);
-    virtual void removePlaylist(Playlist *playlist) = 0;
+    virtual void removePlaylist(Playlist *playlist);
 
     bool importPlaylists() const;
 

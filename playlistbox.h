@@ -99,8 +99,9 @@ public slots:
 private:
     using K3ListView::selectAll; // Avoid warning about hiding this function.
 
-protected:
+public:
     virtual void removePlaylist(Playlist *playlist);
+protected:
     virtual bool eventFilter(QObject *watched, QEvent *e);
 
 signals:

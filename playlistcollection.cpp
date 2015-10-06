@@ -459,6 +459,10 @@ void PlaylistCollection::exportFile()
     visiblePlaylist()->exportFile();
 }
 
+void PlaylistCollection::remove() {
+    m_playlistBox->remove();
+}
+
 void PlaylistCollection::reload()
 {
     if(visiblePlaylist() == CollectionList::instance())
@@ -482,6 +486,10 @@ void PlaylistCollection::editSearch()
         p->setPlaylistSearch(r.search);
         p->setName(r.playlistName);
     }
+}
+
+void PlaylistCollection::setDynamicListsFrozen(bool b) {
+    m_playlistBox->setDynamicListsFrozen(b);
 }
 
 void PlaylistCollection::removeItems()
@@ -737,6 +745,10 @@ void PlaylistCollection::setupPlaylist2(Playlist *playlist, const QString &)
     m_playlistStack->addWidget(playlist);
     QObject::connect(playlist, SIGNAL(selectionChanged()),
                      object(), SIGNAL(signalSelectedItemsChanged()));
+}
+
+void PlaylistCollection::removePlaylist(Playlist *playlist) {
+    m_playlistBox->removePlaylist(playlist);
 }
 
 bool PlaylistCollection::importPlaylists() const
