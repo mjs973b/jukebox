@@ -66,11 +66,12 @@ using namespace ActionCollection;
 
 PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget *playlistStack) :
     K3ListView(parent),
-    PlaylistCollection(player, playlistStack, this),
     m_viewModeIndex(0),
     m_dropItem(0),
     m_showTimer(0)
 {
+    new PlaylistCollection(player, playlistStack, this),
+
     readConfig();
     addColumn("Playlists", width());
 
@@ -117,7 +118,7 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     m_viewModes.append(treeviewmode);
     viewModeAction->addAction(KIcon("view-list-tree"), treeviewmode->name());
 
-    CollectionList::initialize(this);
+    CollectionList::initialize(PlaylistCollection::instance());
 
     viewModeAction->setCurrentItem(m_viewModeIndex);
     m_viewModes[m_viewModeIndex]->setShown(true);
@@ -163,7 +164,7 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     this->installEventFilter(this);
 
     // hook up to the D-Bus
-    (void) new DBusCollectionProxy(this, this);
+    (void) new DBusCollectionProxy(this, PlaylistCollection::instance());
 }
 
 PlaylistBox::~PlaylistBox()
@@ -178,6 +179,9 @@ PlaylistBox::~PlaylistBox()
 
     Cache::savePlaylists(l);
     saveConfig();
+
+    // write playlists cache file
+    delete PlaylistCollection::instance();
 }
 
 void PlaylistBox::raise2(Playlist *playlist)
@@ -195,7 +199,7 @@ void PlaylistBox::raise2(Playlist *playlist)
         ensureItemVisible(currentItem());
     }
     else
-        this->raise3(playlist);
+        PlaylistCollection::instance()->raise3(playlist);
 
     slotSelectionChanged();
 }
@@ -206,13 +210,13 @@ void PlaylistBox::duplicate()
     if(!item || !item->playlist())
         return;
 
-    QString name = playlistNameDialog(i18nc("verb, copy the playlist", "Duplicate"), item->text(0));
+    QString name = PlaylistCollection::instance()->playlistNameDialog(i18nc("verb, copy the playlist", "Duplicate"), item->text(0));
 
     if(name.isNull())
         return;
 
     //FIXME: duplicate only works for Normal playlist
-    Playlist *p = new NormalPlaylist(this, name);
+    Playlist *p = new NormalPlaylist(PlaylistCollection::instance(), name);
     p->createItems(item->playlist()->items());
 }
 
@@ -221,7 +225,7 @@ void PlaylistBox::slotScanFolders()
     kDebug() << "Starting folder scan";
     QTime stopwatch; stopwatch.start();
 
-    PlaylistCollection::scanFolders();
+    PlaylistCollection::instance()->scanFolders();
 
     kDebug() << "Folder scan complete, took" << stopwatch.elapsed() << "ms";
 
@@ -312,7 +316,7 @@ void PlaylistBox::slotPlaylistDataChanged()
 
 void PlaylistBox::slotSetHistoryPlaylistEnabled(bool enable)
 {
-    setHistoryPlaylistEnabled(enable);
+    PlaylistCollection::instance()->setHistoryPlaylistEnabled(enable);
 }
 
 void PlaylistBox::setupPlaylist3(Playlist *playlist, const QString &iconName, Item *parentItem)
@@ -320,8 +324,7 @@ void PlaylistBox::setupPlaylist3(Playlist *playlist, const QString &iconName, It
     connect(playlist, SIGNAL(signalPlaylistItemsDropped(Playlist*)),
             SLOT(slotPlaylistItemsDropped(Playlist*)));
 
-    // from PlaylistCollection
-    setupPlaylist2(playlist, iconName);
+    PlaylistCollection::instance()->setupPlaylist2(playlist, iconName);
 
     if(parentItem)
         new Item(parentItem, iconName, playlist->name(), playlist);
@@ -333,11 +336,11 @@ void PlaylistBox::removePlaylist(Playlist *playlist)
 {
     // Could be false if setup() wasn't run yet.
     if(m_playlistDict.contains(playlist)) {
-        removeNameFromDict(m_playlistDict[playlist]->text(0));
+        PlaylistCollection::instance()->removeNameFromDict(m_playlistDict[playlist]->text(0));
         delete m_playlistDict[playlist]; // Delete the Item*
     }
 
-    removeFileFromDict(playlist->fileName());
+    PlaylistCollection::instance()->removeFileFromDict(playlist->fileName());
     m_playlistDict.remove(playlist);
 }
 
@@ -642,9 +645,10 @@ void PlaylistBox::decode(const QMimeData *s, Item *item)
     TreeViewItemPlaylist *playlistItem;
     playlistItem = dynamic_cast<TreeViewItemPlaylist *>(pl);
     if(playlistItem) {
-        playlistItem->retag(files, currentPlaylist());
+        Playlist *pl2 = PlaylistCollection::instance()->currentPlaylist();
+        playlistItem->retag(files, pl2);
         TagTransactionManager::instance()->commit();
-        currentPlaylist()->update();
+        pl2->update();
         return;
     }
 
@@ -931,10 +935,10 @@ void PlaylistBox::slotSelectionChanged()
         m_k3bAction->setEnabled(selectCnt > 0);
 
     if(selectCnt == 1) {
-        this->raise3(playlists.front());
+        PlaylistCollection::instance()->raise3(playlists.front());
     }
     else if(selectCnt > 1)
-        createDynamicPlaylist(playlists);
+        PlaylistCollection::instance()->createDynamicPlaylist(playlists);
 }
 
 void PlaylistBox::slotDoubleClicked(Q3ListViewItem *item)
@@ -1030,7 +1034,7 @@ void PlaylistBox::setupUpcomingPlaylist()
     KConfigGroup config(KGlobal::config(), "Playlists");
     bool enable = config.readEntry("showUpcoming", false);
 
-    setUpcomingPlaylistEnabled(enable);
+    PlaylistCollection::instance()->setUpcomingPlaylistEnabled(enable);
     action<KToggleAction>("showUpcoming")->setChecked(enable);
 }
 
@@ -1041,7 +1045,7 @@ void PlaylistBox::slotLoadCachedPlaylists()
     QTime stopwatch;
     stopwatch.start();
 
-    Cache::loadPlaylists(this);
+    Cache::loadPlaylists(PlaylistCollection::instance());
 
     kDebug() << "Cached playlists loaded, took" << stopwatch.elapsed() << "ms";
 
@@ -1085,11 +1089,11 @@ PlaylistBox::Item::~Item()
 int PlaylistBox::Item::compare(Q3ListViewItem *i, int col, bool) const
 {
     Item *otherItem = static_cast<Item *>(i);
-    PlaylistBox *playlistBox = static_cast<PlaylistBox *>(listView());
 
-    if(m_playlist == playlistBox->upcomingPlaylist() && otherItem->m_playlist != CollectionList::instance())
+    PlaylistCollection *coll = PlaylistCollection::instance();
+    if(m_playlist == coll->upcomingPlaylist() && otherItem->m_playlist != CollectionList::instance())
         return -1;
-    if(otherItem->m_playlist == playlistBox->upcomingPlaylist() && m_playlist != CollectionList::instance())
+    if(otherItem->m_playlist == coll->upcomingPlaylist() && m_playlist != CollectionList::instance())
         return 1;
 
     if(m_sortedFirst && !otherItem->m_sortedFirst)
@@ -1154,13 +1158,14 @@ void PlaylistBox::Item::init()
 
     int iconSize = list->viewModeIndex() == 0 ? 32 : 16;
     setPixmap(0, SmallIcon(m_iconName, iconSize));
-    list->addNameToDict(m_text);
+    PlaylistCollection *coll = PlaylistCollection::instance();
+    coll->addNameToDict(m_text);
 
     if(m_playlist) {
         connect(m_playlist, SIGNAL(signalNameChanged(QString)),
                 this, SLOT(slotSetName(QString)));
         connect(m_playlist, SIGNAL(signalEnableDirWatch(bool)),
-                list->object(), SLOT(slotEnableDirWatch(bool)));
+                coll->object(), SLOT(slotEnableDirWatch(bool)));
     }
 
     if(m_playlist == CollectionList::instance()) {
@@ -1169,7 +1174,7 @@ void PlaylistBox::Item::init()
         list->viewMode()->setupDynamicPlaylists();
     }
 
-    if(m_playlist == list->historyPlaylist() || m_playlist == list->upcomingPlaylist())
+    if(m_playlist == coll->historyPlaylist() || m_playlist == coll->upcomingPlaylist())
         m_sortedFirst = true;
 }
 

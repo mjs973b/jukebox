@@ -97,7 +97,7 @@ PlaylistSplitter::~PlaylistSplitter()
 
 PlaylistInterface *PlaylistSplitter::playlist() const
 {
-    return m_playlistBox;
+    return PlaylistCollection::instance();
 }
 
 void PlaylistSplitter::savePlaylistsToDisk(bool bDialogOK) {
@@ -126,7 +126,7 @@ void PlaylistSplitter::setFocus()
 
 void PlaylistSplitter::slotFocusCurrentPlaylist()
 {
-    Playlist *playlist = m_playlistBox->visiblePlaylist();
+    Playlist *playlist = PlaylistCollection::instance()->visiblePlaylist();
 
     if(playlist) {
         playlist->setFocus();
@@ -157,7 +157,7 @@ void PlaylistSplitter::slotFocusCurrentPlaylist()
 
 Playlist *PlaylistSplitter::visiblePlaylist() const
 {
-    return m_newVisible ? m_newVisible : m_playlistBox->visiblePlaylist();
+    return m_newVisible ? m_newVisible : PlaylistCollection::instance()->visiblePlaylist();
 }
 
 void PlaylistSplitter::setupActions()
@@ -216,7 +216,7 @@ void PlaylistSplitter::setupLayout()
     m_playlistBox = new PlaylistBox(m_player, this, m_playlistStack);
     m_playlistBox->setObjectName( QLatin1String( "playlistBox" ) );
 
-    connect(m_playlistBox->object(), SIGNAL(signalSelectedItemsChanged()),
+    connect(PlaylistCollection::instance()->object(), SIGNAL(signalSelectedItemsChanged()),
             this, SLOT(slotPlaylistSelectionChanged()));
     connect(m_playlistBox, SIGNAL(signalPlaylistDestroyed(Playlist*)),
             m_editor, SLOT(slotPlaylistDestroyed(Playlist*)));
@@ -224,14 +224,14 @@ void PlaylistSplitter::setupLayout()
     connect(m_playlistBox, SIGNAL(startFilePlayback(FileHandle)),
             m_player, SLOT(play(FileHandle)));
 
-    m_player->setPlaylistInterface(m_playlistBox);
+    m_player->setPlaylistInterface(PlaylistCollection::instance());
 
     // Let interested parties know we're ready
     connect(m_playlistBox, SIGNAL(startupComplete()), SIGNAL(guiReady()));
 
     insertWidget(0, m_playlistBox);
 
-    m_nowPlaying = new NowPlaying(top, m_playlistBox);
+    m_nowPlaying = new NowPlaying(top, PlaylistCollection::instance());
     connect(m_player, SIGNAL(signalItemChanged(FileHandle)),
             m_nowPlaying, SLOT(slotUpdate(FileHandle)));
     connect(m_player, SIGNAL(signalStop()),
@@ -248,11 +248,11 @@ void PlaylistSplitter::setupLayout()
     connect(m_searchWidget, SIGNAL(signalDownPressed()),
             this, SLOT(slotFocusCurrentPlaylist()));
     connect(m_searchWidget, SIGNAL(signalAdvancedSearchClicked()),
-            m_playlistBox->object(), SLOT(slotCreateSearchPlaylist()));
+            PlaylistCollection::instance()->object(), SLOT(slotCreateSearchPlaylist()));
     connect(m_searchWidget, SIGNAL(signalShown(bool)),
-            m_playlistBox->object(), SLOT(slotSetSearchEnabled(bool)));
+            PlaylistCollection::instance()->object(), SLOT(slotSetSearchEnabled(bool)));
     connect(m_searchWidget, SIGNAL(returnPressed()),
-            m_playlistBox->object(), SLOT(slotPlayFirst()));
+            PlaylistCollection::instance()->object(), SLOT(slotPlayFirst()));
     connect(ActionCollection::action<KToggleAction>("showSearch"), SIGNAL(toggled(bool)),
             m_searchWidget, SLOT(setEnabled(bool)));
 

@@ -40,7 +40,7 @@ typedef QList<Playlist *> PlaylistList;
  * JuK's main widget (PlaylistSplitter).
  */
 
-class PlaylistBox : public K3ListView, public PlaylistCollection
+class PlaylistBox : public K3ListView
 {
     Q_OBJECT
 
