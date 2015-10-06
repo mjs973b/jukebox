@@ -216,7 +216,7 @@ void PlaylistBox::duplicate()
     p->createItems(item->playlist()->items());
 }
 
-void PlaylistBox::scanFolders()
+void PlaylistBox::slotScanFolders()
 {
     kDebug() << "Starting folder scan";
     QTime stopwatch; stopwatch.start();
@@ -1052,7 +1052,7 @@ void PlaylistBox::slotLoadCachedPlaylists()
     connect(m_savePlaylistTimer, SIGNAL(timeout()), SLOT(slotSavePlaylistsToCache()));
 
     QTimer::singleShot(0, CollectionList::instance(), SLOT(slotCheckCache()));
-    QTimer::singleShot(0, object(), SLOT(slotScanFolders()));
+    QTimer::singleShot(0, this, SLOT(slotScanFolders()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

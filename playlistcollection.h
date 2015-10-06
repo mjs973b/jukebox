@@ -183,7 +183,6 @@ public:
 
     class ActionHandler;
 
-protected:
     virtual QStackedWidget *playlistStack() const;
     virtual void setupPlaylist(Playlist *playlist, const QString &iconName);
     virtual void setupPlaylist2(Playlist *playlist, const QString &iconName);
@@ -273,7 +272,7 @@ private slots:
     void slotRemoveItems()  { m_collection->removeItems(); }
     void slotRefreshItems() { m_collection->refreshItems(); }
     void slotRenameItems()  { m_collection->renameItems(); }
-    void slotScanFolders()  { m_collection->scanFolders(); }
+    //void slotScanFolders()  { m_collection->scanFolders(); }
 
     void slotViewCovers()   { m_collection->viewCovers(); }
     void slotRemoveCovers() { m_collection->removeCovers(); }

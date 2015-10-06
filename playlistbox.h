@@ -57,9 +57,6 @@ public:
     virtual void duplicate();
     virtual void remove();
 
-    // Called after files loaded to pickup any new files that might be present
-    // in managed directories.
-    virtual void scanFolders();
     // try to select playlist from previous app run
     virtual void restorePrevSelection();
 
@@ -91,6 +88,9 @@ public slots:
     virtual void clear();
     virtual void selectAll();       /* see using...selectAll; below */
 
+    // Called after files loaded to pickup any new files that might be present
+    // in managed directories.
+    void slotScanFolders();
     void slotFreezePlaylists();
     void slotUnfreezePlaylists();
     void slotPlaylistDataChanged();
