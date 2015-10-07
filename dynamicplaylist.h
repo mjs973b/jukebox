@@ -43,11 +43,6 @@ public:
 
     virtual int getType() { return Playlist::Type::Dynamic; }
 
-    virtual bool canReload() const { return false; }
-    virtual bool canDelete() const { return false; }
-    virtual bool canModifyContent() const { return false; }
-    virtual bool canRename() const { return false; }
-
     virtual bool getPolicy(Policy p);
 
     void setPlaylists(const PlaylistList &playlists);

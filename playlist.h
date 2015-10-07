@@ -349,33 +349,39 @@ public:
     virtual int columnOffset() const { return 0; }
 
     /**
+     * The Policy enum describes immutable characteristics associated with
+     * a Playlist:
+     *
+     * PolicyCanModifyContent
+     *
      * Report whether the content of this playlist is permitted to be 
      * modified i.e. whether .mp3 files can be added, deleted or renamed 
-     * for this .m3u playlist BY USER ACTION. The default is true, but it 
-     * can be changed by a subclass. This is class policy, not mutable state.
-     */
-    virtual bool canModifyContent() const = 0;
-
-    /**
+     * for this .m3u playlist BY USER ACTION.
+     * This is class policy, not mutable state.
+     *
+     * PolicyCanRename
+     *
      * Report whether the label on this playlist is permitted to be 
-     * changed BY USER ACTION. The default is true, but it can be changed 
-     * by a subclass. This is class policy, not mutable state.
-     */
-    virtual bool canRename() const = 0;
-
-    /**
+     * changed BY USER ACTION.
+     * This is class policy, not mutable state.
+     *
+     * PolicyCanDelete
+     *
      * Report whether this playlist is permitted to be deleted (both in 
-     * RAM and on disk) BY USER ACTION. The default is true, but it be 
-     * changed by a subclass. This is class policy, not mutable state.
-     */
-    virtual bool canDelete() const = 0;
-
-    /**
+     * RAM and on disk) BY USER ACTION.
+     * This is class policy, not mutable state.
+     *
+     * PolicyCanReload
+     *
      * Returns true if it's ok to reread/regenerate this playlist
-     * BY USER ACTION. This is class policy, not mutable state. Default is true,
-     * but it can be changed by a subclass.
+     * BY USER ACTION. This is class policy, not mutable state.
+     *
+     * PolicyPromptToSave
+     *
+     * Returns true if this playlist can be assigned an m3u filename
+     * by the user and that file can be created/written to disk. Some
+     * Playlist types do not allow this e.g. CollectionList.
      */
-    virtual bool canReload() const = 0;
 
     enum Policy { PolicyCanModifyContent, PolicyCanRename, PolicyCanDelete,
         PolicyCanReload, PolicyPromptToSave };

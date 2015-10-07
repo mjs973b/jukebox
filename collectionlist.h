@@ -124,11 +124,6 @@ public:
 
     void setupTreeViewEntries(ViewMode *viewMode) const;
 
-    virtual bool canReload() const { return true; }
-    virtual bool canDelete() const { return false; }
-    virtual bool canModifyContent() const { return true; }
-    virtual bool canRename() const { return false; }
-
     virtual bool getPolicy(Policy p);
 
     void saveItemsToCache() const;

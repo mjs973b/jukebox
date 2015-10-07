@@ -386,7 +386,7 @@ void PlaylistBox::saveConfig()
 
 /**
  * This is called by the 'File|Remove Playlists...' menu item. Remove selected 
- * playlists where canDelete() & isContentMutable() is true. 
+ * playlists where PolicyCanDelete & isContentMutable() is true.
  * Prompt the user whether to remove the .m3u file from disk too. If it happens that 
  * there are no disk files, then prompt with the playlist names which will be deleted.
  * If user selects Cancel, then delete neither the playlist objects or the disk files.
@@ -402,7 +402,7 @@ void PlaylistBox::remove()
     foreach(Item *item, items) {
         if(item && item->playlist()) {
             Playlist *pl = item->playlist();
-            if (pl->canDelete() && pl->isContentMutable()) {
+            if (pl->getPolicy(Playlist::PolicyCanDelete) && pl->isContentMutable()) {
                 if (!pl->fileName().isEmpty() && QFileInfo(pl->fileName()).exists()) {
                     files.append(pl->fileName());
                 }
@@ -538,7 +538,7 @@ void PlaylistBox::savePlaylistsToDisk(bool bDialogOk)
     for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
         Item *item = static_cast<Item *>(i);
         pl = item->playlist();
-        if(pl && pl != collection && pl->canModifyContent() && 
+        if(pl && pl != collection && pl->getPolicy(Playlist::PolicyCanModifyContent) && 
            pl->hasFileListChanged()) {
            
             int retval;
@@ -618,7 +618,7 @@ void PlaylistBox::decode(const QMimeData *s, Item *item)
         return;
     }
 
-    if (!pl->canModifyContent()) {
+    if (!pl->getPolicy(Playlist::PolicyCanModifyContent)) {
         // it's a bug if this happens
         kError() << "Attempt to drop on read-only target";
         return;
@@ -692,7 +692,7 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
 
     if(target) {
 
-        if(target->playlist() && !target->playlist()->canModifyContent()) {
+        if(target->playlist() && !target->playlist()->getPolicy(Playlist::PolicyCanModifyContent)) {
             e->setAccepted(false);
             return;
         }
@@ -869,18 +869,18 @@ void PlaylistBox::slotSelectionChanged()
         if(p) {
             // the canXYZ() methods are class policy, not mutable state
             bool isNormal = p->getType() == Playlist::Type::Normal;
-            if(!p->canReload()) {
+            if(!p->getPolicy(Playlist::PolicyCanReload)) {
                 bCanReload = false;
             } else if(isNormal && p->fileName().isEmpty()) {
                 bCanReload = false;
             }
-            if(!p->canDelete()) {
+            if(!p->getPolicy(Playlist::PolicyCanDelete)) {
                 bCanDelete = false;
             }
-            if(!p->canRename()) {
+            if(!p->getPolicy(Playlist::PolicyCanRename)) {
                 bCanRename = false;
             }
-            if(!p->canModifyContent()) {
+            if(!p->getPolicy(Playlist::PolicyCanModifyContent)) {
                 bCanModifyContent = false;
             }
             if(!p->isContentMutable()) {
@@ -979,7 +979,7 @@ void PlaylistBox::slotUpdateMenus()
     bool bEnablePaste = false;
     if (pl) {
         // determine read/write status for the selected playlist
-        bEnablePaste = pl->canModifyContent() && pl->isContentMutable();
+        bEnablePaste = pl->getPolicy(Playlist::PolicyCanModifyContent) && pl->isContentMutable();
         if (bEnablePaste) {
             // looking for mime-type "text/uri-list"
             const QMimeData *mime = QApplication::clipboard()->mimeData();

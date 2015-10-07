@@ -1038,7 +1038,7 @@ void Playlist::slotGuessTagInfo(TagGuesser::Type type)
 void Playlist::slotReload()
 {
     // check policy
-    if (!canReload()) {
+    if (!this->getPolicy(Playlist::PolicyCanReload)) {
         kError() << "Attempt to reload '" << name() << "' prohibited by policy";
         return;
     }
@@ -2354,7 +2354,7 @@ void Playlist::slotUpdateMenus() {
     int nRow = selectedItems().count();
 
     // use read/write status for this playlist
-    bool bMutable = this->canModifyContent() && this->isContentMutable();
+    bool bMutable = this->getPolicy(Playlist::PolicyCanModifyContent) && this->isContentMutable();
 
     bool bEnablePaste = false;
     if(bMutable) {

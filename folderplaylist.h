@@ -33,11 +33,6 @@ public:
     QString folder() const;
     void setFolder(const QString &s);
 
-    virtual bool canReload() const { return true; }
-    virtual bool canDelete() const { return true; }
-    virtual bool canModifyContent() const { return false; }
-    virtual bool canRename() const { return true; }
-
     virtual bool getPolicy(Policy p);
 
 public slots:
