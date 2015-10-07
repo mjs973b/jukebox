@@ -48,6 +48,8 @@ public:
     virtual bool canModifyContent() const { return false; }
     virtual bool canRename() const { return false; }
 
+    virtual bool getPolicy(Policy p);
+
     void setPlaylists(const PlaylistList &playlists);
 
 public slots:

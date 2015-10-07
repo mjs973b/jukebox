@@ -38,6 +38,8 @@ public:
     virtual bool canModifyContent() const { return false; }
     virtual bool canRename() const { return true; }
 
+    virtual bool getPolicy(Policy p);
+
 public slots:
     virtual void slotReload();
 

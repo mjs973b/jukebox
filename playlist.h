@@ -377,6 +377,11 @@ public:
      */
     virtual bool canReload() const = 0;
 
+    enum Policy { PolicyCanModifyContent, PolicyCanRename, PolicyCanDelete,
+        PolicyCanReload, PolicyPromptToSave };
+
+    virtual bool getPolicy(Policy p) = 0;
+
     /**
      * Determine if this playlist content can be modified by the app.
      * This is _state_ that can be changed programatically at any time.

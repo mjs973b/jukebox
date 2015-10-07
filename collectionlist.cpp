@@ -238,6 +238,17 @@ void CollectionList::slotDeleteItem(const KFileItem &item)
     delete lookup(item.url().path());
 }
 
+bool CollectionList::getPolicy(Playlist::Policy p) {
+    switch(p) {
+    case PolicyCanModifyContent: return true;
+    case PolicyCanRename:        return false;
+    case PolicyCanDelete:        return false;
+    case PolicyCanReload:        return true;
+    case PolicyPromptToSave:     return false;
+    default:                     return false;
+    }
+}
+
 void CollectionList::saveItemsToCache() const
 {
     kDebug() << "Saving collection list to cache";

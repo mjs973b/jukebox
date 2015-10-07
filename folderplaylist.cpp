@@ -48,6 +48,17 @@ void FolderPlaylist::setFolder(const QString &s)
     QTimer::singleShot(0, this, SLOT(slotReload()));
 }
 
+bool FolderPlaylist::getPolicy(Playlist::Policy p) {
+    switch(p) {
+    case PolicyCanModifyContent: return false;
+    case PolicyCanRename:        return true;
+    case PolicyCanDelete:        return true;
+    case PolicyCanReload:        return true;
+    case PolicyPromptToSave:     return false;
+    default:                     return false;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // private slots
 ////////////////////////////////////////////////////////////////////////////////

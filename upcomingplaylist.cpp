@@ -135,6 +135,17 @@ QMap< PlaylistItem::Pointer, QPointer<Playlist> > &UpcomingPlaylist::playlistInd
     return m_playlistIndex;
 }
 
+bool UpcomingPlaylist::getPolicy(Playlist::Policy p) {
+    switch(p) {
+    case PolicyCanModifyContent: return true;
+    case PolicyCanRename:        return false;
+    case PolicyCanDelete:        return false;
+    case PolicyCanReload:        return false;
+    case PolicyPromptToSave:     return false;
+    default:                     return false;
+    }
+}
+
 void UpcomingPlaylist::removeIteratorOverride()
 {
     if(!m_active)

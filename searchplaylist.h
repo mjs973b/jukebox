@@ -40,6 +40,8 @@ public:
     virtual bool canModifyContent() const { return false; }
     virtual bool canRename() const { return true; }
 
+    virtual bool getPolicy(Policy p);
+
 protected:
     /**
      * Runs the search to update the current items.

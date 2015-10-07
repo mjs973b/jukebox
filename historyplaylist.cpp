@@ -60,6 +60,17 @@ void HistoryPlaylist::createItems(const PlaylistItemList &siblings)
     Playlist::createItems<HistoryPlaylistItem, PlaylistItem>(siblings);
 }
 
+bool HistoryPlaylist::getPolicy(Playlist::Policy p) {
+    switch(p) {
+    case PolicyCanModifyContent: return false;
+    case PolicyCanRename:        return false;
+    case PolicyCanDelete:        return false;
+    case PolicyCanReload:        return false;
+    case PolicyPromptToSave:     return false;
+    default:                     return false;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // private slots
 ////////////////////////////////////////////////////////////////////////////////

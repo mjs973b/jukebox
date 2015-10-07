@@ -56,6 +56,8 @@ public:
     virtual bool canModifyContent() const { return false; }
     virtual bool canRename() const { return false; }
 
+    virtual bool getPolicy(Policy p);
+
     static int delay() { return 5000; }
 
 public slots:

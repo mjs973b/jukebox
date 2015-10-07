@@ -72,6 +72,17 @@ DynamicPlaylist::~DynamicPlaylist()
         delete observer;
 }
 
+bool DynamicPlaylist::getPolicy(Playlist::Policy p) {
+    switch(p) {
+    case PolicyCanModifyContent: return false;
+    case PolicyCanRename:        return false;
+    case PolicyCanDelete:        return false;
+    case PolicyCanReload:        return false;
+    case PolicyPromptToSave:     return false;
+    default:                     return false;
+    }
+}
+
 void DynamicPlaylist::setPlaylists(const PlaylistList &playlists)
 {
     m_playlists = playlists;

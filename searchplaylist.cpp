@@ -40,6 +40,17 @@ SearchPlaylist::SearchPlaylist(PlaylistCollection *collection,
 
 }
 
+bool SearchPlaylist::getPolicy(Playlist::Policy p) {
+    switch(p) {
+    case PolicyCanModifyContent: return false;
+    case PolicyCanRename:        return true;
+    case PolicyCanDelete:        return true;
+    case PolicyCanReload:        return true;
+    case PolicyPromptToSave:     return false;
+    default:                     return false;
+    }
+}
+
 void SearchPlaylist::setPlaylistSearch(const PlaylistSearch &s, bool update)
 {
     m_search = s;

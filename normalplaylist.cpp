@@ -45,6 +45,17 @@ NormalPlaylist::NormalPlaylist(PlaylistCollection *collection,
 {
 }
 
+bool NormalPlaylist::getPolicy(Playlist::Policy p) {
+    switch(p) {
+    case PolicyCanModifyContent: return true;
+    case PolicyCanRename:        return true;
+    case PolicyCanDelete:        return true;
+    case PolicyCanReload:        return true;
+    case PolicyPromptToSave:     return true;
+    default:                     return false;
+    }
+}
+
 #if 1
 void NormalPlaylist::read(QDataStream &s) {
     Playlist::read(s);

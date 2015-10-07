@@ -129,6 +129,8 @@ public:
     virtual bool canModifyContent() const { return true; }
     virtual bool canRename() const { return false; }
 
+    virtual bool getPolicy(Policy p);
+
     void saveItemsToCache() const;
 
 public slots:

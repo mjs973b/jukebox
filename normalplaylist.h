@@ -49,6 +49,7 @@ public:
 
     virtual bool canReload() const { return true; }
 
+    virtual bool getPolicy(Policy p);
 };
 
 QDataStream &operator<<(QDataStream &s, const NormalPlaylist &p);
