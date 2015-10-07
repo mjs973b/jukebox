@@ -523,8 +523,9 @@ void PlaylistBox::slotSavePlaylistsToCache()
     Cache::savePlaylists(list);
 }
 
-/* Write any modified User playlists to disk. Skip Playlist Objects which 
- * are read-only or is the CollectionList. If bDialogOk allows, prompt for 
+/* Write any modified User playlists to disk using their m3u filename, but
+ * only do playlists which have PolicyPromptToSave set to true (others
+ * are saved in the cache.) If bDialogOk allows, prompt for 
  * whether or not to save; for a newly-created playlist, prompt for 
  * filename.
  *
@@ -534,11 +535,10 @@ void PlaylistBox::slotSavePlaylistsToCache()
 void PlaylistBox::savePlaylistsToDisk(bool bDialogOk)
 {
     Playlist *pl;
-    CollectionList *collection = CollectionList::instance();
     for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
         Item *item = static_cast<Item *>(i);
         pl = item->playlist();
-        if(pl && pl != collection && pl->getPolicy(Playlist::PolicyCanModifyContent) && 
+        if(pl && pl->getPolicy(Playlist::PolicyPromptToSave) && 
            pl->hasFileListChanged()) {
            
             int retval;
