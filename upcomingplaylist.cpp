@@ -195,11 +195,31 @@ UpcomingPlaylist::UpcomingSequenceIterator::~UpcomingSequenceIterator()
 
 void UpcomingPlaylist::UpcomingSequenceIterator::advance()
 {
-    PlaylistItem *item = m_playlist->firstChild();
+    // first row of UpcomingPlaylist
+    PlaylistItem *row0 = m_playlist->firstChild();
 
-    if(item) {
-        PlaylistItem *next = static_cast<PlaylistItem *>(item->nextSibling());
-        m_playlist->clearItem(item);
+    // track we just finished, 0 at start of playlist
+    PlaylistItem *itemJustFinished = this->current();
+
+    // next track to play
+    PlaylistItem *next = 0;
+
+    if(row0) {
+        // there is another track we can play
+        if(itemJustFinished) {
+            const QString row0Fname = row0->file().absFilePath();
+            const QString finishedFname = itemJustFinished->file().absFilePath();
+            // might not match if user dragged rows around or sorted
+            if(row0Fname == finishedFname) {
+                next = static_cast<PlaylistItem *>(row0->nextSibling());
+                m_playlist->clearItem(itemJustFinished);
+            } else {
+                next = row0;
+            }
+        } else {
+            // is very first track of playlist
+            next = row0;
+        }
         setCurrent(next);
     }
 }
