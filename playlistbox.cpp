@@ -935,7 +935,8 @@ void PlaylistBox::slotSelectionChanged()
         m_k3bAction->setEnabled(selectCnt > 0);
 
     if(selectCnt == 1) {
-        PlaylistCollection::instance()->raise3(playlists.front());
+        Playlist *pl = playlists.front();
+        PlaylistCollection::instance()->raise3(pl);
     }
     else if(selectCnt > 1)
         PlaylistCollection::instance()->createDynamicPlaylist(playlists);
