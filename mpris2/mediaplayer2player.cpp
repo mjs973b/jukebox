@@ -47,7 +47,6 @@ MediaPlayer2Player::MediaPlayer2Player(QObject* parent)
     , m_player(JuK::JuKInstance()->playerManager())
 {
     connect(m_player, SIGNAL(signalItemChanged(FileHandle)), this, SLOT(currentSourceChanged()));
-    connect(m_player, SIGNAL(signalPlay()), this, SLOT(stateUpdated()));
     connect(m_player, SIGNAL(signalPause()), this, SLOT(stateUpdated()));
     connect(m_player, SIGNAL(signalStop()), this, SLOT(stateUpdated()));
     connect(m_player, SIGNAL(totalTimeChanged(int)), this, SLOT(totalTimeChanged()));
@@ -273,6 +272,7 @@ void MediaPlayer2Player::currentSourceChanged() const
     QVariantMap properties;
     properties["Metadata"] = Metadata();
     properties["CanSeek"] = CanSeek();
+    properties["PlaybackStatus"] = PlaybackStatus();
     signalPropertiesChange(properties);
 }
 
