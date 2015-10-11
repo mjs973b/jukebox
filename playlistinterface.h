@@ -61,20 +61,62 @@ private:
 /**
  * This is a simple interface that should be used by things that implement a
  * playlist-like API.
+ *
+ * As implemented in this app, the model assumes a global playlist,
+ * which may or may not correspond to any specific NormalPlaylist. Where the
+ * comments below refer to "the playlist", it means this global playlist.
  */
-
 class PlaylistInterface : public Watched
 {
 public:
+    /** The text label for the playlist */
     virtual QString name() const = 0;
+
+    /**
+     * The FileHandle for the current track in the playlist, or FileHandle::null()
+     * if there is no such track.
+     */
     virtual FileHandle currentFile() const = 0;
+
+    /**
+     * The total run time of the playlist, in seconds.
+     */
     virtual int time() const = 0;
+
+    /**
+     * @return the total number of tracks in the playlist, including both
+     *         hidden and non-hidden tracks.
+     */
     virtual int count() const = 0;
 
+    /**
+     * Command to move the track iterator to the next track in the playlist. It
+     * does not start an actual Player.
+     */
     virtual void playNext() = 0;
+
+    /**
+     * Command to move the track iterator to the previously played track.
+     * This is 'best effort' since the amount of history to keep is not defined
+     * by this interface.
+     */
     virtual void playPrevious() = 0;
+
+    /**
+     * Command to clear the track iterator; the next attempt to retrieve
+     * currentFile() will return FileHandle::null(). This method does not stop
+     * the actual Player.
+     */
     virtual void stop() = 0;
 
+    /**
+     * Determine if the playlist is active. The playlist is active from the
+     * first playNext() call until stop(); a paused playlist is still reported
+     * as "active".
+     * Note: this is independent of the actual PlayerManager state.
+     *
+     * @return true if the playlist is active.
+     */
     virtual bool playing() const = 0;
 };
 
