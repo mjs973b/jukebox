@@ -187,6 +187,8 @@ void JuK::setupLayout()
     statusBar()->addWidget(m_statusLabel, 1);
     m_player->setStatusLabel(m_statusLabel);
 
+    // PlayerManager signals
+    connect(m_player, SIGNAL(signalStart()), this, SLOT(slotPlayerStarted()));
     // PlayerManager will emit signal each time a new track starts
     connect(m_player, SIGNAL(signalItemChanged(FileHandle)), this, SLOT(slotPlayTrack(FileHandle)));
     connect(m_player, SIGNAL(signalStop()), this, SLOT(slotPlayerStopped()));
@@ -380,18 +382,28 @@ void JuK::setupActions()
 }
 
 /**
- * This slot called when a new song starts playing. Show a popup with 
- * Artist and Track Title for about 8 seconds, if enabled.
+ * This slot called when the player is started; no track may yet be
+ * audible. Note that slotPlayTag() will also be called once the first
+ * track is actually playing.
  */
-void JuK::slotPlayTrack(const FileHandle& file)
+void JuK::slotPlayerStarted()
 {
+    // update the state of player buttons
     ActionCollection::action("pause")->setEnabled(true);
     ActionCollection::action("stop")->setEnabled(true);
     ActionCollection::action("forward")->setEnabled(true);
     if(ActionCollection::action<KToggleAction>("albumRandomPlay")->isChecked())
         ActionCollection::action("forwardAlbum")->setEnabled(true);
     ActionCollection::action("back")->setEnabled(true);
+}
 
+/**
+ * This slot called when a new song starts playing. Show a popup with
+ * Artist and Track Title for about 8 seconds, if enabled.
+ * @param file  info about the track that is playing. Is never FileHandle::null().
+ */
+void JuK::slotPlayTrack(const FileHandle& file)
+{
     const Tag *tag  = file.tag();
     QString title = tag->title();
     QString artist = tag->artist();

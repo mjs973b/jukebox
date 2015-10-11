@@ -113,6 +113,7 @@ signals:
     void seeked(int newPos);
     void seekableChanged(bool muted);
 
+    void signalStart();
     void signalPause();
     void signalStop();
     void signalItemChanged(const FileHandle &file);
@@ -170,6 +171,12 @@ private:
      * after we reach the PlayingState.
      */
     bool   m_bVolDelayNeeded;
+
+    /**
+     * true for the time between play button pressed and stop button pressed.
+     *      Remains true if paused. Rising edge emits playerStarted signal.
+     */
+    bool   m_bPlayerActive;
 
     /**
      * true when we want to completely stop the player the next time

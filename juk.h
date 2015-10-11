@@ -82,6 +82,8 @@ private slots:
     void slotCheckAlbumNextAction(bool albumRandomEnabled);
     void slotProcessArgs();
     void slotClearOldCovers();
+    // handle PlayerManager signals
+    void slotPlayerStarted();
     void slotPlayTrack(const FileHandle& file);
     void slotPlayerStopped();
 

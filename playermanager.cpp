@@ -63,6 +63,7 @@ PlayerManager::PlayerManager() :
     m_crossfadeTracks(true),
     m_curOutputPath(0),
     m_bVolDelayNeeded(true),
+    m_bPlayerActive(false),
     m_bStopRequested(false),
     m_bItemPending(false),
     m_prevTrackTime(-1)
@@ -219,6 +220,11 @@ void PlayerManager::play(const FileHandle &file)
 
     m_bStopRequested = false;
 
+    if(!m_bPlayerActive) {
+        m_bPlayerActive = true;
+        emit signalStart();
+    }
+
     stopCrossfade();
 
     // The "currently playing" media object.
@@ -310,6 +316,8 @@ void PlayerManager::playerHasStopped()
 
     slotTick(0);
     slotLength(0);
+
+    m_bPlayerActive = false;
 
     emit signalStop();
 }
@@ -679,7 +687,7 @@ void PlayerManager::slotVolumeChanged(qreal volume)
  * first time. Used to work around a bug in audio backend.
  */
 void PlayerManager::slotDelayedPlay() {
-    kDebug() << "called";
+    //kDebug() << "called";
     Phonon::AudioOutput *out = m_output[m_curOutputPath];
     if (out) {
         out->setVolume(m_curVolume);
