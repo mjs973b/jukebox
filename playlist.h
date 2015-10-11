@@ -100,53 +100,58 @@ public:
      */
     virtual int getType() = 0;
 
-    // The following group of functions implement the PlaylistInterface API.
-
     /**
      * @return  the label for this playlist.
+     * @see PlaylistInterface
      */
     virtual QString name() const;
 
     /**
-     * Playlist has a built-in iterator used for current/next/previous
-     * track to play.
-     * @return  a FileHandle for the currently playing track
+     * Get the current file info for this playlist.
+     * @return  a FileHandle for the current track
+     * @see PlaylistInterface
      */
     virtual FileHandle currentFile() const;
 
     /**
-     * @return  the number of tracks in this playlist.
+     * @return  the number of tracks in this playlist, including both hidden
+     *          and non-hidden items.
+     * @see PlaylistInterface
      */
-    virtual int count() const { return childCount(); }
+    virtual int count() const;
 
     /**
      * @return the sum of all track lengths, in seconds. 
+     * @see PlaylistInterface
      */
     virtual int time() const;
 
     /**
-     * Step iterator forward by one and send to music player.
+     * Step iterator forward by one.
+     * @see PlaylistInterface
      */
     virtual void playNext();
 
     /**
-     * Step iterator back by one and send to music player.
+     * Step iterator back by one.
+     * @see PlaylistInterface
      */
     virtual void playPrevious();
 
     /**
-     * Halt the music player.
+     * Clear the iterator. Does not directly stop the Player.
+     * @see PlaylistInterface
      */
     virtual void stop();
 
     /**
-     * Plays the top item of this playlist.
+     * Set iterator to the first item of this playlist.
      */
     void playFirst();
 
     /**
-     * Plays the next album in the playlist.  Only useful when in album random
-     * play mode.
+     * Move iterator to the next album in the playlist.  Only useful when in
+     * album random play mode.
      */
     void playNextAlbum();
 
@@ -297,7 +302,8 @@ public:
     static void setPlaying(PlaylistItem *item, bool addToHistory = true);
 
     /**
-     * Returns true if this playlist is currently playing.
+     * Returns true if a track is playing, and it belongs to this playlist.
+     * Note: not compatible with PlaylistInterface.
      */
     bool playing() const;
 

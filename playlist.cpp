@@ -456,6 +456,10 @@ Playlist::~Playlist()
         m_collection->removePlaylist(this);
 }
 
+/*
+ * The label for this playlist, or a default if none set.
+ * @see PlaylistInterface
+ */
 QString Playlist::name() const
 {
     if(m_playlistName.isEmpty())
@@ -464,11 +468,20 @@ QString Playlist::name() const
         return m_playlistName;
 }
 
+/*
+ * @return the FileHandle for the currently playing track in this playlist, or
+ * FileHandle::null() if there is no such track.
+ * @see PlaylistInterface
+ */
 FileHandle Playlist::currentFile() const
 {
     return playingItem() ? playingItem()->file() : FileHandle::null();
 }
 
+/*
+ * @return the total run time of this playlist, in seconds.
+ * @see PlaylistInterface
+ */
 int Playlist::time() const
 {
     // Since this method gets a lot of traffic, let's optimize for such.
@@ -525,18 +538,40 @@ void Playlist::playNextAlbum()
     ActionCollection::action("forward")->trigger();
 }
 
+/*
+ * @return the total number of tracks in this playlist, including both hidden
+ * and non-hidden items.
+ * @see PlaylistInterface
+ */
+int Playlist::count() const
+{
+    return childCount();
+}
+
+/*
+ * Command to move the iterator to next song in this playlist.
+ * @see PlaylistInterface
+ */
 void Playlist::playNext()
 {
     TrackSequenceManager::instance()->setCurrentPlaylist(this);
     setPlaying(TrackSequenceManager::instance()->nextItem());
 }
 
+/*
+ * Command to clear the iterator for this playlist.
+ * @see PlaylistInterface
+ */
 void Playlist::stop()
 {
     m_history.clear();
     setPlaying(0);
 }
 
+/*
+ * Command to move iterator to previously played track.
+ * @see PlaylistInterface
+ */
 void Playlist::playPrevious()
 {
     if(!playingItem())
@@ -717,6 +752,8 @@ void Playlist::clearItems(const PlaylistItemList &items)
 
 PlaylistItem *Playlist::playingItem() // static
 {
+    kDebug() << "list has " << PlaylistItem::playingItems().count() << " items";
+    // playingItems() is a shared list, one list for all the Playlist
     return PlaylistItem::playingItems().isEmpty() ? 0 : PlaylistItem::playingItems().front();
 }
 
@@ -1985,6 +2022,19 @@ void Playlist::setPlaying(PlaylistItem *item, bool addToHistory)
     ActionCollection::action<KToolBarPopupAction>("back")->menu()->setEnabled(enableBack);
 }
 
+/* 
+ * Determine if there is a current track, and if it belongs to this playlist.
+ *
+ * This method is poorly named, probably for historical reasons.
+ * It is used to graphically indicate the current track with a black triangle.
+ * The returned value does not indicate whether or not the PlayerManager is
+ * actively playing the current track.
+ *
+ * @return true if the current track belongs to this playlist.
+ *
+ * Important Note: this method does not implement the behavior required by
+ * PlaylistInterface::playing()
+ */
 bool Playlist::playing() const
 {
     return playingItem() && this == playingItem()->playlist();

@@ -122,21 +122,26 @@ PlaylistCollection::~PlaylistCollection()
     Playlist::setShuttingDown();
 }
 
+/* @see PlaylistInterface */
 QString PlaylistCollection::name() const
 {
     return currentPlaylist()->name();
 }
 
+/* @see PlaylistInterface */
 FileHandle PlaylistCollection::currentFile() const
 {
     return currentPlaylist()->currentFile();
 }
 
+/* @see PlaylistInterface */
 int PlaylistCollection::count() const
 {
     return currentPlaylist()->count();
 }
 
+
+/* @see PlaylistInterface */
 int PlaylistCollection::time() const
 {
     return currentPlaylist()->time();
@@ -156,6 +161,7 @@ void PlaylistCollection::playNextAlbum()
     currentChanged();
 }
 
+/* @see PlaylistInterface */
 void PlaylistCollection::playPrevious()
 {
     m_playing = true;
@@ -163,6 +169,7 @@ void PlaylistCollection::playPrevious()
     currentChanged();
 }
 
+/* @see PlaylistInterface */
 void PlaylistCollection::playNext()
 {
     m_playing = true;
@@ -170,6 +177,7 @@ void PlaylistCollection::playNext()
     currentChanged();
 }
 
+/* @see PlaylistInterface */
 void PlaylistCollection::stop()
 {
     m_playing = false;
@@ -177,6 +185,7 @@ void PlaylistCollection::stop()
     dataChanged();
 }
 
+/* @see PlaylistInterface */
 bool PlaylistCollection::playing() const
 {
     return m_playing;
