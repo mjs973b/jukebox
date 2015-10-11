@@ -690,6 +690,11 @@ void PlaylistCollection::raise3(Playlist *playlist)
     dataChanged();
 }
 
+void PlaylistCollection::raise4(Playlist *playlist)
+{
+    m_playlistBox->raise2(playlist);
+}
+
 void PlaylistCollection::raiseDistraction()
 {
     if(m_belowDistraction)

@@ -1084,7 +1084,7 @@ void Playlist::slotShowPlaying()
     // because it will think the user is choosing a different playlist but not
     // selecting a different item.
 
-    m_collection->raise3(l);
+    m_collection->raise4(l);
 
     l->setSelected(playingItem(), true);
     l->ensureItemVisible(playingItem());
