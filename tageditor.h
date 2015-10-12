@@ -21,6 +21,7 @@
 #include <QList>
 #include <QMap>
 
+#include "playlistinterface.h"
 #include "ui_tageditor.h"
 
 class KComboBox;
@@ -38,7 +39,7 @@ class PlaylistItem;
 
 typedef QList<PlaylistItem *> PlaylistItemList;
 
-class TagEditor : public QWidget, public Ui::TagEditor
+class TagEditor : public QWidget, public PlaylistObserver, public Ui::TagEditor
 {
     Q_OBJECT
 
@@ -46,7 +47,12 @@ public:
     TagEditor(QWidget *parent = 0);
     virtual ~TagEditor();
     PlaylistItemList items() const { return m_items; }
-    void setupObservers();
+
+    /** @see PlaylistObserver */
+    virtual void updateCurrent();
+
+    /** @see PlaylistObserver */
+    virtual void updateData();
 
 public slots:
     void slotSave() { save(m_items); }

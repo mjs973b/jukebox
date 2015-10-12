@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2002-2004 Scott Wheeler <wheeler@kde.org>
  * Copyright (C) 2007 Michael Pyne <mpyne@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -51,7 +52,7 @@ class CollectionListItem;
 
 typedef QList<PlaylistItem *> PlaylistItemList;
 
-class Playlist : public K3ListView, public PlaylistInterface
+class Playlist : public K3ListView /*, public PlaylistInterface */
 {
     Q_OBJECT
 

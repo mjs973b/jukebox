@@ -16,6 +16,8 @@
 
 #include "tageditor.h"
 #include "collectionlist.h"
+#include "playlistcollection.h"
+#include "playlist.h"
 #include "playlistitem.h"
 #include "tag.h"
 #include "actioncollection.h"
@@ -107,35 +109,14 @@ private:
     int m_width;
 };
 
-class CollectionObserver : public PlaylistObserver
-{
-public:
-    CollectionObserver(TagEditor *parent) :
-        PlaylistObserver(CollectionList::instance()),
-        m_parent(parent)
-    {
-    }
-
-    virtual void updateData()
-    {
-        if(m_parent && m_parent->m_currentPlaylist && m_parent->isVisible())
-            m_parent->slotSetItems(m_parent->m_currentPlaylist->selectedItems());
-    }
-
-    virtual void updateCurrent() {}
-
-private:
-    TagEditor *m_parent;
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 // public members
 ////////////////////////////////////////////////////////////////////////////////
 
 TagEditor::TagEditor(QWidget *parent) :
     QWidget(parent),
+    PlaylistObserver(PlaylistCollection::instance()),
     m_currentPlaylist(0),
-    m_observer(0),
     m_performingSave(false)
 {
     setupActions();
@@ -150,13 +131,20 @@ TagEditor::TagEditor(QWidget *parent) :
 
 TagEditor::~TagEditor()
 {
-    delete m_observer;
     saveConfig();
 }
 
-void TagEditor::setupObservers()
+/* @see PlaylistObserver */
+void TagEditor::updateCurrent()
 {
-    m_observer = new CollectionObserver(this);
+}
+
+/* @see PlaylistObserver */
+void TagEditor::updateData()
+{
+    if(m_currentPlaylist && this->isVisible()) {
+        slotSetItems(m_currentPlaylist->selectedItems());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

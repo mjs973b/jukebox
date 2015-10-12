@@ -67,7 +67,6 @@ private:
     friend struct Observer;
 
     Observer m_observer;
-    Observer m_collectionListObserver;
     PlaylistCollection *m_collection;
     QList<NowPlayingItem *> m_items;
     FileHandle m_file;

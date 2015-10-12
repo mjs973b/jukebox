@@ -171,7 +171,7 @@ void UpcomingPlaylist::removeIteratorOverride()
 
     setPlaying(manager()->currentItem(), true);
 
-    Watched::currentChanged();
+    PlaylistCollection::instance()->currentChanged();
 }
 
 TrackSequenceManager *UpcomingPlaylist::manager() const

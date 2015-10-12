@@ -19,6 +19,7 @@
 #define PLAYLISTBOX_H
 
 #include "playlistcollection.h"
+#include "playlistinterface.h"
 
 #include <k3listview.h>
 
@@ -180,7 +181,7 @@ private:
     QList<Item*> m_selectedList;
 };
 
-class PlaylistBox::Item : public QObject, public K3ListViewItem, public PlaylistObserver
+class PlaylistBox::Item : public QObject, public K3ListViewItem /*, public PlaylistObserver */
 {
     friend class PlaylistBox;
     friend class ViewMode;
@@ -217,16 +218,6 @@ protected:
 
     static Item *collectionItem() { return m_collectionItem; }
     static void setCollectionItem(Item *item) { m_collectionItem = item; }
-
-    //
-    // Reimplemented from PlaylistObserver
-    //
-
-    virtual void updateCurrent();
-
-    // Used to post a timer in PlaylistBox to save playlists.
-    virtual void updateData();
-
 
 protected slots:
     void slotSetName(const QString &name);

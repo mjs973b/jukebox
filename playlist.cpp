@@ -1,6 +1,7 @@
 /**
  * Copyright (C) 2002-2004 Scott Wheeler <wheeler@kde.org>
  * Copyright (C) 2008 Michael Pyne <mpyne@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -438,12 +439,6 @@ Playlist::Playlist(PlaylistCollection *collection, bool delaySetup, int extraCol
 
 Playlist::~Playlist()
 {
-    // In some situations the dataChanged signal from clearItems will cause observers to
-    // subsequently try to access a deleted item.  Since we're going away just remove all
-    // observers.
-
-    clearObservers();
-
     // clearItem() will take care of removing the items from the history,
     // so call clearItems() to make sure it happens.
 
@@ -1142,9 +1137,10 @@ void Playlist::slotColumnResizeModeChanged()
 
 void Playlist::dataChanged()
 {
-    if(m_blockDataChanged)
+    if(m_blockDataChanged || m_shuttingDown)
         return;
-    PlaylistInterface::dataChanged();
+
+    PlaylistCollection::instance()->dataChanged();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

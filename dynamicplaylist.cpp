@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2003-2004 Scott Wheeler <wheeler@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -21,22 +22,6 @@
 
 #include <QTimer>
 
-class PlaylistDirtyObserver : public PlaylistObserver
-{
-public:
-    PlaylistDirtyObserver(DynamicPlaylist *parent, Playlist *playlist) :
-        PlaylistObserver(playlist),
-        m_parent(parent)
-    {
-
-    }
-    virtual void updateData() { m_parent->slotSetDirty(); }
-    virtual void updateCurrent() {}
-
-private:
-    DynamicPlaylist *m_parent;
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 // public methods
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +33,7 @@ DynamicPlaylist::DynamicPlaylist(const PlaylistList &playlists,
                                  bool setupPlaylist,
                                  bool synchronizePlaying) :
     Playlist(collection, true),
+    PlaylistObserver(PlaylistCollection::instance()),
     m_playlists(playlists),
     m_dirty(true),
     m_synchronizePlaying(synchronizePlaying)
@@ -57,19 +43,11 @@ DynamicPlaylist::DynamicPlaylist(const PlaylistList &playlists,
     setName(name);
 
     setSorting(columns() + 1);
-
-    for(PlaylistList::ConstIterator it = playlists.constBegin(); it != playlists.constEnd(); ++it)
-        m_observers.append(new PlaylistDirtyObserver(this, *it));
-
-    connect(CollectionList::instance(), SIGNAL(signalCollectionChanged()), this, SLOT(slotSetDirty()));
 }
 
 DynamicPlaylist::~DynamicPlaylist()
 {
     lower();
-
-    foreach(PlaylistObserver *observer, m_observers)
-        delete observer;
 }
 
 bool DynamicPlaylist::getPolicy(Playlist::Policy p) {
@@ -126,6 +104,18 @@ void DynamicPlaylist::lower(QWidget *top)
 
     if(!list.isEmpty())
         TrackSequenceManager::instance()->setCurrentPlaylist(list.front()->playlist());
+}
+
+/* @see PlaylistObserver */
+void DynamicPlaylist::updateCurrent()
+{
+}
+
+/* @see PlaylistObserver */
+void DynamicPlaylist::updateData()
+{
+    // rebuild the list the next time updateItems() is called
+    m_dirty = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

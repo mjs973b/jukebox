@@ -1068,7 +1068,6 @@ PlaylistBox::Item *PlaylistBox::Item::m_collectionItem = 0;
 
 PlaylistBox::Item::Item(PlaylistBox *listBox, const QString &icon, const QString &text, Playlist *l)
     : QObject(listBox), K3ListViewItem(listBox, 0, text),
-      PlaylistObserver(l),
       m_playlist(l), m_text(text), m_iconName(icon), m_sortedFirst(false)
 {
     init();
@@ -1076,7 +1075,6 @@ PlaylistBox::Item::Item(PlaylistBox *listBox, const QString &icon, const QString
 
 PlaylistBox::Item::Item(Item *parent, const QString &icon, const QString &text, Playlist *l)
     : QObject(parent->listView()), K3ListViewItem(parent, text),
-    PlaylistObserver(l),
     m_playlist(l), m_text(text), m_iconName(icon), m_sortedFirst(false)
 {
     init();
@@ -1136,15 +1134,6 @@ void PlaylistBox::Item::slotSetName(const QString &name)
         listView()->ensureItemVisible(listView()->currentItem());
         listView()->viewMode()->queueRefresh();
     }
-}
-
-void PlaylistBox::Item::updateCurrent()
-{
-}
-
-void PlaylistBox::Item::updateData()
-{
-    listView()->slotPlaylistDataChanged();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

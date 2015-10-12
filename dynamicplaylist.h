@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2003-2004 Scott Wheeler <wheeler@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -25,7 +26,7 @@
  * A Playlist that is a union of other playlists that is created dynamically.
  */
 
-class DynamicPlaylist : public Playlist
+class DynamicPlaylist : public Playlist, public PlaylistObserver
 {
     Q_OBJECT
 public:
@@ -47,13 +48,18 @@ public:
 
     void setPlaylists(const PlaylistList &playlists);
 
+    /* @see PlaylistObserver */
+    virtual void updateCurrent();
+
+    /* @see PlaylistObserver */
+    virtual void updateData();
+
 public slots:
     /**
      * Reimplemented so that it will reload all of the playlists that are
      * associated with the dynamic list.
      */
     virtual void slotReload();
-    void slotSetDirty() { m_dirty = true; }
 
     /**
      * This is called when lowering the widget from the widget stack so that
@@ -63,11 +69,6 @@ public slots:
     void lower(QWidget *top = 0);
 
 protected:
-    /**
-     * Returns true if this list's items need to be updated the next time it's
-     * shown.
-     */
-    bool dirty() const { return m_dirty; }
 
     /**
      * Return a list of the items in this playlist.  For example in a search
@@ -105,7 +106,6 @@ private slots:
     void slotUpdateItems();
 
 private:
-    QList<PlaylistObserver *> m_observers;
     PlaylistItemList m_siblings;
     PlaylistList m_playlists;
     bool m_dirty;

@@ -68,11 +68,13 @@ PlaylistSplitter::PlaylistSplitter(PlayerManager *player, QWidget *parent) :
     readConfig();
 
     m_editor->slotUpdateCollection();
-    m_editor->setupObservers();
 }
 
 PlaylistSplitter::~PlaylistSplitter()
 {
+    // reduce work done by Playlist destructor
+    Playlist::setShuttingDown();
+
     saveConfig();
 
     // TagEditor needs to write its configuration out while it's still valid,
@@ -89,8 +91,8 @@ PlaylistSplitter::~PlaylistSplitter()
     delete m_searchWidget; // Take no chances here either.
 
     // Since we want to ensure that the shutdown process for the PlaylistCollection
-    // (a base class for PlaylistBox) has a chance to write the playlists to disk
-    // before they are deleted we're explicitly deleting the PlaylistBox here.
+    // has a chance to write the playlists to disk
+    // before they are deleted, we're explicitly deleting the PlaylistBox here.
 
     delete m_playlistBox;
 }
