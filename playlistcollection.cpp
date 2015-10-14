@@ -207,7 +207,7 @@ QStringList PlaylistCollection::playlists() const
 
 void PlaylistCollection::createPlaylist(const QString &name)
 {
-    this->raise3(new NormalPlaylist(this, name));
+    this->raise4(new NormalPlaylist(this, name));
 }
 
 void PlaylistCollection::createDynamicPlaylist(const PlaylistList &playlists)
@@ -306,7 +306,7 @@ void PlaylistCollection::setPlaylist(const QString &playlist)
 {
     Playlist *p = playlistByName(playlist);
     if(p)
-        this->raise3(p);
+        this->raise4(p);
 }
 
 QStringList PlaylistCollection::playlistTracks(const QString &playlist) const
@@ -456,7 +456,7 @@ void PlaylistCollection::duplicate()
     if(name.isEmpty())
         return;
 
-    this->raise3(new NormalPlaylist(this, visiblePlaylist()->items(), name));
+    this->raise4(new NormalPlaylist(this, visiblePlaylist()->items(), name));
 }
 
 void PlaylistCollection::save()
@@ -558,7 +558,7 @@ void PlaylistCollection::createPlaylist()
 {
     QString name = playlistNameDialog();
     if(!name.isEmpty())
-        this->raise3(new NormalPlaylist(this, name));
+        this->raise4(new NormalPlaylist(this, name));
 }
 
 void PlaylistCollection::createSearchPlaylist()
