@@ -671,9 +671,6 @@ Playlist *PlaylistCollection::currentPlaylist() const
     if(m_belowDistraction)
         return m_belowDistraction;
 
-    if(m_upcomingPlaylist && m_upcomingPlaylist->active())
-        return m_upcomingPlaylist;
-
     if(Playlist::playingItem())
         return Playlist::playingItem()->playlist();
     else
