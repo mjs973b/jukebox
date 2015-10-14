@@ -120,6 +120,7 @@ PlaylistCollection::~PlaylistCollection()
     CollectionList::instance()->saveItemsToCache();
     delete m_actionHandler;
     Playlist::setShuttingDown();
+    m_instance = 0;
 }
 
 /* @see PlaylistInterface */

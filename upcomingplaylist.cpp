@@ -41,7 +41,9 @@ UpcomingPlaylist::UpcomingPlaylist(PlaylistCollection *collection) :
 
 UpcomingPlaylist::~UpcomingPlaylist()
 {
-    removeIteratorOverride();
+    if(!m_shuttingDown) {
+        removeIteratorOverride();
+    }
 }
 
 void UpcomingPlaylist::initialize()

@@ -861,7 +861,9 @@ private:
      * call to setVisibleItems()) while random play is playing.
      */
     static bool m_visibleChanged;
+protected:
     static bool m_shuttingDown;
+private:
     static int m_leftColumn;
     static QVector<PlaylistItem *> m_backMenuItems;
 
