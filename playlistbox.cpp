@@ -325,8 +325,8 @@ void PlaylistBox::slotSetHistoryPlaylistEnabled(bool enable)
 
 void PlaylistBox::setupPlaylist3(Playlist *playlist, const QString &iconName, Item *parentItem)
 {
-    connect(playlist, SIGNAL(signalPlaylistItemsDropped(Playlist*)),
-            SLOT(slotPlaylistItemsDropped(Playlist*)));
+    //connect(playlist, SIGNAL(signalPlaylistItemsDropped(Playlist*)),
+    //        SLOT(slotPlaylistItemsDropped(Playlist*)));
 
     PlaylistCollection::instance()->setupPlaylist2(playlist, iconName);
 
@@ -1014,9 +1014,15 @@ void PlaylistBox::slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int
     m_contextMenu->popup(point);
 }
 
+/* This method is called when URLs are dropped on the track table (note: not
+ * on this widget).
+ *
+ * The catch is, the track table must be visible for this to happen. So the
+ * playlist icon is already selected. So this method is always unnecessary.
+ */
 void PlaylistBox::slotPlaylistItemsDropped(Playlist *p)
 {
-    this->raise2(p);
+    //this->raise2(p);
 }
 
 void PlaylistBox::slotSetViewMode(int index)
