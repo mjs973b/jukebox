@@ -684,10 +684,17 @@ Playlist *PlaylistCollection::visiblePlaylist() const
 
 void PlaylistCollection::raise3(Playlist *playlist)
 {
-    if(m_showMorePlaylist && currentPlaylist() == m_showMorePlaylist)
+    Playlist *currPlaylist = currentPlaylist();
+
+    if(m_showMorePlaylist && currPlaylist == m_showMorePlaylist)
         m_showMorePlaylist->lower(playlist);
-    if(m_dynamicPlaylist && currentPlaylist() == m_dynamicPlaylist)
+    if(m_dynamicPlaylist && currPlaylist == m_dynamicPlaylist)
         m_dynamicPlaylist->lower(playlist);
+
+    if(visiblePlaylist() == playlist) {
+        kDebug() << "bailing out, already visible";
+        return;
+    }
 
     TrackSequenceManager::instance()->setCurrentPlaylist(playlist);
     playlist->applySharedSettings();
