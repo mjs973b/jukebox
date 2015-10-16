@@ -197,16 +197,15 @@ void PlaylistBox::raise2(Playlist *playlist)
     Item *i = m_playlistDict.value(playlist, 0);
 
     if(i) {
-        clearSelection();
-        setSelected(i, true);
-
+        // issues signal, which calls slotSelectionChanged()
         setSingleItem(i);
         ensureItemVisible(currentItem());
     }
-    else
+    else {
+        // got a non-icon dynamic playlist
         PlaylistCollection::instance()->raise3(playlist);
-
-    slotSelectionChanged();
+        slotSelectionChanged();
+    }
 }
 
 void PlaylistBox::duplicate()
@@ -776,7 +775,8 @@ QList<PlaylistBox::Item*> PlaylistBox::selectedBoxItems() const
 void PlaylistBox::setSingleItem(Q3ListViewItem *item)
 {
     setSelectionModeExt(Single);
-    K3ListView::setCurrentItem(item);
+    //K3ListView::setCurrentItem(item);
+    setSelected(item, true);
     setSelectionModeExt(Extended);
 }
 
