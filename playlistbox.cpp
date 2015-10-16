@@ -189,6 +189,11 @@ void PlaylistBox::raise2(Playlist *playlist)
     if(!playlist)
         return;
 
+    if(m_selectedList.count() == 1 && m_selectedList.front()->playlist() == playlist) {
+        kDebug() << "bailing out, already selected";
+        return;
+    }
+
     Item *i = m_playlistDict.value(playlist, 0);
 
     if(i) {
