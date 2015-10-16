@@ -247,6 +247,8 @@ void PlayerManager::play(const FileHandle &file)
         setForegroundTrack(file);
     }
 
+    ActionCollection::action("pause")->setEnabled(true);
+
     // Our state changed handler will perform the follow up actions necessary
     // once we actually start playing.
 }
