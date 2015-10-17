@@ -892,7 +892,7 @@ void Playlist::synchronizePlayingItems(const PlaylistList &sources, bool setMast
                 PlaylistItem *item = static_cast<PlaylistItem *>(itemIt.current());
                 if(base == item->collectionItem()) {
                     item->setPlaying(true, setMaster);
-                    PlaylistItemList playing = PlaylistItem::playingItems();
+                    //PlaylistItemList playing = PlaylistItem::playingItems();
                     TrackSequenceManager::instance()->setCurrent(item);
                     return;
                 }
