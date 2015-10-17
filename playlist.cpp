@@ -2011,32 +2011,45 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
     m_disableColumnWidthUpdates = false;
 }
 
-void Playlist::setPlaying(PlaylistItem *item, bool addToHistory)
+/**
+ * Update the TrackSequenceManager with a new PlaylistItem to make current,
+ * move the black triangle marker to the specified entry. If somehow the
+ * newItem is the same as old item, then do nothing.
+ *
+ * @param newItem  the table row of track to make current, or 0 to clear the 
+ *                 current item.
+ * @param addToHistory  true to add the old item to recent-history list.
+ *
+ * Note: This is a static function.
+ */
+void Playlist::setPlaying(PlaylistItem *newItem, bool addToHistory)
 {
-    if(playingItem() == item)
+    PlaylistItem *curItem = playingItem();
+    if(curItem == newItem)
         return;
 
-    if(playingItem()) {
+    if(curItem) {
         if(addToHistory) {
-            if(playingItem()->playlist() ==
-               playingItem()->playlist()->m_collection->upcomingPlaylist())
-                m_history.append(playingItem()->collectionItem());
+            Playlist *pl = curItem->playlist();
+            if(pl == pl->m_collection->upcomingPlaylist())
+                m_history.append(curItem->collectionItem());
             else
-                m_history.append(playingItem());
+                m_history.append(curItem);
         }
-        playingItem()->setPlaying(false);
+        curItem->setPlaying(false);
     }
 
-    TrackSequenceManager::instance()->setCurrent(item);
+    // remember newItem, and tell PlayerManager to pick it up
+    TrackSequenceManager::instance()->setCurrent(newItem);
 #ifdef __GNUC__
 #warning "kde4: port it"
 #endif
     //kapp->dcopClient()->emitDCOPSignal("Player", "trackChanged()", data);
 
-    if(!item)
+    if(!newItem)
         return;
 
-    item->setPlaying(true);
+    newItem->setPlaying(true);
 
     bool enableBack = !m_history.isEmpty();
     ActionCollection::action<KToolBarPopupAction>("back")->menu()->setEnabled(enableBack);
