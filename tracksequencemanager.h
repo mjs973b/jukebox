@@ -125,13 +125,10 @@ public slots:
     void setNextItem(PlaylistItem *item);
 
     /**
-     * Sets the current playlist.  This is necessary in order for some of the
-     * actions in the popup menu used by this class to work.  Note that the
-     * current playlist is not necessarily the same as the playlist that is
-     * playlist.  The TrackSequenceManager does not own @p list after this
-     * call.
+     * Sets a default playlist to be used by the iterator if it has nothing
+     * better to use. Typically should be set to the visible playlist.
      *
-     * @param list the current playlist
+     * @param list the default playlist, or 0 to use class default.
      */
     void setCurrentPlaylist(Playlist *list);
 
@@ -176,8 +173,17 @@ protected slots:
     void slotItemAboutToDie(PlaylistItem *item);
 
 private:
+
+    void updatePendingPlaylist(Playlist *pl);
+
     /**
-     * Internally cache ptr to playlist which holds the current item. We keep
+     * A default playlist to be used by the iterator if it has nothing
+     * better to use. Typically should be set to the visible playlist.
+     */
+    QPointer<Playlist> m_defaultPlaylist;
+
+    /**
+     * Internally cache ptr to playlist which holds m_playNextItem. We keep
      * active connections to it so we are warned if item or playlist is about
      * to be deleted.
      */

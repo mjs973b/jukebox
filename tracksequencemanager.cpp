@@ -90,12 +90,13 @@ PlaylistItem *TrackSequenceManager::nextItem()
         m_iterator->reset();
         m_iterator->prepareToPlay(m_playNextItem->playlist());
         m_iterator->setCurrent(m_playNextItem);
-        m_playNextItem = 0;
+        // clear pending and the protection for it
+        setNextItem(0);
     }
     else if(m_iterator->current())
         m_iterator->advance();
-    else if(m_playlist)
-        m_iterator->prepareToPlay(m_playlist);
+    else if(m_defaultPlaylist)
+        m_iterator->prepareToPlay(m_defaultPlaylist);
     else
         m_iterator->prepareToPlay(CollectionList::instance());
 
@@ -115,9 +116,15 @@ PlaylistItem *TrackSequenceManager::previousItem()
 void TrackSequenceManager::setNextItem(PlaylistItem *item)
 {
     m_playNextItem = item;
+    updatePendingPlaylist(item ? item->playlist() : 0);
 }
 
-void TrackSequenceManager::setCurrentPlaylist(Playlist *list)
+void TrackSequenceManager::setCurrentPlaylist(Playlist *pl)
+{
+    m_defaultPlaylist = pl;
+}
+
+void TrackSequenceManager::updatePendingPlaylist(Playlist *list)
 {
     if(list == m_playlist) {
         kDebug() << "bail out, playlist already set";
@@ -127,8 +134,10 @@ void TrackSequenceManager::setCurrentPlaylist(Playlist *list)
         m_playlist->disconnect(this);
     m_playlist = list;
 
-    connect(m_playlist, SIGNAL(signalAboutToRemove(PlaylistItem*)),
-            this,       SLOT(slotItemAboutToDie(PlaylistItem*)));
+    if (m_playlist) {
+        connect(m_playlist, SIGNAL(signalAboutToRemove(PlaylistItem*)),
+                this,       SLOT(slotItemAboutToDie(PlaylistItem*)));
+    }
 }
 
 void TrackSequenceManager::setCurrent(PlaylistItem *item)
@@ -136,7 +145,7 @@ void TrackSequenceManager::setCurrent(PlaylistItem *item)
     if(item != m_iterator->current()) {
         m_iterator->setCurrent(item);
         if(item)
-            setCurrentPlaylist(item->playlist());
+            m_defaultPlaylist = item->playlist();
         else
             m_iterator->reset();
     }
@@ -178,8 +187,9 @@ TrackSequenceManager::TrackSequenceManager() :
 
 void TrackSequenceManager::slotItemAboutToDie(PlaylistItem *item)
 {
-    if(item == m_playNextItem)
-        m_playNextItem = 0;
+    if(item == m_playNextItem) {
+        setNextItem(0);
+    }
 
     m_iterator->itemAboutToDie(item);
 }
