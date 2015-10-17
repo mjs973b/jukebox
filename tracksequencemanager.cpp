@@ -119,7 +119,7 @@ void TrackSequenceManager::setNextItem(PlaylistItem *item)
     updatePendingPlaylist(item ? item->playlist() : 0);
 }
 
-void TrackSequenceManager::setCurrentPlaylist(Playlist *pl)
+void TrackSequenceManager::setDefaultPlaylist(Playlist *pl)
 {
     m_defaultPlaylist = pl;
 }

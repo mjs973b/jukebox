@@ -130,7 +130,7 @@ public slots:
      *
      * @param list the default playlist, or 0 to use class default.
      */
-    void setCurrentPlaylist(Playlist *list);
+    void setDefaultPlaylist(Playlist *list);
 
     /**
      * Sets the current item to @p item.  You should try to avoid calling this

@@ -705,7 +705,9 @@ void PlaylistCollection::raise3(Playlist *playlist)
         return;
     }
 
-    TrackSequenceManager::instance()->setCurrentPlaylist(playlist);
+    // set default initial playlist in case user clicks play button
+    TrackSequenceManager::instance()->setDefaultPlaylist(playlist);
+
     playlist->applySharedSettings();
     playlist->setSearchEnabled(m_searchEnabled);
     m_playlistStack->setCurrentWidget(playlist);

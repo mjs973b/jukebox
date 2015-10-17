@@ -123,7 +123,7 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
     viewModeAction->setCurrentItem(m_viewModeIndex);
     m_viewModes[m_viewModeIndex]->setShown(true);
 
-    //TrackSequenceManager::instance()->setCurrentPlaylist(CollectionList::instance());
+    //TrackSequenceManager::instance()->setDefaultPlaylist(CollectionList::instance());
     //this->raise2(CollectionList::instance());
 
     connect(viewModeAction, SIGNAL(triggered(int)), this, SLOT(slotSetViewMode(int)));

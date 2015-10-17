@@ -121,7 +121,7 @@ void DynamicPlaylist::lower(QWidget *top)
 //    }
 //
 //    if(!list.isEmpty())
-//        TrackSequenceManager::instance()->setCurrentPlaylist(list.front()->playlist());
+//        TrackSequenceManager::instance()->setDefaultPlaylist(list.front()->playlist());
 #endif
 }
 
