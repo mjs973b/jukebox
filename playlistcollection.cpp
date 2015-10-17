@@ -297,9 +297,16 @@ QString PlaylistCollection::playlist() const
     return visiblePlaylist() ? visiblePlaylist()->name() : QString();
 }
 
+/**
+ * Return playlist name if a track is playing, or an empty string if not.
+ * This is called by DbusCollectionProxy.
+ *
+ * @return  the playlist name
+ */
 QString PlaylistCollection::playingPlaylist() const
 {
-    return currentPlaylist() && m_playing ? currentPlaylist()->name() : QString();
+    const Playlist *pl = currentPlaylist();
+    return pl && m_playing ? pl->name() : QString();
 }
 
 void PlaylistCollection::setPlaylist(const QString &playlist)
