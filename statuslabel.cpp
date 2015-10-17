@@ -105,32 +105,41 @@ StatusLabel::~StatusLabel()
 
 void StatusLabel::updateCurrent()
 {
-    if(playlist()->playing()) {
-        FileHandle file = playlist()->currentFile();
+    const PlaylistInterface *infc = playlist();
+    trackChanged(infc);
+}
+
+void StatusLabel::trackChanged(const PlaylistInterface *infc)
+{
+    if(infc->playing()) {
+        FileHandle file = infc->currentFile();
         // isNull() when try to advance after final track in playlist
         if(file.isNull()) {
             return;
         }
 
-        QString mid =  file.tag()->artist().isEmpty() || file.tag()->title().isEmpty()
+        const Tag *tag = file.tag();
+        QString mid =  tag->artist().isEmpty() || tag->title().isEmpty()
             ? QString::null : QString(" - ");	//krazy:exclude=nullstrassign for old broken gcc
 
-        QString text = file.tag()->artist() + mid + file.tag()->title();
+        QString text = tag->artist() + mid + tag->title();
 
         m_trackLabel->setText(text);
-        m_playlistLabel->setText(playlist()->name().simplified());
+        m_playlistLabel->setText(infc->name().simplified());
     }
 }
 
 void StatusLabel::updateData()
 {
-    updateCurrent();
+    const PlaylistInterface *infc = playlist();
 
-    if(!playlist()->playing()) {
+    trackChanged(infc);
+
+    if(!infc->playing()) {
         setItemTotalTime(0);
         setItemCurrentTime(0);
 
-        int time = playlist()->time();
+        int time = infc->time();
 
         int days = time / (60 * 60 * 24);
         int hours = time / (60 * 60) % 24;
@@ -149,8 +158,8 @@ void StatusLabel::updateData()
         else
             timeString.append(QString().sprintf("%1d:%02d", minutes, seconds));
 
-        m_playlistLabel->setText(playlist()->name());
-        m_trackLabel->setText(i18np("1 item", "%1 items", playlist()->count()) + " - " + timeString);
+        m_playlistLabel->setText(infc->name());
+        m_trackLabel->setText(i18np("1 item", "%1 items", infc->count()) + " - " + timeString);
     }
 }
 

@@ -50,6 +50,7 @@ signals:
     void jumpButtonClicked();
 
 private:
+    void trackChanged(const PlaylistInterface *infc);
     void updateTime();
     virtual bool eventFilter(QObject *o, QEvent *e);
 
