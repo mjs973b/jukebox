@@ -1112,24 +1112,32 @@ void Playlist::slotWeightDirty(int column)
         m_weightDirty.append(column);
 }
 
+/**
+ * Jump to the playlist with the currently playing track, select it and
+ * scroll so it is in view.
+ */
 void Playlist::slotShowPlaying()
 {
-    if(!playingItem())
+    PlaylistItem *item = playingItem();
+    if(!item)
         return;
 
-    Playlist *l = playingItem()->playlist();
-
-    l->clearSelection();
+    Playlist *pl = item->playlist();
 
     // Raise the playlist before selecting the items otherwise the tag editor
     // will not update when it gets the selectionChanged() notification
     // because it will think the user is choosing a different playlist but not
     // selecting a different item.
 
-    m_collection->raise4(l);
+    m_collection->raise4(pl);
 
-    l->setSelected(playingItem(), true);
-    l->ensureItemVisible(playingItem());
+    /* using Single Mode means we don't need separate Clear & Set and thus
+     * emit only one selectionChanged signal, not two.
+     */
+    pl->setSelectionModeExt(Single);
+    pl->setSelected(item, true);
+    pl->setSelectionModeExt(Extended);
+    pl->ensureItemVisible(item);
 }
 
 void Playlist::slotColumnResizeModeChanged()
