@@ -1027,6 +1027,7 @@ void PlaylistBox::slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int
  */
 void PlaylistBox::slotPlaylistItemsDropped(Playlist *p)
 {
+    Q_UNUSED(p);
     //this->raise2(p);
 }
 
