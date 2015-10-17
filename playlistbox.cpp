@@ -696,12 +696,13 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
 
     if(target) {
 
-        if(target->playlist() && !target->playlist()->getPolicy(Playlist::PolicyCanModifyContent)) {
+        Playlist *pl = target->playlist();
+        if(pl && !pl->getPolicy(Playlist::PolicyCanModifyContent)) {
             e->setAccepted(false);
             return;
         }
 
-        if(target->playlist() && !target->playlist()->isContentMutable()) {
+        if(pl && !pl->isContentMutable()) {
             e->setAccepted(false);
             return;
         }
@@ -712,8 +713,8 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
         // coming from outside of JuK.
 
         if(dynamic_cast<Playlist *>(e->source())) {
-            if(target->playlist() &&
-               target->playlist() != CollectionList::instance() &&
+            if(pl &&
+               pl != CollectionList::instance() &&
                !target->isSelected())
             {
                 e->setAccepted(true);
