@@ -1231,6 +1231,12 @@ void Playlist::contentsDragEnterEvent(QDragEnterEvent *e)
         return;
     }
 
+    if(!this->getPolicy(Playlist::PolicyCanModifyContent) ||
+       !this->isContentMutable()) {
+        e->ignore();
+        return;
+    }
+
     e->accept();
     return;
 }
