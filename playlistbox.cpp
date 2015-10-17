@@ -184,6 +184,10 @@ PlaylistBox::~PlaylistBox()
     delete PlaylistCollection::instance();
 }
 
+/* If icon exists for playlist, select it in this widget. This method is
+ * called after a new playlist is created or existing playlist is duplicated
+ * to select the new object & update the qstackwidget.
+ */
 void PlaylistBox::raise2(Playlist *playlist)
 {
     if(!playlist)
