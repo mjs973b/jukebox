@@ -671,10 +671,12 @@ Playlist *PlaylistCollection::currentPlaylist() const
     if(m_belowDistraction)
         return m_belowDistraction;
 
-    if(Playlist::playingItem())
-        return Playlist::playingItem()->playlist();
-    else
-        return visiblePlaylist();
+    PlaylistItem *item = Playlist::playingItem();
+    if(item) {
+        return item->playlist();
+    }
+
+    return visiblePlaylist();
 }
 
 Playlist *PlaylistCollection::visiblePlaylist() const
