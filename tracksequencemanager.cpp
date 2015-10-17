@@ -119,6 +119,10 @@ void TrackSequenceManager::setNextItem(PlaylistItem *item)
 
 void TrackSequenceManager::setCurrentPlaylist(Playlist *list)
 {
+    if(list == m_playlist) {
+        kDebug() << "bail out, playlist already set";
+        return;
+    }
     if(m_playlist)
         m_playlist->disconnect(this);
     m_playlist = list;

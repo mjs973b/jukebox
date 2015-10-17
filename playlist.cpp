@@ -549,7 +549,6 @@ int Playlist::count() const
  */
 void Playlist::playNext()
 {
-    TrackSequenceManager::instance()->setCurrentPlaylist(this);
     setPlaying(TrackSequenceManager::instance()->nextItem());
 }
 
