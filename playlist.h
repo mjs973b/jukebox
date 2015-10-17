@@ -792,6 +792,7 @@ private slots:
      */
     void slotInlineCompletionModeChanged(KGlobalSettings::Completion mode);
 
+public slots:
     void slotPlayCurrent();
 
 private:

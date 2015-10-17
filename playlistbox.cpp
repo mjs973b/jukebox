@@ -952,25 +952,16 @@ void PlaylistBox::slotSelectionChanged()
         PlaylistCollection::instance()->createDynamicPlaylist(playlists);
 }
 
+/* called when playlist icon is double clicked. */
 void PlaylistBox::slotDoubleClicked(Q3ListViewItem *item)
 {
-    if(!item)
+    if(!item) {
         return;
-
-    TrackSequenceManager *manager = TrackSequenceManager::instance();
-    Item *playlistItem = static_cast<Item *>(item);
-
-    manager->setCurrentPlaylist(playlistItem->playlist());
-
-    manager->setCurrent(0); // Reset playback
-    PlaylistItem *next = manager->nextItem(); // Allow manager to choose
-
-    if(next) {
-        emit startFilePlayback(next->file());
-        playlistItem->playlist()->setPlaying(next);
     }
-    else
-        action("stop")->trigger();
+
+    Item *playlistItem = static_cast<Item *>(item);
+    Playlist *pl = playlistItem->playlist();
+    pl->slotPlayCurrent();
 }
 
 /**
