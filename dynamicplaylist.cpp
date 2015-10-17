@@ -79,31 +79,50 @@ void DynamicPlaylist::slotReload()
     checkUpdateItems();
 }
 
+/**
+ * This method is called when this playlist is the track table visible to the
+ * user, but it is about to be replaced by \p top. This is invoked only for
+ * the ephemeral DynamicPlaylist and for the ShowMore SearchPlaylist.
+ *
+ * @param top  the new playlist
+ */
 void DynamicPlaylist::lower(QWidget *top)
 {
-    if(top == this)
-        return;
-
-    if(hasPlayingItem()) {
-        PlaylistList l;
-        l.append(this);
-        for(PlaylistList::Iterator it = m_playlists.begin();
-            it != m_playlists.end(); ++it)
-        {
-            (*it)->synchronizePlayingItems(l, true);
-        }
-    }
-
-    PlaylistItemList list = PlaylistItem::playingItems();
-    for(PlaylistItemList::Iterator it = list.begin(); it != list.end(); ++it) {
-        if((*it)->playlist() == this) {
-            list.erase(it);
-            break;
-        }
-    }
-
-    if(!list.isEmpty())
-        TrackSequenceManager::instance()->setCurrentPlaylist(list.front()->playlist());
+    Q_UNUSED(top);
+#if 0
+    /* FIXME: None of this code makes any sense. It's 'top' that needs to be
+     * sync'ed, not 'this'. Also this method is called when user wants to just
+     * navigate to a different playlist; that should have no effect on the
+     * currently-playing playlist. What a mess. (mjs)
+     *
+     * There seems to be only one ephemeral DynamicPlaylist (not counting any
+     * SearchPlaylists) which lives forever on the qstackedwidget, so maybe
+     * that has something to do with this code?
+     */
+//    if(top == this)
+//        return;
+//
+//    if(hasPlayingItem()) {
+//        PlaylistList l;
+//        l.append(this);
+//        for(PlaylistList::Iterator it = m_playlists.begin();
+//            it != m_playlists.end(); ++it)
+//        {
+//            (*it)->synchronizePlayingItems(l, true);
+//        }
+//    }
+//
+//    PlaylistItemList list = PlaylistItem::playingItems();
+//    for(PlaylistItemList::Iterator it = list.begin(); it != list.end(); ++it) {
+//        if((*it)->playlist() == this) {
+//            list.erase(it);
+//            break;
+//        }
+//    }
+//
+//    if(!list.isEmpty())
+//        TrackSequenceManager::instance()->setCurrentPlaylist(list.front()->playlist());
+#endif
 }
 
 /* @see PlaylistObserver */
