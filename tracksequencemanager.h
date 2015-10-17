@@ -116,11 +116,6 @@ public:
      */
     KMenu *menu() const { return m_popupMenu; }
 
-    /**
-     * @return the TrackSequenceManager's idea of the current playlist
-     */
-    Playlist *currentPlaylist() const { return m_playlist; }
-
 public slots:
     /**
      * Set the next item to play to @p item
@@ -181,8 +176,19 @@ protected slots:
     void slotItemAboutToDie(PlaylistItem *item);
 
 private:
+    /**
+     * Internally cache ptr to playlist which holds the current item. We keep
+     * active connections to it so we are warned if item or playlist is about
+     * to be deleted.
+     */
     QPointer<Playlist> m_playlist;
+
+    /**
+     * user can abruptly request a new track. Cache the newest request here until
+     * PlayerManager calls nextItem().
+     */
     PlaylistItem *m_playNextItem;
+
     KMenu *m_popupMenu;
     TrackSequenceIterator *m_iterator;
     TrackSequenceIterator *m_defaultIterator;
