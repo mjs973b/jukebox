@@ -873,10 +873,20 @@ void Playlist::checkForReadOnlyM3uFile() {
     this->setContentMutable(bMutable);
 }
 
+/**
+ * This method is called when we're about to make visible the playlist (or
+ * playlists) listed in \p sources. See if any of those playlist contain the
+ * currently-playing music track so we can call item->setPlaying(), which
+ * displays the black-triangle marker.
+ *
+ * @param sources  the playlist or playlists about to be made visible
+ * @param setMaster determine whether item is moved to front (=true) or back
+ *                  of the playingItems() list.
+ */
 void Playlist::synchronizePlayingItems(const PlaylistList &sources, bool setMaster)
 {
     foreach(const Playlist *p, sources) {
-        if(p->playing()) {
+        if(p->hasPlayingItem()) {
             CollectionListItem *base = playingItem()->collectionItem();
             for(Q3ListViewItemIterator itemIt(this); itemIt.current(); ++itemIt) {
                 PlaylistItem *item = static_cast<PlaylistItem *>(itemIt.current());
@@ -2024,22 +2034,17 @@ void Playlist::setPlaying(PlaylistItem *item, bool addToHistory)
     ActionCollection::action<KToolBarPopupAction>("back")->menu()->setEnabled(enableBack);
 }
 
-/* 
- * Determine if there is a current track, and if it belongs to this playlist.
+/* Determine if the currently playing item belongs to this playlist.
  *
- * This method is poorly named, probably for historical reasons.
- * It is used to graphically indicate the current track with a black triangle.
- * The returned value does not indicate whether or not the PlayerManager is
- * actively playing the current track.
+ * This is part of the search to find the current track item, so it can 
+ * be marked with a black triangle.
  *
- * @return true if the current track belongs to this playlist.
- *
- * Important Note: this method does not implement the behavior required by
- * PlaylistInterface::playing()
+ * @return true if the currently playing track belongs to this playlist.
  */
-bool Playlist::playing() const
+bool Playlist::hasPlayingItem() const
 {
-    return playingItem() && this == playingItem()->playlist();
+    PlaylistItem *item = playingItem();
+    return item && this == item->playlist();
 }
 
 int Playlist::leftMostVisibleColumn() const

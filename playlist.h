@@ -303,10 +303,9 @@ public:
     static void setPlaying(PlaylistItem *item, bool addToHistory = true);
 
     /**
-     * Returns true if a track is playing, and it belongs to this playlist.
-     * Note: not compatible with PlaylistInterface.
+     * @return true if playing track belongs to this playlist.
      */
-    bool playing() const;
+    bool hasPlayingItem() const;
 
     /**
      * This forces an update of the left most visible column, but does not save

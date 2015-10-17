@@ -84,7 +84,7 @@ void DynamicPlaylist::lower(QWidget *top)
     if(top == this)
         return;
 
-    if(playing()) {
+    if(hasPlayingItem()) {
         PlaylistList l;
         l.append(this);
         for(PlaylistList::Iterator it = m_playlists.begin();
