@@ -350,15 +350,19 @@ QPixmap PlaylistCollection::trackCover(const QString &file, const QString &size)
         return item->file().coverInfo()->pixmap(CoverInfo::FullSize);
 }
 
-/* This method is used to add music files and playlist files to the app.
+/**
+ * This method is used to add music files and playlist files to the app.
  * 'File|Import Playlist' calls this method with an empty QStringList.
- * Assume we can only be called with a single Playlist selected, so we
- * know which playlist the user wants music files added to (and don't 
- * have to ask.)
+ *
+ * Assume we should add music files to the visible playlist, unless there
+ * are more than 5, in which case ask the user what to do.
+ *
+ * @param fileList  a list of playlist or audio file URLs to import. If empty,
+ *     provide the user a dialog box to select file(s).
  */
-void PlaylistCollection::open(const QStringList &l)
+void PlaylistCollection::open(const QStringList &fileList)
 {
-    QStringList files = l;
+    QStringList files = fileList;
 
     if(files.isEmpty())
         files = MediaFiles::openDialog(JuK::JuKInstance());
@@ -366,36 +370,38 @@ void PlaylistCollection::open(const QStringList &l)
     if(files.isEmpty())
         return;
 
-//    // determine if all selected files are .m3u playlist files
-//    bool justPlaylists = true;
-//
-//    for(QStringList::ConstIterator it = files.constBegin(); it != files.constEnd(); ++it) {
-//        justPlaylists = MediaFiles::isPlaylistFile(*it);
-//        // bail out if a non-playlist file is found
-//        if (!justPlaylists) break;
-//    }
-//
-//    /* show dialog if current selection is not Collection List and there is
-//     * at least one audio file in list, else assume audio files in
-//     * Collection List.
-//     */
-//    if(visiblePlaylist() == CollectionList::instance() || justPlaylists ||
-//       KMessageBox::questionYesNo(
-//           JuK::JuKInstance(),
-//           i18n("Do you want to add these items to the current list or to the collection list?"),
-//           QString(),
-//           KGuiItem(i18nc("current playlist", "Current")),
-//           KGuiItem(i18n("Collection"))) == KMessageBox::No)
-//    {
-//        CollectionList::instance()->addFiles(files);
-//    }
-//    else {
-//        visiblePlaylist()->addFiles(files);
-//    }
+    // estimate the number of .m3u playlist files vs. music files
+    int m3u_file_cnt = 0;
+    int music_file_cnt = 0;
 
-    visiblePlaylist()->addFiles(files);
+    foreach(const QString &fname, files) {
+        if(MediaFiles::isPlaylistFile(fname)) {
+            m3u_file_cnt++;
+        } else {
+            music_file_cnt++;
+        }
+    }
 
-//    dataChanged();
+    /* show dialog if visible playlist is not CollectionList and there are
+     * 5 or more audio files in filelist. If user cancels dialog, use the
+     * CollectionList. If the visible playlist is not modifiable, also use
+     * the CollectionList.
+     */
+    Playlist *pl = visiblePlaylist();
+    if(music_file_cnt >= 5 && pl->getType() != Playlist::Type::CollectionList) {
+        int resp = KMessageBox::No;
+        if (pl->getPolicy(Playlist::PolicyCanModifyContent) &&
+            pl->isContentMutable()) {
+                resp = KMessageBox::questionYesNo(
+                    JuK::JuKInstance(),
+                    i18n("Do you want to add these items to the current list?"));
+        }
+
+        if(resp != KMessageBox::Yes) {
+            pl = CollectionList::instance();
+        }
+    }
+    pl->addFiles(files);
 }
 
 void PlaylistCollection::open(const QString &playlist, const QStringList &files)
