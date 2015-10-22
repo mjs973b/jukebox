@@ -1,5 +1,6 @@
 /**
  * Copyright (C) 2004 Michael Pyne <mpyne@kde.org>
+ * Copyright (C) 2015 Mike Scheutzow <mjs973@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -36,6 +37,22 @@ TreeViewItemPlaylist::TreeViewItemPlaylist(PlaylistCollection *collection,
 {
     PlaylistSearch::Component component = *(search.components().begin());
     m_columnType = static_cast<PlaylistItem::ColumnType>(*(component.columns().begin()));
+}
+
+bool TreeViewItemPlaylist::getPolicy(Playlist::Policy pol) {
+#if 1
+    Q_UNUSED(pol);
+    return false;
+#else
+    switch(pol) {
+    case PolicyCanModifyContent: return false;
+    case PolicyCanRename:        return false;
+    case PolicyCanDelete:        return false;
+    case PolicyCanReload:        return false;
+    case PolicyPromptToSave:     return false;
+    default:                     return false;
+    }
+#endif
 }
 
 void TreeViewItemPlaylist::retag(const QStringList &files, Playlist *)

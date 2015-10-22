@@ -85,12 +85,13 @@ public:
     class Type {
     public:
         const static int Normal   = 0;
-        const static int Search   = 1;
+        const static int Search   = 1;          // user-defined
         const static int History  = 2;
         const static int Upcoming = 3;
         const static int Folder   = 4;
         const static int Dynamic  = 5;
         const static int CollectionList = 6;
+        const static int SystemSearch = 7;      // system-defined
     };
 
     /**

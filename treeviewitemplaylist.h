@@ -31,7 +31,12 @@ public:
                          const PlaylistSearch &search = PlaylistSearch(),
                          const QString &name = QString());
 
+    virtual int getType() { return Playlist::Type::SystemSearch; }
+
     virtual bool canEditSearchPattern() const { return false; }
+
+    virtual bool getPolicy(Policy p);
+
     void retag(const QStringList &files, Playlist *donorPlaylist);
 
 signals:
