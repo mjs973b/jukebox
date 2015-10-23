@@ -378,8 +378,10 @@ void TreeViewMode::removeItem(const QString &item, unsigned column)
     }
 
     m_treeViewItems.remove(itemKey);
-    itemPlaylist->deleteLater();
-    emit signalPlaylistDestroyed(itemPlaylist);
+    if(itemPlaylist) {
+        itemPlaylist->deleteLater();
+        emit signalPlaylistDestroyed(itemPlaylist);
+    }
 }
 
 void TreeViewMode::addItems(const QStringList &items, unsigned column)
