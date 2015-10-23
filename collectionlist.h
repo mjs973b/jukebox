@@ -155,7 +155,30 @@ protected:
     // These methods are also used by CollectionListItem, to manage the
     // strings used in generating the unique sets and tree view mode playlists.
 
+    /**
+     * Keep track of the number of occurances of particular Album, Artist or Genre
+     * in each track in CollectionList. Increment the reference count. Create
+     * map entry with count=1 if it doesn't already exist, and emit signal
+     * signalNewTag.
+     *
+     * @param value   an Album Title, Artist Name or Genre Name. Can contain
+     *                embedded spaces, but should not be empty string.
+     * @param column  category of object that value is. @see ColumnType
+     *                in PlaylistItem.
+     * @return        the passed in value on success, empty string on error.
+     */
     QString addStringToDict(const QString &value, int column);
+
+    /**
+     * Track the number of occurances of particular Album, Artist or Genre
+     * in each track in CollectionList. Decrement the reference count. Remove
+     * map entry when count gets to 0, and emit signalRemovedTag.
+     *
+     * @param value   an Album Title, Artist Name or Genre Name. Can contain
+     *                embedded spaces, but should not be empty string.
+     * @param column  category of object that value is. @see ColumnType
+     *                in PlaylistItem.
+     */
     void removeStringFromDict(const QString &value, int column);
 
     void addWatched(const QString &file);
