@@ -401,10 +401,16 @@ QString CollectionList::addStringToDict(const QString &value, int column)
     if(column > m_columnTags.count() || value.trimmed().isEmpty())
         return QString();
 
-    if(m_columnTags[column]->contains(value))
-        ++((*m_columnTags[column])[value]);
+    QHash<QString,int> *h = m_columnTags[column];
+    if(!h) {
+        return QString();
+    }
+    if(h->contains(value)) {
+        int& n = (*h)[value];
+        n++;
+    }
     else {
-        m_columnTags[column]->insert(value, 1);
+        h->insert(value, 1);
         emit signalNewTag(value, column);
     }
 
@@ -446,11 +452,18 @@ void CollectionList::removeStringFromDict(const QString &value, int column)
     if(column > m_columnTags.count() || value.trimmed().isEmpty())
         return;
 
-    if(m_columnTags[column]->contains(value) &&
-       --((*m_columnTags[column])[value]) == 0) // If the decrement goes to 0...
-    {
-        emit signalRemovedTag(value, column);
-        m_columnTags[column]->remove(value);
+    QHash<QString,int> *h = m_columnTags[column];
+    if(!h) {
+        return;
+    }
+    if(h->contains(value)) {
+        int& n = (*h)[value];
+        n--;
+        // If the decrement goes to 0...
+        if (n == 0) {
+            emit signalRemovedTag(value, column);
+            h->remove(value);
+        }
     }
 }
 
