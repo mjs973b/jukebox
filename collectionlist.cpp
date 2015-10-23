@@ -447,7 +447,7 @@ void CollectionList::removeStringFromDict(const QString &value, int column)
         return;
 
     if(m_columnTags[column]->contains(value) &&
-       --((*m_columnTags[column])[value])) // If the decrement goes to 0...
+       --((*m_columnTags[column])[value]) == 0) // If the decrement goes to 0...
     {
         emit signalRemovedTag(value, column);
         m_columnTags[column]->remove(value);
