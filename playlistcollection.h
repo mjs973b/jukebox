@@ -26,6 +26,7 @@
 
 #include <QPointer>
 
+class QAction;
 class QPixmap;
 class QStackedWidget;
 
@@ -114,6 +115,7 @@ public:
 
     // virtual to allow our QWidget subclass to emit a signal after we're done
     virtual void scanFolders();
+    virtual void toggleColumnVisible(QAction *act);
 
     void createPlaylist();
     void createSearchPlaylist();
@@ -274,6 +276,7 @@ private slots:
     void slotRefreshItems() { m_collection->refreshItems(); }
     void slotRenameItems()  { m_collection->renameItems(); }
     //void slotScanFolders()  { m_collection->scanFolders(); }
+    void slotToggleColumnVisible(QAction *act) { m_collection->toggleColumnVisible(act); }
 
     void slotViewCovers()   { m_collection->viewCovers(); }
     void slotRemoveCovers() { m_collection->removeCovers(); }

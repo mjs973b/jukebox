@@ -178,6 +178,8 @@ public:
     void toggleColumnVisible(int column);
     void setInlineCompletionMode(KGlobalSettings::Completion mode);
 
+    bool isColumnVisible(int col) const;
+
     /**
      * Apply the settings.
      */
@@ -238,6 +240,14 @@ void Playlist::SharedSettings::setInlineCompletionMode(KGlobalSettings::Completi
     writeConfig();
 }
 
+/* return the official value for column visibility */
+bool Playlist::SharedSettings::isColumnVisible(int col) const
+{
+    if(col < 0 || col >= m_columnsVisible.size()) {
+        return false;
+    }
+    return m_columnsVisible[col];
+}
 
 void Playlist::SharedSettings::apply(Playlist *l) const
 {
@@ -1651,20 +1661,29 @@ void Playlist::refreshAlbum(const QString &artist, const QString &album)
         item->refresh();
 }
 
+/* Update widget, menu and SharedSettings.
+ * @param c is physical col in widget.
+ */
 void Playlist::hideColumn(int c, bool updateSearch)
 {
+    // @see PlaylistItem::ColumnType
+    int coltype = c - columnOffset();
+
     foreach (QAction *action, m_headerMenu->actions()) {
         if(!action)
             continue;
 
-        if (action->data().toInt() == c) {
+        if (action->data().toInt() == coltype) {
             action->setChecked(false);
             break;
         }
     }
 
-    if(!isColumnVisible(c))
-        return;
+    SharedSettings *ss = SharedSettings::instance();
+    // call takes a ColumnType
+    if(ss->isColumnVisible(coltype)) {
+        ss->toggleColumnVisible(coltype);
+    }
 
     setColumnWidthMode(c, Manual);
     setColumnWidth(c, 0);
@@ -1692,23 +1711,32 @@ void Playlist::hideColumn(int c, bool updateSearch)
         redisplaySearch();
 }
 
+/* Update widget, menu and SharedSettings.
+ * @param c is physical col in widget.
+ */
 void Playlist::showColumn(int c, bool updateSearch)
 {
+    // @see PlaylistItem::ColumnType
+    int coltype = c - columnOffset();
+
     foreach (QAction *action, m_headerMenu->actions()) {
         if(!action)
             continue;
 
-        if (action->data().toInt() == c) {
+        if (action->data().toInt() == coltype) {
             action->setChecked(true);
             break;
         }
     }
 
-    if(isColumnVisible(c))
-        return;
+    SharedSettings *ss = SharedSettings::instance();
+    if(!ss->isColumnVisible(coltype)) {
+        ss->toggleColumnVisible(coltype);
+    }
 
+    // For auto-resize mode
     // Just set the width to one to mark the column as visible -- we'll update
-    // the real size in the next call.
+    // the real size in the slotUpdateColumnWidths call.
 
     if(manualResize())
         setColumnWidth(c, 35); // Make column at least slightly visible.
@@ -1783,20 +1811,29 @@ void Playlist::slotInitialize()
      */
     int menuItemCount = m_headerMenu->actions().size();
     if (menuItemCount == 0) {
+        const SharedSettings *ss = SharedSettings::instance();
+        int offset = columnOffset();
+        int numItem = PlaylistItem::lastColumn() + 1;
         QAction *showAction;
-        for(int i = 0; i < header()->count(); ++i) {
-            if(i - columnOffset() == PlaylistItem::FileNameColumn) {
+        for(int i = 0; i < numItem; ++i) {
+            if(i == PlaylistItem::FileNameColumn) {
                 m_headerMenu->addSeparator();
             }
     
-            showAction = new QAction(header()->label(i), m_headerMenu);
+            showAction = new QAction(header()->label(i+offset), m_headerMenu);
             showAction->setData(i);
             showAction->setCheckable(true);
-            showAction->setChecked(true);
+            showAction->setChecked( ss->isColumnVisible(i) );
             m_headerMenu->addAction(showAction);
         }
+
+        PlaylistCollection *coll = PlaylistCollection::instance();
         connect(m_headerMenu, SIGNAL(triggered(QAction*)), 
-                this, SLOT(slotToggleColumnVisible(QAction*)));
+                coll->object(), SLOT(slotToggleColumnVisible(QAction*)));
+    }
+
+    for(int i = 0; i < header()->count(); ++i) {
+        setColumnWidthMode(i, Manual);
     }
 
     for(int i = 0; i < header()->count(); ++i) {
@@ -2613,31 +2650,27 @@ void Playlist::slotColumnOrderChanged(int, int from, int to)
     SharedSettings::instance()->setColumnOrder(this);
 }
 
+/* called when user selects a menu item. On entry, SharedSettings has old state.
+ * \p action has new state.
+ */
 void Playlist::slotToggleColumnVisible(QAction *action)
 {
-    int column = action->data().toInt();
+    // @see PlaylistItem::ColumnType
+    int coltype = action->data().toInt();
+    int offset  = columnOffset();
 
-    if(!isColumnVisible(column)) {
-        int fileNameColumn = PlaylistItem::FileNameColumn + columnOffset();
-        int fullPathColumn = PlaylistItem::FullPathColumn + columnOffset();
-
-        if(column == fileNameColumn && isColumnVisible(fullPathColumn)) {
-            hideColumn(fullPathColumn, false);
-            SharedSettings::instance()->toggleColumnVisible(fullPathColumn);
-        }
-        if(column == fullPathColumn && isColumnVisible(fileNameColumn)) {
-            hideColumn(fileNameColumn, false);
-            SharedSettings::instance()->toggleColumnVisible(fileNameColumn);
+    if(action->isChecked()) {
+        if(coltype == PlaylistItem::FileNameColumn) {
+            hideColumn(PlaylistItem::FullPathColumn + offset, false);
+        } else if(coltype == PlaylistItem::FullPathColumn) {
+            hideColumn(PlaylistItem::FileNameColumn + offset, false);
         }
     }
 
-    if(isColumnVisible(column))
-        hideColumn(column);
-    else
-        showColumn(column);
-
-    if(column >= columnOffset()) {
-        SharedSettings::instance()->toggleColumnVisible(column - columnOffset());
+    if(action->isChecked()) {
+        showColumn(coltype + offset);
+    } else {
+        hideColumn(coltype + offset);
     }
 }
 

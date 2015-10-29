@@ -766,6 +766,7 @@ private slots:
      */
     void slotColumnOrderChanged(int, int from, int to);
 
+public slots:
     /**
      * Toggles a columns visible status.  Useful for KActions.
      *
@@ -774,6 +775,7 @@ private slots:
      */
     void slotToggleColumnVisible(QAction *action);
 
+private slots:
     /**
      * Prompts the user to create a new playlist with from the selected items.
      */

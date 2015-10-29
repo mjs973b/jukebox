@@ -567,6 +567,14 @@ void PlaylistCollection::scanFolders()
     enableDirWatch(true);
 }
 
+/* called when track widget column is enabled/disabled by menu.
+ * \p act is the menu item that changed its checkbox state.
+ */
+void PlaylistCollection::toggleColumnVisible(QAction *act)
+{
+    visiblePlaylist()->slotToggleColumnVisible(act);
+}
+
 void PlaylistCollection::createPlaylist()
 {
     QString name = playlistNameDialog();
