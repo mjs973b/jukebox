@@ -87,6 +87,7 @@
  */
 KMenu *       Playlist::m_headerMenu;
 KActionMenu * Playlist::m_columnVisibleAction;
+QVector<int>  Playlist::m_columnFixedWidths;
 
 /**
  * Used to give every track added in the program a unique identifier. See
@@ -243,8 +244,10 @@ void Playlist::SharedSettings::setInlineCompletionMode(KGlobalSettings::Completi
 /* return the official value for column visibility */
 bool Playlist::SharedSettings::isColumnVisible(int col) const
 {
-    if(col < 0 || col >= m_columnsVisible.size()) {
+    if(col < 0) {
         return false;
+    } else if (col >= m_columnsVisible.size()) {
+        return true;
     }
     return m_columnsVisible[col];
 }
@@ -1474,6 +1477,22 @@ void Playlist::showEvent(QShowEvent *e)
 void Playlist::applySharedSettings()
 {
     m_applySharedSettings = true;
+
+    if(manualResize()) {
+        // make sure all columns have the correct visibility and width
+        const SharedSettings *ss = SharedSettings::instance();
+        int numCol = columns();
+        for(int c = 0; c < numCol; c++) {
+            int width = ss->isColumnVisible(c) ? m_columnFixedWidths[c] : 0 ;
+            if(this->columnWidth(c) != width) {
+                if(width > 0) {
+                    showColumn(c, false);
+                } else {
+                    hideColumn(c, false);
+                }
+            }
+        }
+    }
 }
 
 void Playlist::read(QDataStream &s)
@@ -1739,7 +1758,7 @@ void Playlist::showColumn(int c, bool updateSearch)
     // the real size in the slotUpdateColumnWidths call.
 
     if(manualResize())
-        setColumnWidth(c, 35); // Make column at least slightly visible.
+        setColumnWidth(c, m_columnFixedWidths[c]);
     else
         setColumnWidth(c, 1);
 
@@ -1799,7 +1818,15 @@ void Playlist::slotInitialize()
     setShowSortIndicator(true);
     setDropVisualizer(true);
 
-    m_columnFixedWidths.resize(columns());
+    // m_columnFixedWidths is shared by all Playlists
+    if(m_columnFixedWidths.size() < columns()) {
+        int i = m_columnFixedWidths.size();
+        m_columnFixedWidths.resize(columns());
+        // set new entries to default value
+        for(; i < columns(); i++) {
+            m_columnFixedWidths[i] = 66;
+        }
+    }
 
     //////////////////////////////////////////////////
     // setup menu for View|Show Columns
@@ -1837,7 +1864,7 @@ void Playlist::slotInitialize()
     }
 
     for(int i = 0; i < header()->count(); ++i) {
-        adjustColumn(i);
+        setColumnWidth(i, m_columnFixedWidths[i]);
     }
 
     connect(this, SIGNAL(contextMenuRequested(Q3ListViewItem*,QPoint,int)),
@@ -2342,7 +2369,7 @@ void Playlist::slotUpdateColumnWidths()
         minimumWidth[column] = header()->fontMetrics().width(header()->label(column)) + 10;
         minimumWidthTotal += minimumWidth[column];
 
-        minimumFixedWidth[column] = qMax(minimumWidth[column], m_columnFixedWidths[column]);
+        minimumFixedWidth[column] = qMax(minimumWidth[column], 30);
         minimumFixedWidthTotal += minimumFixedWidth[column];
     }
 
@@ -2692,10 +2719,17 @@ void Playlist::notifyUserColumnWidthModeChanged()
                              "ShowManualColumnWidthInformation");
 }
 
+/* This is called when user changes column width with mouse, but also when
+ * Q3ListView::setColumnWidth() is called (e.g. a column is hidden.)
+ * Ignore \p newsize if < 1.
+ * @param column  physical column in table
+ */
 void Playlist::slotColumnSizeChanged(int column, int, int newSize)
 {
     m_widthsDirty = true;
-    m_columnFixedWidths[column] = newSize;
+    if(manualResize() && newSize > 0) {
+        m_columnFixedWidths[column] = newSize;
+    }
 }
 
 void Playlist::slotInlineCompletionModeChanged(KGlobalSettings::Completion mode)

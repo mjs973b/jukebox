@@ -826,7 +826,7 @@ private:
      * The average minimum widths of columns to be used in balancing calculations.
      */
     QVector<int> m_columnWeights;
-    QVector<int> m_columnFixedWidths;
+    static QVector<int> m_columnFixedWidths;
     bool m_widthsDirty;
 
     static PlaylistItemList m_history;
