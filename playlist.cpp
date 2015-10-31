@@ -185,21 +185,25 @@ public:
      * Apply the settings.
      */
     void apply(Playlist *l) const;
-    void sync() { writeConfig(); }
+
+    /** force write of config settings, regardless of configDirty() status. */
+    void writeConfig();
+
+    /** @return true when config has changed */
+    bool configDirty() const;
 
 protected:
     SharedSettings();
     ~SharedSettings() {}
 
 private:
-    void writeConfig();
-
     static SharedSettings *m_instance;
     QList<int> m_columnOrder;
     /** user-set width in pixels for each column */
     QVector<int> m_columnFixedWidth;
     QVector<bool> m_columnsVisible;
     KGlobalSettings::Completion m_inlineCompletion;
+    bool m_configDirty;
 };
 
 Playlist::SharedSettings *Playlist::SharedSettings::m_instance = 0;
@@ -241,7 +245,7 @@ void Playlist::SharedSettings::setColumnOrder(const Playlist *l)
     for(int i = 0; i < l->columns(); ++i)
         m_columnOrder.append(l->header()->mapToIndex(i));
 
-    writeConfig();
+    m_configDirty = true;
 }
 
 void Playlist::SharedSettings::toggleColumnVisible(int column)
@@ -252,13 +256,13 @@ void Playlist::SharedSettings::toggleColumnVisible(int column)
 
     m_columnsVisible[column] = !m_columnsVisible[column];
 
-    writeConfig();
+    m_configDirty = true;
 }
 
 void Playlist::SharedSettings::setInlineCompletionMode(KGlobalSettings::Completion mode)
 {
     m_inlineCompletion = mode;
-    writeConfig();
+    m_configDirty = true;
 }
 
 /* return the official value for column visibility */
@@ -285,6 +289,7 @@ void Playlist::SharedSettings::setColumnFixedWidth(int col, int newValue) {
         return;
     }
     m_columnFixedWidth[col] = newValue;
+    m_configDirty = true;
 }
 
 /* called just before this playlist is about to become visible */
@@ -310,6 +315,8 @@ void Playlist::SharedSettings::apply(Playlist *l) const
 
 Playlist::SharedSettings::SharedSettings()
 {
+    m_configDirty = false;
+
     KConfigGroup config(KGlobal::config(), "PlaylistShared");
 
     bool resizeColumnsManually = config.readEntry("ResizeColumnsManually", false);
@@ -356,7 +363,7 @@ Playlist::SharedSettings::SharedSettings()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Playlist::SharedSettings private members
+// Playlist::SharedSettings public members
 ////////////////////////////////////////////////////////////////////////////////
 
 void Playlist::SharedSettings::writeConfig()
@@ -377,6 +384,12 @@ void Playlist::SharedSettings::writeConfig()
     config.writeEntry("ResizeColumnsManually", Playlist::manualResize());
 
     KGlobal::config()->sync();
+
+    m_configDirty = false;
+}
+
+bool Playlist::SharedSettings::configDirty() const {
+    return m_configDirty;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -493,6 +506,12 @@ Playlist::Playlist(PlaylistCollection *collection, bool delaySetup, int extraCol
 
 Playlist::~Playlist()
 {
+    /* persist the current settings if the user changed something */
+    SharedSettings *ss = SharedSettings::instance();
+    if(ss->configDirty()) {
+        ss->writeConfig();
+    }
+
     // clearItem() will take care of removing the items from the history,
     // so call clearItems() to make sure it happens.
 
@@ -1202,7 +1221,8 @@ void Playlist::slotColumnResizeModeChanged()
 
     slotUpdateColumnWidths();
 
-    SharedSettings::instance()->sync();
+    // FIXME: forcing this is ugly
+    SharedSettings::instance()->writeConfig();
 }
 
 void Playlist::dataChanged()
@@ -1514,9 +1534,16 @@ void Playlist::showEvent(QShowEvent *e)
     K3ListView::showEvent(e);
 }
 
+/* typically called just before we make this playlist visible */
 void Playlist::applySharedSettings()
 {
     m_applySharedSettings = true;
+
+    /* persist the current settings if the user changed something */
+    SharedSettings *ss = SharedSettings::instance();
+    if(ss->configDirty()) {
+        ss->writeConfig();
+    }
 }
 
 void Playlist::read(QDataStream &s)
