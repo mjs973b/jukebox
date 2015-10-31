@@ -125,9 +125,9 @@ public:
 
         int column = m_playlist->header()->sectionAt(contentsPosition.x());
 
-        if(column == m_playlist->columnOffset() + PlaylistItem::FileNameColumn ||
+        if(column == PlaylistItem::FileNameColumn ||
            item->cachedWidths()[column] > m_playlist->columnWidth(column) ||
-           (column == m_playlist->columnOffset() + PlaylistItem::CoverColumn &&
+           (column == PlaylistItem::CoverColumn &&
             item->file().coverInfo()->hasCover()))
         {
             QRect r = m_playlist->itemRect(item);
@@ -135,9 +135,9 @@ public:
             r.setLeft(headerPosition);
             r.setRight(headerPosition + m_playlist->header()->sectionSize(column));
 
-            if(column == m_playlist->columnOffset() + PlaylistItem::FileNameColumn)
+            if(column == PlaylistItem::FileNameColumn)
                 tip(r, item->file().absFilePath());
-            else if(column == m_playlist->columnOffset() + PlaylistItem::CoverColumn) {
+            else if(column == PlaylistItem::CoverColumn) {
                 Q3MimeSourceFactory *f = Q3MimeSourceFactory::defaultFactory();
                 f->setImage("coverThumb",
                             QImage(item->file().coverInfo()->pixmap(CoverInfo::Thumbnail).convertToImage()));
@@ -238,7 +238,7 @@ void Playlist::SharedSettings::setColumnOrder(const Playlist *l)
 
     m_columnOrder.clear();
 
-    for(int i = l->columnOffset(); i < l->columns(); ++i)
+    for(int i = 0; i < l->columns(); ++i)
         m_columnOrder.append(l->header()->mapToIndex(i));
 
     writeConfig();
@@ -292,19 +292,18 @@ void Playlist::SharedSettings::apply(Playlist *l) const
     if(!l)
         return;
 
-    int offset = l->columnOffset();
     int i = 0;
     foreach(int column, m_columnOrder)
-        l->header()->moveSection(i++ + offset, column + offset);
+        l->header()->moveSection(i++, column);
 
     if(Playlist::manualResize()) {
         l->updateColumnFixedWidth();
     } else {
         for(int i = 0; i < m_columnsVisible.size(); i++) {
-            if(m_columnsVisible[i] && !l->isColumnVisible(i + offset))
-                l->showColumn(i + offset, false);
-            else if(!m_columnsVisible[i] && l->isColumnVisible(i + offset))
-                l->hideColumn(i + offset, false);
+            if(m_columnsVisible[i] && !l->isColumnVisible(i))
+                l->showColumn(i, false);
+            else if(!m_columnsVisible[i] && l->isColumnVisible(i))
+                l->hideColumn(i, false);
         }
 
         l->slotUpdateColumnWidths();
@@ -1722,14 +1721,11 @@ void Playlist::refreshAlbum(const QString &artist, const QString &album)
  */
 void Playlist::hideColumn(int c, bool updateSearch)
 {
-    // @see PlaylistItem::ColumnType
-    int coltype = c - columnOffset();
-
     foreach (QAction *action, m_headerMenu->actions()) {
         if(!action)
             continue;
 
-        if (action->data().toInt() == coltype) {
+        if (action->data().toInt() == c) {
             action->setChecked(false);
             break;
         }
@@ -1737,8 +1733,8 @@ void Playlist::hideColumn(int c, bool updateSearch)
 
     SharedSettings *ss = SharedSettings::instance();
     // call takes a ColumnType
-    if(ss->isColumnVisible(coltype)) {
-        ss->toggleColumnVisible(coltype);
+    if(ss->isColumnVisible(c)) {
+        ss->toggleColumnVisible(c);
     }
 
     setColumnWidthMode(c, Manual);
@@ -1772,22 +1768,19 @@ void Playlist::hideColumn(int c, bool updateSearch)
  */
 void Playlist::showColumn(int c, bool updateSearch)
 {
-    // @see PlaylistItem::ColumnType
-    int coltype = c - columnOffset();
-
     foreach (QAction *action, m_headerMenu->actions()) {
         if(!action)
             continue;
 
-        if (action->data().toInt() == coltype) {
+        if (action->data().toInt() == c) {
             action->setChecked(true);
             break;
         }
     }
 
     SharedSettings *ss = SharedSettings::instance();
-    if(!ss->isColumnVisible(coltype)) {
-        ss->toggleColumnVisible(coltype);
+    if(!ss->isColumnVisible(c)) {
+        ss->toggleColumnVisible(c);
     }
 
     // For auto-resize mode
@@ -1866,7 +1859,6 @@ void Playlist::slotInitialize()
     const SharedSettings *ss = SharedSettings::instance();
     int menuItemCount = m_headerMenu->actions().size();
     if (menuItemCount == 0) {
-        int offset = columnOffset();
         int numItem = PlaylistItem::lastColumn() + 1;
         QAction *showAction;
         for(int i = 0; i < numItem; ++i) {
@@ -1874,7 +1866,7 @@ void Playlist::slotInitialize()
                 m_headerMenu->addSeparator();
             }
     
-            showAction = new QAction(header()->label(i+offset), m_headerMenu);
+            showAction = new QAction(header()->label(i), m_headerMenu);
             showAction->setData(i);
             showAction->setCheckable(true);
             showAction->setChecked( ss->isColumnVisible(i) );
@@ -2075,7 +2067,7 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 
     // Turn off non-explicit sorting.
 
-    setSorting(PlaylistItem::lastColumn() + columnOffset() + 1);
+    setSorting(PlaylistItem::lastColumn() + 1);
 
     PlaylistItem *after = 0;
 
@@ -2606,7 +2598,7 @@ void Playlist::slotRenameTag()
 
     KLineEdit *edit = renameLineEdit();
 
-    switch(m_currentColumn - columnOffset())
+    switch(m_currentColumn)
     {
     case PlaylistItem::ArtistColumn:
         edit->completionObject()->setItems(list->uniqueSet(CollectionList::Artists));
@@ -2637,7 +2629,7 @@ bool Playlist::editTag(PlaylistItem *item, const QString &text, int column)
 {
     Tag *newTag = TagTransactionManager::duplicateTag(item->file().tag());
 
-    switch(column - columnOffset())
+    switch(column)
     {
     case PlaylistItem::TrackColumn:
         newTag->setTitle(text);
@@ -2683,7 +2675,7 @@ void Playlist::slotInlineEditDone(Q3ListViewItem *, const QString &, int column)
     // See if any of the files have a tag different from the input.
 
     for(PlaylistItemList::ConstIterator it = l.constBegin(); it != l.constEnd() && !changed; ++it)
-        if((*it)->text(column - columnOffset()) != text)
+        if((*it)->text(column) != text)
             changed = true;
 
     if(!changed ||
@@ -2723,22 +2715,20 @@ void Playlist::slotColumnOrderChanged(int, int from, int to)
  */
 void Playlist::slotToggleColumnVisible(QAction *action)
 {
-    // @see PlaylistItem::ColumnType
-    int coltype = action->data().toInt();
-    int offset  = columnOffset();
+    int col = action->data().toInt();
 
     if(action->isChecked()) {
-        if(coltype == PlaylistItem::FileNameColumn) {
-            hideColumn(PlaylistItem::FullPathColumn + offset, false);
-        } else if(coltype == PlaylistItem::FullPathColumn) {
-            hideColumn(PlaylistItem::FileNameColumn + offset, false);
+        if(col == PlaylistItem::FileNameColumn) {
+            hideColumn(PlaylistItem::FullPathColumn, false);
+        } else if(col == PlaylistItem::FullPathColumn) {
+            hideColumn(PlaylistItem::FileNameColumn, false);
         }
     }
 
     if(action->isChecked()) {
-        showColumn(coltype + offset);
+        showColumn(col);
     } else {
-        hideColumn(coltype + offset);
+        hideColumn(col);
     }
 }
 

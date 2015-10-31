@@ -483,18 +483,16 @@ void CollectionList::removeWatched(const QString &file)
 
 void CollectionListItem::refresh()
 {
-    int offset = CollectionList::instance()->columnOffset();
-    int columns = lastColumn() + offset + 1;
+    int columns = lastColumn() + 1;
 
     data()->metadata.resize(columns);
     data()->cachedWidths.resize(columns);
 
-    for(int i = offset; i < columns; i++) {
-        int id = i - offset;
+    for(int id = 0; id < columns; id++) {
         if(id != TrackNumberColumn && id != LengthColumn) {
             // All columns other than track num and length need local-encoded data for sorting
 
-            QString toLower = text(i).toLower();
+            QString toLower = text(id).toLower();
 
             // For some columns, we may be able to share some strings
 
@@ -506,18 +504,18 @@ void CollectionListItem::refresh()
 
                 if(id != YearColumn && id != CommentColumn && data()->metadata[id] != toLower) {
                     CollectionList::instance()->removeStringFromDict(data()->metadata[id], id);
-                    CollectionList::instance()->addStringToDict(text(i), id);
+                    CollectionList::instance()->addStringToDict(text(id), id);
                 }
             }
 
             data()->metadata[id] = toLower;
         }
 
-        int newWidth = width(listView()->fontMetrics(), listView(), i);
-        if(newWidth != data()->cachedWidths[i])
-            playlist()->slotWeightDirty(i);
+        int newWidth = width(listView()->fontMetrics(), listView(), id);
+        if(newWidth != data()->cachedWidths[id])
+            playlist()->slotWeightDirty(id);
 
-        data()->cachedWidths[i] = newWidth;
+        data()->cachedWidths[id] = newWidth;
     }
 
     if(listView()->isVisible())

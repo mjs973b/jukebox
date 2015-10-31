@@ -349,14 +349,6 @@ public:
     void markItemSelected(PlaylistItem *item, bool selected);
 
     /**
-     * Subclasses of Playlist which add new columns will set this value to
-     * specify how many of those columns exist.  This allows the Playlist
-     * class to do some internal calculations on the number and positions
-     * of columns.
-     */
-    virtual int columnOffset() const { return 0; }
-
-    /**
      * The Policy enum describes immutable characteristics associated with
      * a Playlist:
      *

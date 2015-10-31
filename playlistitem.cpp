@@ -99,9 +99,7 @@ K_GLOBAL_STATIC_WITH_ARGS(QPixmap, globalPlayingImage, (UserIcon("playing")))
 // FIXME: this method is called way too often (mjs)
 const QPixmap *PlaylistItem::pixmap(int column) const
 {
-    int offset = playlist()->columnOffset();
-
-    if((column - offset) == CoverColumn) 
+    if(column == CoverColumn)
     {
         // coverInfo is already cached in RAM, so this call is not expensive
         bool b = d->fileHandle.coverInfo()->hasCover();
@@ -122,9 +120,7 @@ QString PlaylistItem::text(int column) const
     if(!d->fileHandle.tag())
         return QString();
 
-    int offset = playlist()->columnOffset();
-
-    switch(column - offset) {
+    switch(column) {
     case TrackColumn:
         return d->fileHandle.tag()->title();
     case ArtistColumn:
@@ -160,8 +156,7 @@ QString PlaylistItem::text(int column) const
 
 void PlaylistItem::setText(int column, const QString &text)
 {
-    int offset = playlist()->columnOffset();
-    if(column - offset >= 0 && column + offset <= lastColumn()) {
+    if(column >= 0 && column <= lastColumn()) {
         K3ListViewItem::setText(column, QString());
         return;
     }
@@ -308,8 +303,6 @@ int PlaylistItem::compare(Q3ListViewItem *item, int column, bool ascending) cons
 {
     // reimplemented from QListViewItem
 
-    int offset = playlist()->columnOffset();
-
     if(!item)
         return 0;
 
@@ -328,33 +321,38 @@ int PlaylistItem::compare(Q3ListViewItem *item, int column, bool ascending) cons
         // Loop through the columns doing comparisons until something is differnt.
         // If all else is the same, compare the track name.
 
-        int last = playlist()->isColumnVisible(AlbumColumn + offset) ? TrackNumberColumn : ArtistColumn;
+        int last = playlist()->isColumnVisible(AlbumColumn) ? TrackNumberColumn : ArtistColumn;
 
         for(int i = ArtistColumn; i <= last; i++) {
-            if(playlist()->isColumnVisible(i + offset)) {
+            if(playlist()->isColumnVisible(i)) {
                 c = compare(this, playlistItem, i, ascending);
                 if(c != 0)
                     return c;
             }
         }
-        return compare(this, playlistItem, TrackColumn + offset, ascending);
+        return compare(this, playlistItem, TrackColumn, ascending);
     }
 }
 
+/* compare two items at specific column position. Always use String compare
+ * for extra columns.
+ */
 int PlaylistItem::compare(const PlaylistItem *firstItem, const PlaylistItem *secondItem, int column, bool) const
 {
-    int offset = playlist()->columnOffset();
-
-    if(column < 0 || column > lastColumn() + offset || !firstItem->d || !secondItem->d)
+    if(column < 0 ||
+       !firstItem->d ||
+       !secondItem->d) {
         return 0;
+    }
 
-    if(column < offset) {
+    // is compare on extra column?
+    if(column > lastColumn()) {
         QString first = firstItem->text(column).toLower();
         QString second = secondItem->text(column).toLower();
         return first.localeAwareCompare(second);
     }
 
-    switch(column - offset) {
+    switch(column) {
     case TrackNumberColumn:
         if(firstItem->d->fileHandle.tag()->track() > secondItem->d->fileHandle.tag()->track())
             return 1;
@@ -388,8 +386,8 @@ int PlaylistItem::compare(const PlaylistItem *firstItem, const PlaylistItem *sec
             return 1;
         break;
     default:
-        return QString::localeAwareCompare(firstItem->d->metadata[column - offset],
-                                           secondItem->d->metadata[column - offset]);
+        return QString::localeAwareCompare(firstItem->d->metadata[column],
+                                           secondItem->d->metadata[column]);
     }
 }
 
