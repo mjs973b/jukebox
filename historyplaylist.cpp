@@ -30,7 +30,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 HistoryPlaylist::HistoryPlaylist(PlaylistCollection *collection) :
-    Playlist(collection, true, 1),
+    Playlist(collection, true, 0),
     m_timer(new QTimer(this))
 {
     setAllowDuplicates(true);
@@ -39,7 +39,8 @@ HistoryPlaylist::HistoryPlaylist(PlaylistCollection *collection) :
     connect(m_timer, SIGNAL(timeout()), this, SLOT(slotCreateNewItem()));
 
     setSorting(-1);
-    setColumnText(0, i18n("Time"));
+    // append column on right side
+    m_timeColumnIndex = addColumn(i18n("Time"));
 }
 
 HistoryPlaylist::~HistoryPlaylist()
@@ -99,14 +100,20 @@ HistoryPlaylistItem::HistoryPlaylistItem(CollectionListItem *item, Playlist *par
     PlaylistItem(item, parent, after),
     m_dateTime(QDateTime::currentDateTime())
 {
-    setText(0, KGlobal::locale()->formatDateTime(m_dateTime));
+    HistoryPlaylist *pl = dynamic_cast<HistoryPlaylist*>(parent);
+    if(pl) {
+        setText(pl->timeColumn(), KGlobal::locale()->formatDateTime(m_dateTime));
+    }
 }
 
 HistoryPlaylistItem::HistoryPlaylistItem(CollectionListItem *item, Playlist *parent) :
     PlaylistItem(item, parent),
     m_dateTime(QDateTime::currentDateTime())
 {
-    setText(0, KGlobal::locale()->formatDateTime(m_dateTime));
+    HistoryPlaylist *pl = dynamic_cast<HistoryPlaylist*>(parent);
+    if(pl) {
+        setText(pl->timeColumn(), KGlobal::locale()->formatDateTime(m_dateTime));
+    }
 }
 
 HistoryPlaylistItem::~HistoryPlaylistItem()
@@ -117,7 +124,10 @@ HistoryPlaylistItem::~HistoryPlaylistItem()
 void HistoryPlaylistItem::setDateTime(const QDateTime &dt)
 {
     m_dateTime = dt;
-    setText(0, KGlobal::locale()->formatDateTime(m_dateTime));
+    HistoryPlaylist *pl = dynamic_cast<HistoryPlaylist*>(this->listView());
+    if(pl) {
+        setText(pl->timeColumn(), KGlobal::locale()->formatDateTime(m_dateTime));
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

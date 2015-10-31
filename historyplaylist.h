@@ -49,9 +49,11 @@ public:
     virtual HistoryPlaylistItem *createItem(const FileHandle &file, Q3ListViewItem *after = 0,
                                             bool emitChanged = true);
     virtual void createItems(const PlaylistItemList &siblings);
-    virtual int columnOffset() const { return 1; }
 
     virtual bool getPolicy(Policy p);
+
+    /** @return the physical column index for the timestamp */
+    int timeColumn() const { return m_timeColumnIndex; }
 
     static int delay() { return 5000; }
 
@@ -68,6 +70,7 @@ private:
 
     FileHandle m_file;
     QTimer *m_timer;
+    int     m_timeColumnIndex;
 };
 
 QDataStream &operator<<(QDataStream &s, const HistoryPlaylist &p);

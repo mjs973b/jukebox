@@ -440,9 +440,10 @@ Playlist::Playlist(PlaylistCollection *collection, bool delaySetup, int extraCol
     m_bContentMutable(true),
     m_blockDataChanged(false)
 {
-    for(int i = 0; i < extraColumns; ++i) {
-        addColumn(i18n("JuK")); // Placeholder text!
-    }
+    //for(int i = 0; i < extraColumns; ++i) {
+    //    addColumn(i18n("JuK")); // Placeholder text!
+    //}
+    Q_UNUSED(extraColumns);
 
     setup();
 
@@ -1576,6 +1577,10 @@ int Playlist::addColumn(const QString &label, int)
 {
     int newIndex = K3ListView::addColumn(label, 30);
     slotWeightDirty(newIndex);
+    if(m_columnFixedWidths.size() < columns()) {
+        m_columnFixedWidths.resize(columns());
+        m_columnFixedWidths[newIndex] = 66;
+    }
     return newIndex;
 }
 
@@ -2158,29 +2163,29 @@ void Playlist::calculateColumnWeights()
     PlaylistItemList l = items();
     QList<int>::Iterator columnIt;
 
-    QVector<double> averageWidth(columns());
+    int numColumn = columns();
+    QVector<double> averageWidth(numColumn);
     double itemCount = l.size();
 
     QVector<int> cachedWidth;
 
+    // Calculate a weight proportional to string length for each column.
     // Here we're not using a real average, but averaging the squares of the
     // column widths and then using the square root of that value.  This gives
     // a nice weighting to the longer columns without doing something arbitrary
     // like adding a fixed amount of padding.
 
+    // cachedWidth values are assigned by CollectionList
     foreach(PlaylistItem *item, l) {
         cachedWidth = item->cachedWidths();
-
-        // Extra columns start at 0, but those weights aren't shared with all
-        // items.
-        for(int i = 0; i < columnOffset(); ++i) {
-            averageWidth[i] +=
-                std::pow(double(item->width(fontMetrics(), this, i)), 2.0) / itemCount;
-        }
-
-        for(int column = columnOffset(); column < columns(); ++column) {
-            averageWidth[column] +=
-                std::pow(double(cachedWidth[column - columnOffset()]), 2.0) / itemCount;
+        int width;
+        for(int i = 0; i < numColumn; ++i) {
+            if(i < cachedWidth.size()) {
+                width = cachedWidth[i];
+            } else {
+                width = item->width(fontMetrics(), this, i);
+            }
+            averageWidth[i] += std::pow(double(width), 2.0) / itemCount;
         }
     }
 
