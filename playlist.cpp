@@ -1835,14 +1835,6 @@ void Playlist::slotInitialize()
     setColumnAlignment(3, Qt::AlignHCenter);    // Cover
     setColumnAlignment(4, Qt::AlignHCenter);    // Track #
 
-    // for K3ListView 'renameable' means Item cell can be edited in-place
-    setRenameable(PlaylistItem::TrackColumn, true);
-    setRenameable(PlaylistItem::ArtistColumn, true);
-    setRenameable(PlaylistItem::AlbumColumn, true);
-    setRenameable(PlaylistItem::TrackNumberColumn, true);
-    setRenameable(PlaylistItem::GenreColumn, true);
-    setRenameable(PlaylistItem::YearColumn, true);
-
     setAllColumnsShowFocus(true);
     setSelectionMode(Q3ListView::Extended);
     setShowSortIndicator(true);
