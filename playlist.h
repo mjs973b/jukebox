@@ -273,18 +273,16 @@ public:
     void setFileName(const QString &n) { m_fileName = n; }
 
     /**
-     * Hides column \a c.  If \a updateSearch is true then a signal that the
-     * visible columns have changed will be emitted and things like the search
+     * Hides column \a c.  If \a updateeMenu is true then menu check status
      * will be udated.
      */
-    void hideColumn(int c, bool updateSearch = true);
+    void hideColumn(int c, bool updateMenu = false);
 
     /**
-     * Shows column \a c.  If \a updateSearch is true then a signal that the
-     * visible columns have changed will be emitted and things like the search
+     * Shows column \a c.  If \a updateMenu is true then menu check status
      * will be udated.
      */
-    void showColumn(int c, bool updateSearch = true);
+    void showColumn(int c, bool updateMenu = false);
     bool isColumnVisible(int c) const;
 
     /**

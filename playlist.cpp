@@ -287,6 +287,7 @@ void Playlist::SharedSettings::setColumnFixedWidth(int col, int newValue) {
     m_columnFixedWidth[col] = newValue;
 }
 
+/* called just before this playlist is about to become visible */
 void Playlist::SharedSettings::apply(Playlist *l) const
 {
     if(!l)
@@ -296,22 +297,11 @@ void Playlist::SharedSettings::apply(Playlist *l) const
     foreach(int column, m_columnOrder)
         l->header()->moveSection(i++, column);
 
-    if(Playlist::manualResize()) {
-        l->updateColumnFixedWidth();
-    } else {
-        for(int i = 0; i < m_columnsVisible.size(); i++) {
-            if(m_columnsVisible[i] && !l->isColumnVisible(i))
-                l->showColumn(i, false);
-            else if(!m_columnsVisible[i] && l->isColumnVisible(i))
-                l->hideColumn(i, false);
-        }
-
-        l->slotUpdateColumnWidths();
-    }
+    // note: calls l->slotUpdateColumnWidths()
+    l->slotColumnResizeModeChanged();
 
     l->updateLeftColumn();
     l->renameLineEdit()->setCompletionMode(m_inlineCompletion);
-    l->slotColumnResizeModeChanged();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1210,8 +1200,7 @@ void Playlist::slotColumnResizeModeChanged()
     else
         setHScrollBarMode(AlwaysOff);
 
-    if(!manualResize())
-        slotUpdateColumnWidths();
+    slotUpdateColumnWidths();
 
     SharedSettings::instance()->sync();
 }
@@ -1719,15 +1708,17 @@ void Playlist::refreshAlbum(const QString &artist, const QString &album)
 /* Update widget, menu and SharedSettings.
  * @param c is physical col in widget.
  */
-void Playlist::hideColumn(int c, bool updateSearch)
+void Playlist::hideColumn(int c, bool updateMenu)
 {
-    foreach (QAction *action, m_headerMenu->actions()) {
-        if(!action)
-            continue;
-
-        if (action->data().toInt() == c) {
-            action->setChecked(false);
-            break;
+    if(updateMenu) {
+        foreach (QAction *action, m_headerMenu->actions()) {
+            if(!action)
+                continue;
+    
+            if (action->data().toInt() == c) {
+                action->setChecked(false);
+                break;
+            }
         }
     }
 
@@ -1750,31 +1741,22 @@ void Playlist::hideColumn(int c, bool updateSearch)
         updatePlaying();
         m_leftColumn = leftMostVisibleColumn();
     }
-
-    if(!manualResize()) {
-        slotUpdateColumnWidths();
-        triggerUpdate();
-    }
-
-    if(this != CollectionList::instance())
-        CollectionList::instance()->hideColumn(c, false);
-
-    if(updateSearch)
-        redisplaySearch();
 }
 
 /* Update widget, menu and SharedSettings.
  * @param c is physical col in widget.
  */
-void Playlist::showColumn(int c, bool updateSearch)
+void Playlist::showColumn(int c, bool updateMenu)
 {
-    foreach (QAction *action, m_headerMenu->actions()) {
-        if(!action)
-            continue;
-
-        if (action->data().toInt() == c) {
-            action->setChecked(true);
-            break;
+    if(updateMenu) {
+        foreach (QAction *action, m_headerMenu->actions()) {
+            if(!action)
+                continue;
+    
+            if (action->data().toInt() == c) {
+                action->setChecked(true);
+                break;
+            }
         }
     }
 
@@ -1799,17 +1781,6 @@ void Playlist::showColumn(int c, bool updateSearch)
         updatePlaying();
         m_leftColumn = leftMostVisibleColumn();
     }
-
-    if(!manualResize()) {
-        slotUpdateColumnWidths();
-        triggerUpdate();
-    }
-
-    if(this != CollectionList::instance())
-        CollectionList::instance()->showColumn(c, false);
-
-    if(updateSearch)
-        redisplaySearch();
 }
 
 bool Playlist::isColumnVisible(int c) const
@@ -2353,21 +2324,39 @@ void Playlist::importRecentPlaylistFile(const QFileInfo& fileInfo) {
 // private slots
 ////////////////////////////////////////////////////////////////////////////////
 
-/* assume table column visibility is already correct */
+/* set table column visibility and column width. This method handles both
+ * manual resize and auto-resize modes. Do not call triggerUpdate() from this
+ * method.
+ */
 void Playlist::slotUpdateColumnWidths()
 {
-    if(m_disableColumnWidthUpdates || manualResize())
+    if(m_disableColumnWidthUpdates) {
         return;
-
-    // Make sure that the column weights have been initialized before trying to
-    // update the columns.
-
-    QList<int> visibleColumns;
-    for(int i = 0; i < columns(); i++) {
-        if(isColumnVisible(i))
-            visibleColumns.append(i);
+    }
+    
+    if(manualResize()) {
+        updateColumnFixedWidth();
+        return;
     }
 
+    // update the column visibility
+    const SharedSettings *ss = SharedSettings::instance();
+    QList<int> visibleColumns;
+    for(int i = 0; i < columns(); i++) {
+        bool b = ss->isColumnVisible(i);
+        if(b != isColumnVisible(i)) {
+            if(b) {
+                showColumn(i);
+            } else {
+                hideColumn(i);
+            }
+        }
+        if(b) {
+            visibleColumns.append(i);
+        }
+    }
+
+    // count() is number of table rows
     if(count() == 0) {
         foreach(int column, visibleColumns)
             setColumnWidth(column, header()->fontMetrics().width(header()->label(column)) + 10);
@@ -2375,8 +2364,12 @@ void Playlist::slotUpdateColumnWidths()
         return;
     }
 
-    if(m_columnWeights.isEmpty())
+    // Make sure that the column weights have been initialized before trying to
+    // update the columns.
+
+    if(m_columnWeights.isEmpty()) {
         return;
+    }
 
     // First build a list of minimum widths based on the strings in the listview
     // header.  We won't let the width of the column go below this width.
@@ -2711,9 +2704,9 @@ void Playlist::slotToggleColumnVisible(QAction *action)
 
     if(action->isChecked()) {
         if(col == PlaylistItem::FileNameColumn) {
-            hideColumn(PlaylistItem::FullPathColumn, false);
+            hideColumn(PlaylistItem::FullPathColumn, true);
         } else if(col == PlaylistItem::FullPathColumn) {
-            hideColumn(PlaylistItem::FileNameColumn, false);
+            hideColumn(PlaylistItem::FileNameColumn, true);
         }
     }
 
@@ -2722,6 +2715,12 @@ void Playlist::slotToggleColumnVisible(QAction *action)
     } else {
         hideColumn(col);
     }
+
+    slotUpdateColumnWidths();
+
+    redisplaySearch();
+
+    triggerUpdate();
 }
 
 void Playlist::slotCreateGroup()
