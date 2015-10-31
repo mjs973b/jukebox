@@ -92,6 +92,9 @@ public:
         const static int SystemSearch = 7;      // system-defined
     };
 
+    /** @return whether current column-resize mode is manual or automatic */
+    static bool manualResize();
+
     /**
      * An quick and efficent method to determine the most specific 
      * type of a Playlist object.
@@ -524,6 +527,11 @@ public slots:
 
 public:
     /**
+     * Force column visibility and width to the value in SharedSettings.
+     */
+    void updateColumnFixedWidth();
+
+    /**
      * Force the state of the FileListChanged flag.
      */
     void setFileListChanged(bool b);
@@ -824,7 +832,6 @@ private:
      * The average minimum widths of columns to be used in balancing calculations.
      */
     QVector<int> m_columnWeights;
-    static QVector<int> m_columnFixedWidths;
     bool m_widthsDirty;
 
     static PlaylistItemList m_history;

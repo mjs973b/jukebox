@@ -87,7 +87,6 @@
  */
 KMenu *       Playlist::m_headerMenu;
 KActionMenu * Playlist::m_columnVisibleAction;
-QVector<int>  Playlist::m_columnFixedWidths;
 
 /**
  * Used to give every track added in the program a unique identifier. See
@@ -95,11 +94,8 @@ QVector<int>  Playlist::m_columnFixedWidths;
  */
 quint32 g_trackID = 0;
 
-/**
- * Just a shortcut of sorts.
- */
-
-static bool manualResize()
+/* current column resize mode is manual or automatic */
+bool Playlist::manualResize()
 {
     return ActionCollection::action<KToggleAction>("resizeColumnsManually")->isChecked();
 }
@@ -172,6 +168,8 @@ class Playlist::SharedSettings
 {
 public:
     static SharedSettings *instance();
+    /** specify number of columns in largest table */
+    void growColumnCount(int numCol);
     /**
      * Sets the default column order to that of Playlist @param p.
      */
@@ -180,6 +178,8 @@ public:
     void setInlineCompletionMode(KGlobalSettings::Completion mode);
 
     bool isColumnVisible(int col) const;
+    int columnFixedWidth(int col) const;
+    void setColumnFixedWidth(int col, int newValue);
 
     /**
      * Apply the settings.
@@ -196,6 +196,8 @@ private:
 
     static SharedSettings *m_instance;
     QList<int> m_columnOrder;
+    /** user-set width in pixels for each column */
+    QVector<int> m_columnFixedWidth;
     QVector<bool> m_columnsVisible;
     KGlobalSettings::Completion m_inlineCompletion;
 };
@@ -210,6 +212,23 @@ Playlist::SharedSettings *Playlist::SharedSettings::instance()
 {
     static SharedSettings settings;
     return &settings;
+}
+
+void Playlist::SharedSettings::growColumnCount(int numCol) {
+    int oldlen = m_columnsVisible.size();
+    if(oldlen < numCol) {
+        m_columnsVisible.resize(numCol);
+        for(int i = oldlen; i < numCol; i++) {
+            m_columnsVisible[i] = true;
+        }
+    }
+    oldlen = m_columnFixedWidth.size();
+    if(oldlen < numCol) {
+        m_columnFixedWidth.resize(numCol);
+        for(int i = oldlen; i < numCol; i++) {
+            m_columnFixedWidth[i] = 66;
+        }
+    }
 }
 
 void Playlist::SharedSettings::setColumnOrder(const Playlist *l)
@@ -227,8 +246,9 @@ void Playlist::SharedSettings::setColumnOrder(const Playlist *l)
 
 void Playlist::SharedSettings::toggleColumnVisible(int column)
 {
-    if(column >= m_columnsVisible.size())
-        m_columnsVisible.fill(true, column + 1);
+    if(column < 0 || column >= m_columnsVisible.size()) {
+        return;
+    }
 
     m_columnsVisible[column] = !m_columnsVisible[column];
 
@@ -244,12 +264,27 @@ void Playlist::SharedSettings::setInlineCompletionMode(KGlobalSettings::Completi
 /* return the official value for column visibility */
 bool Playlist::SharedSettings::isColumnVisible(int col) const
 {
-    if(col < 0) {
+    if(col < 0 || col >= m_columnsVisible.size()) {
         return false;
-    } else if (col >= m_columnsVisible.size()) {
-        return true;
     }
     return m_columnsVisible[col];
+}
+
+/* return the official value for column width */
+int Playlist::SharedSettings::columnFixedWidth(int col) const
+{
+    if(col < 0 || col >= m_columnFixedWidth.size()) {
+        return 0;
+    }
+    return m_columnsVisible[col] ? m_columnFixedWidth[col] : 0 ;
+}
+
+/* assign the official value for fixed column width */
+void Playlist::SharedSettings::setColumnFixedWidth(int col, int newValue) {
+    if(col < 0 || col >= m_columnFixedWidth.size() || newValue < 1) {
+        return;
+    }
+    m_columnFixedWidth[col] = newValue;
 }
 
 void Playlist::SharedSettings::apply(Playlist *l) const
@@ -262,11 +297,17 @@ void Playlist::SharedSettings::apply(Playlist *l) const
     foreach(int column, m_columnOrder)
         l->header()->moveSection(i++ + offset, column + offset);
 
-    for(int i = 0; i < m_columnsVisible.size(); i++) {
-        if(m_columnsVisible[i] && !l->isColumnVisible(i + offset))
-            l->showColumn(i + offset, false);
-        else if(!m_columnsVisible[i] && l->isColumnVisible(i + offset))
-            l->hideColumn(i + offset, false);
+    if(Playlist::manualResize()) {
+        l->updateColumnFixedWidth();
+    } else {
+        for(int i = 0; i < m_columnsVisible.size(); i++) {
+            if(m_columnsVisible[i] && !l->isColumnVisible(i + offset))
+                l->showColumn(i + offset, false);
+            else if(!m_columnsVisible[i] && l->isColumnVisible(i + offset))
+                l->hideColumn(i + offset, false);
+        }
+
+        l->slotUpdateColumnWidths();
     }
 
     l->updateLeftColumn();
@@ -285,11 +326,21 @@ Playlist::SharedSettings::SharedSettings()
     bool resizeColumnsManually = config.readEntry("ResizeColumnsManually", false);
     ActionCollection::action("resizeColumnsManually")->setChecked(resizeColumnsManually);
 
-    // Preallocate spaces so we don't need to check later.
-    m_columnsVisible.fill(true, PlaylistItem::lastColumn() + 1);
+    // Preallocate slots so we don't need to check later.
+    int numCol = PlaylistItem::lastColumn() + 1;
+    growColumnCount(numCol);
 
     // save column order
     m_columnOrder = config.readEntry("ColumnOrder", QList<int>());
+
+    // may or may not have values for extra columns
+    QList<int> list = config.readEntry("ColumnFixedWidth", QList<int>());
+    if(list.size() > numCol) {
+        growColumnCount(list.size());
+    }
+    for(int i = 0; i < m_columnFixedWidth.size() && i < list.size(); i++) {
+        m_columnFixedWidth[i] = list[i];
+    }
 
     QList<int> l = config.readEntry("VisibleColumns", QList<int>());
 
@@ -324,14 +375,17 @@ void Playlist::SharedSettings::writeConfig()
     KConfigGroup config(KGlobal::config(), "PlaylistShared");
     config.writeEntry("ColumnOrder", m_columnOrder);
 
+    config.writeEntry("ColumnFixedWidth", m_columnFixedWidth.toList());
+
     QList<int> l;
     for(int i = 0; i < m_columnsVisible.size(); i++)
         l.append(int(m_columnsVisible[i]));
 
     config.writeEntry("VisibleColumns", l);
+
     config.writeEntry("InlineCompletionMode", int(m_inlineCompletion));
 
-    config.writeEntry("ResizeColumnsManually", manualResize());
+    config.writeEntry("ResizeColumnsManually", Playlist::manualResize());
 
     KGlobal::config()->sync();
 }
@@ -440,9 +494,6 @@ Playlist::Playlist(PlaylistCollection *collection, bool delaySetup, int extraCol
     m_bContentMutable(true),
     m_blockDataChanged(false)
 {
-    //for(int i = 0; i < extraColumns; ++i) {
-    //    addColumn(i18n("JuK")); // Placeholder text!
-    //}
     Q_UNUSED(extraColumns);
 
     setup();
@@ -1478,22 +1529,6 @@ void Playlist::showEvent(QShowEvent *e)
 void Playlist::applySharedSettings()
 {
     m_applySharedSettings = true;
-
-    if(manualResize()) {
-        // make sure all columns have the correct visibility and width
-        const SharedSettings *ss = SharedSettings::instance();
-        int numCol = columns();
-        for(int c = 0; c < numCol; c++) {
-            int width = ss->isColumnVisible(c) ? m_columnFixedWidths[c] : 0 ;
-            if(this->columnWidth(c) != width) {
-                if(width > 0) {
-                    showColumn(c, false);
-                } else {
-                    hideColumn(c, false);
-                }
-            }
-        }
-    }
 }
 
 void Playlist::read(QDataStream &s)
@@ -1576,11 +1611,8 @@ void Playlist::takeItem(Q3ListViewItem *item)
 int Playlist::addColumn(const QString &label, int)
 {
     int newIndex = K3ListView::addColumn(label, 30);
+    SharedSettings::instance()->growColumnCount(newIndex+1);
     slotWeightDirty(newIndex);
-    if(m_columnFixedWidths.size() < columns()) {
-        m_columnFixedWidths.resize(columns());
-        m_columnFixedWidths[newIndex] = 66;
-    }
     return newIndex;
 }
 
@@ -1763,7 +1795,7 @@ void Playlist::showColumn(int c, bool updateSearch)
     // the real size in the slotUpdateColumnWidths call.
 
     if(manualResize())
-        setColumnWidth(c, m_columnFixedWidths[c]);
+        setColumnWidth(c, ss->columnFixedWidth(c));
     else
         setColumnWidth(c, 1);
 
@@ -1823,16 +1855,6 @@ void Playlist::slotInitialize()
     setShowSortIndicator(true);
     setDropVisualizer(true);
 
-    // m_columnFixedWidths is shared by all Playlists
-    if(m_columnFixedWidths.size() < columns()) {
-        int i = m_columnFixedWidths.size();
-        m_columnFixedWidths.resize(columns());
-        // set new entries to default value
-        for(; i < columns(); i++) {
-            m_columnFixedWidths[i] = 66;
-        }
-    }
-
     //////////////////////////////////////////////////
     // setup menu for View|Show Columns
     //////////////////////////////////////////////////
@@ -1841,9 +1863,9 @@ void Playlist::slotInitialize()
      * time this method is called. All Playlist Widgets will share this
      * menu. KMenu *m_headerMenu has already been created in this->setup().
      */
+    const SharedSettings *ss = SharedSettings::instance();
     int menuItemCount = m_headerMenu->actions().size();
     if (menuItemCount == 0) {
-        const SharedSettings *ss = SharedSettings::instance();
         int offset = columnOffset();
         int numItem = PlaylistItem::lastColumn() + 1;
         QAction *showAction;
@@ -1866,10 +1888,6 @@ void Playlist::slotInitialize()
 
     for(int i = 0; i < header()->count(); ++i) {
         setColumnWidthMode(i, Manual);
-    }
-
-    for(int i = 0; i < header()->count(); ++i) {
-        setColumnWidth(i, m_columnFixedWidths[i]);
     }
 
     connect(this, SIGNAL(contextMenuRequested(Q3ListViewItem*,QPoint,int)),
@@ -1938,6 +1956,23 @@ CollectionListItem *Playlist::collectionListItem(const FileHandle &file)
     }
 
     return item;
+}
+
+/* make sure all columns have the correct visibility and width */
+void Playlist::updateColumnFixedWidth()
+{
+    const SharedSettings *ss = SharedSettings::instance();
+    int numCol = columns();
+    for(int c = 0; c < numCol; c++) {
+        int width = ss->columnFixedWidth(c);   // 0 if col not visible
+        if(this->columnWidth(c) != width) {
+            if(width > 0) {
+                showColumn(c, false);
+            } else {
+                hideColumn(c, false);
+            }
+        }
+    }
 }
 
 void Playlist::setFileListChanged(bool b) {
@@ -2334,6 +2369,7 @@ void Playlist::importRecentPlaylistFile(const QFileInfo& fileInfo) {
 // private slots
 ////////////////////////////////////////////////////////////////////////////////
 
+/* assume table column visibility is already correct */
 void Playlist::slotUpdateColumnWidths()
 {
     if(m_disableColumnWidthUpdates || manualResize())
@@ -2733,7 +2769,8 @@ void Playlist::slotColumnSizeChanged(int column, int, int newSize)
 {
     m_widthsDirty = true;
     if(manualResize() && newSize > 0) {
-        m_columnFixedWidths[column] = newSize;
+        SharedSettings *ss = SharedSettings::instance();
+        ss->setColumnFixedWidth(column, newSize);
     }
 }
 
