@@ -819,7 +819,8 @@ void Playlist::clearItems(const PlaylistItemList &items)
 
 PlaylistItem *Playlist::playingItem() // static
 {
-    kDebug() << "list has " << PlaylistItem::playingItems().count() << " items";
+    // FIXME: this method is *still* called way to many times (mjs)
+    //kDebug() << "list has " << PlaylistItem::playingItems().count() << " items";
     // playingItems() is a shared list, one list for all the Playlist
     return PlaylistItem::playingItems().isEmpty() ? 0 : PlaylistItem::playingItems().front();
 }
@@ -1389,6 +1390,8 @@ void Playlist::decode(const QMimeData *s, PlaylistItem *item)
 
 bool Playlist::eventFilter(QObject *watched, QEvent *e)
 {
+    //kDebug() << "type =" << e->type();
+
     if(watched == header()) {
         switch(e->type()) {
         case QEvent::MouseMove:
