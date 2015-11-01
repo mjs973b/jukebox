@@ -117,34 +117,35 @@ const QPixmap *PlaylistItem::pixmap(int column) const
 
 QString PlaylistItem::text(int column) const
 {
-    if(!d->fileHandle.tag())
+    const Tag *tag = d->fileHandle.tag();
+    if(!tag)
         return QString();
 
     switch(column) {
     case TrackColumn:
-        return d->fileHandle.tag()->title();
+        return tag->title();
     case ArtistColumn:
-        return d->fileHandle.tag()->artist();
+        return tag->artist();
     case AlbumColumn:
-        return d->fileHandle.tag()->album();
+        return tag->album();
     case CoverColumn:
         return QString();
     case TrackNumberColumn:
-        return d->fileHandle.tag()->track() > 0
-            ? QString::number(d->fileHandle.tag()->track())
+        return tag->track() > 0
+            ? QString::number(tag->track())
             : QString();
     case GenreColumn:
-        return d->fileHandle.tag()->genre();
+        return tag->genre();
     case YearColumn:
-        return d->fileHandle.tag()->year() > 0
-            ? QString::number(d->fileHandle.tag()->year())
+        return tag->year() > 0
+            ? QString::number(tag->year())
             : QString();
     case LengthColumn:
-        return d->fileHandle.tag()->lengthString();
+        return tag->lengthString();
     case BitrateColumn:
-        return QString::number(d->fileHandle.tag()->bitrate());
+        return QString::number(tag->bitrate());
     case CommentColumn:
-        return d->fileHandle.tag()->comment();
+        return tag->comment();
     case FileNameColumn:
         return d->fileHandle.fileInfo().fileName();
     case FullPathColumn:
@@ -352,38 +353,46 @@ int PlaylistItem::compare(const PlaylistItem *firstItem, const PlaylistItem *sec
         return first.localeAwareCompare(second);
     }
 
+    const FileHandle& fileHandle1 = firstItem->d->fileHandle;
+    const FileHandle& fileHandle2 = secondItem->d->fileHandle;
+    const Tag *tag1 = fileHandle1.tag();
+    const Tag *tag2 = fileHandle2.tag();
+
     switch(column) {
     case TrackNumberColumn:
-        if(firstItem->d->fileHandle.tag()->track() > secondItem->d->fileHandle.tag()->track())
+        if(tag1->track() > tag2->track())
             return 1;
-        else if(firstItem->d->fileHandle.tag()->track() < secondItem->d->fileHandle.tag()->track())
+        else if(tag1->track() < tag2->track())
             return -1;
         else
             return 0;
         break;
     case LengthColumn:
-        if(firstItem->d->fileHandle.tag()->seconds() > secondItem->d->fileHandle.tag()->seconds())
+        if(tag1->seconds() > tag2->seconds())
             return 1;
-        else if(firstItem->d->fileHandle.tag()->seconds() < secondItem->d->fileHandle.tag()->seconds())
+        else if(tag1->seconds() < tag2->seconds())
             return -1;
         else
             return 0;
         break;
     case BitrateColumn:
-        if(firstItem->d->fileHandle.tag()->bitrate() > secondItem->d->fileHandle.tag()->bitrate())
+        if(tag1->bitrate() > tag2->bitrate())
             return 1;
-        else if(firstItem->d->fileHandle.tag()->bitrate() < secondItem->d->fileHandle.tag()->bitrate())
+        else if(tag1->bitrate() < tag2->bitrate())
             return -1;
         else
             return 0;
         break;
-    case CoverColumn:
-        if(firstItem->d->fileHandle.coverInfo()->coverId() == secondItem->d->fileHandle.coverInfo()->coverId())
+    case CoverColumn: {
+        coverKey key1 = fileHandle1.coverInfo()->coverId();
+        coverKey key2 = fileHandle2.coverInfo()->coverId();
+        if(key1 == key2)
             return 0;
-        else if (firstItem->d->fileHandle.coverInfo()->coverId() != CoverManager::NoMatch)
+        else if (key1 != CoverManager::NoMatch)
             return -1;
         else
             return 1;
+        }
         break;
     default:
         return QString::localeAwareCompare(firstItem->d->metadata[column],
