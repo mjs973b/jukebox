@@ -123,10 +123,31 @@ PlaylistCollection::~PlaylistCollection()
     m_instance = 0;
 }
 
-/* @see PlaylistInterface */
+/* Generate a displayable label for the playlist, including modification status.
+ * @see PlaylistInterface
+ */
 QString PlaylistCollection::name() const
 {
-    return currentPlaylist()->name();
+    Playlist *pl = currentPlaylist();
+
+    /* only report bModifed if the user can do something about it. DynamicPlaylist
+     * and SearchPlaylist are not eligible for File|Save.
+     */
+    bool bModified = pl->getPolicy(Playlist::PolicyPromptToSave) && pl->hasFileListChanged();
+    bool bReadonly = pl->getPolicy(Playlist::PolicyCanModifyContent) == false ||
+                     pl->isContentMutable() == false;
+
+    /* prioritize Modified status over ReadOnly */
+    QString mod;
+    if(bModified) {
+        mod = QString(i18nc("playlist status", "Modified"));
+    } else if(bReadonly) {
+        mod = QString(i18nc("playlist status", "ReadOnly"));
+    }
+    if(mod.isEmpty()) {
+        return pl->name();
+    }
+    return pl->name() + QString(" [") + mod + QString("]");
 }
 
 /* @see PlaylistInterface */
