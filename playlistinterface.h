@@ -47,7 +47,7 @@ public:
 
     /**
      * This is triggered when the data in the playlist -- i.e. the tag content
-     * changes.
+     * changes. Also if rows are added, deleted or moved in the table.
      */
     virtual void dataChanged();
 
