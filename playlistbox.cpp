@@ -856,12 +856,42 @@ void PlaylistBox::updateLocalSelectionList()
 
 void PlaylistBox::slotSelectionChanged()
 {
+    // defer our processing until the current event handler is done
+    QTimer::singleShot(0, this, SLOT(slotDoSelectionChangeWork()));
+}
+
+void PlaylistBox::slotDoSelectionChangeWork()
+{
+    kDebug() << "called";
+
+    // update m_selectedList
     updateLocalSelectionList();
 
-    QList<Item*> items = selectedBoxItems();
+    // filter out non-playlist objects from m_selectedList
+    PlaylistList playlists;
+    foreach(Item *it, m_selectedList) {
+        Playlist *pl = it->playlist();
+        if(pl) {
+            playlists.append(pl);
+        }
+    }
 
-    /* set the enable/disable state of the menu items */
+    refreshMenuState(playlists);
 
+    int selectCnt = playlists.count();
+    if(selectCnt == 1) {
+        Playlist *pl = playlists.front();
+        PlaylistCollection::instance()->raise3(pl);
+    }
+    else if(selectCnt > 1)
+        PlaylistCollection::instance()->createDynamicPlaylist(playlists);
+}
+
+/* Set the enable/disable state of the menu items.
+ * @param playlists - the set of currently selected playlists.
+ */
+void PlaylistBox::refreshMenuState(QList<Playlist*> playlists)
+{
     bool bCanReload = true;
     bool bCanDelete = true;     /* the .m3u playlist */
     bool bCanRename = true;
@@ -869,13 +899,10 @@ void PlaylistBox::slotSelectionChanged()
     bool bIsContentMutable = true;
     bool bFileListChanged  = true;
 
-    PlaylistList playlists;
-
     /* for multi-selection, all selected items must allow the operation
      * for the Menu item to get enabled.
      */
-    foreach(Item *it, items) {
-        Playlist *p = it->playlist();
+    foreach(Playlist *p, playlists) {
         if(p) {
             // the canXYZ() methods are class policy, not mutable state
             bool isNormal = p->getType() == Playlist::Type::Normal;
@@ -899,7 +926,6 @@ void PlaylistBox::slotSelectionChanged()
             if(!p->hasFileListChanged()) {
                 bFileListChanged = false;
             }
-            playlists.append(p);
         }
     }
 
@@ -943,13 +969,6 @@ void PlaylistBox::slotSelectionChanged()
 
     if(m_k3bAction)
         m_k3bAction->setEnabled(selectCnt > 0);
-
-    if(selectCnt == 1) {
-        Playlist *pl = playlists.front();
-        PlaylistCollection::instance()->raise3(pl);
-    }
-    else if(selectCnt > 1)
-        PlaylistCollection::instance()->createDynamicPlaylist(playlists);
 }
 
 /* called when playlist icon is double clicked. */

@@ -144,14 +144,22 @@ private:
     void setupUpcomingPlaylist();
     int viewModeIndex() const { return m_viewModeIndex; }
     ViewMode *viewMode() const { return m_viewModes[m_viewModeIndex]; }
+
+    /**
+     * Update our internal list of selected playlists, which knows the
+     * actual sequence that the icons were selected by the user.
+     */
     void updateLocalSelectionList();
 
-private slots:
     /**
-     * Catches QListBox::currentChanged(QListBoxItem *), does a cast and then re-emits
-     * the signal as currentChanged(Item *).
+     * Update the enable/disable state of the menu items.
+     * @param playlists - the set of currently selected playlists.
      */
+    void refreshMenuState(QList<Playlist*> playlists);
+
+private slots:
     void slotSelectionChanged();
+    void slotDoSelectionChangeWork();
     void slotDoubleClicked(Q3ListViewItem *);
     void slotUpdateMenus();
     void slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int);
