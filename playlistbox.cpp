@@ -329,8 +329,8 @@ void PlaylistBox::slotSetHistoryPlaylistEnabled(bool enable)
 
 void PlaylistBox::setupPlaylist3(Playlist *playlist, const QString &iconName, Item *parentItem)
 {
-    //connect(playlist, SIGNAL(signalPlaylistItemsDropped(Playlist*)),
-    //        SLOT(slotPlaylistItemsDropped(Playlist*)));
+    connect(playlist, SIGNAL(signalPlaylistItemsDropped(Playlist*)),
+            SLOT(slotPlaylistItemsDropped(Playlist*)));
 
     PlaylistCollection::instance()->setupPlaylist2(playlist, iconName);
 
@@ -1030,15 +1030,16 @@ void PlaylistBox::slotShowContextMenu(Q3ListViewItem *, const QPoint &point, int
 }
 
 /* This method is called when URLs are dropped on the track table (note: not
- * on this widget).
+ * on this widget). Use this to update the menu item enable/disable status.
  *
- * The catch is, the track table must be visible for this to happen. So the
- * playlist icon is already selected. So this method is always unnecessary.
+ * The track table is already visible, so raise2() will not be effective.
  */
 void PlaylistBox::slotPlaylistItemsDropped(Playlist *p)
 {
     Q_UNUSED(p);
-    //this->raise2(p);
+
+    // update menu item enable/disable
+    slotSelectionChanged();
 }
 
 void PlaylistBox::slotSetViewMode(int index)

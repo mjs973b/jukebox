@@ -1336,7 +1336,11 @@ bool Playlist::acceptDrag(QDropEvent *e) const
     return CoverDrag::isCover(e->mimeData()) || KUrl::List::canDecode(e->mimeData());
 }
 
-/* create PlaylistItems from Url(s) on clipboard, and add immediately following item */
+/* This method is called from this->contentsDropEvent() if the drag/drop
+ * source is not this widget. This is used for paste from clipboard as well.
+ * Create PlaylistItems from the Url(s) on clipboard, and add them immediately
+ * following \p item.
+ */
 void Playlist::decode(const QMimeData *s, PlaylistItem *item)
 {
     if(!this->isContentMutable()) {
@@ -1443,8 +1447,14 @@ void Playlist::keyPressEvent(QKeyEvent *event)
     K3ListView::keyPressEvent(event);
 }
 
+/* this is the entry point for a Drop onto this playlist */
 void Playlist::contentsDropEvent(QDropEvent *e)
 {
+    if(!this->isContentMutable()) {
+        kError() << "Attempt to drop track(s) on read-only playlist";
+        return;
+    }
+
     QPoint vp = contentsToViewport(e->pos());
     PlaylistItem *item = static_cast<PlaylistItem *>(itemAt(vp));
 
@@ -1503,6 +1513,8 @@ void Playlist::contentsDropEvent(QDropEvent *e)
                 listViewItem->moveItem(item);
 
             item = static_cast<PlaylistItem *>(listViewItem);
+
+            m_bFileListChanged = true;
         }
     }
     else
@@ -1511,6 +1523,7 @@ void Playlist::contentsDropEvent(QDropEvent *e)
     m_blockDataChanged = false;
 
     dataChanged();
+    // PlaylistBox uses this signal to update the menu item enable/disable
     emit signalPlaylistItemsDropped(this);
     K3ListView::contentsDropEvent(e);
 }
