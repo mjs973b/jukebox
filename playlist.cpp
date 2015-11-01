@@ -1496,7 +1496,9 @@ void Playlist::contentsDropEvent(QDropEvent *e)
 
         // Since we're trying to arrange things manually, turn off sorting.
 
-        setSorting(columns() + 1);
+        if(sortColumn() >= 0) {
+            setSorting(columns() + 1);
+        }
 
         const QList<Q3ListViewItem *> items = K3ListView::selectedItems();
 
@@ -1571,7 +1573,9 @@ void Playlist::read(QDataStream &s)
         throw BICStreamException();
 
     // Do not sort. Add the files in the order they were saved.
-    setSorting(columns() + 1);
+    if(sortColumn() >= 0) {
+        setSorting(columns() + 1);
+    }
 
     QStringList files;
     s >> files;
@@ -2069,8 +2073,9 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
     QTextStream stream(&file);
 
     // Turn off non-explicit sorting.
-
-    setSorting(PlaylistItem::lastColumn() + 1);
+    if(sortColumn() >= 0) {
+        setSorting(columns() + 1);
+    }
 
     PlaylistItem *after = 0;
 
