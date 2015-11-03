@@ -251,18 +251,23 @@ void PlaylistBox::slotScanFolders()
 
 /**
  * Try to restore the playlist selection from the last time app was run. If the 
- * playlist name no longer exists, do nothing.
+ * playlist name is empty or name no longer exists, select first item.
  */
 void PlaylistBox::restorePrevSelection()
 {
+    Q3ListViewItem *item = firstChild();
     KConfigGroup config(KGlobal::config(), "PlaylistBox");
     QString lastName = config.readEntry("LastSelect", "");
     if (!lastName.isEmpty()) {
-        Q3ListViewItem *item = this->findItem(lastName, /*col*/ 0);
-        if (item) {
-            this->clearSelection();
-            this->setSelected(item, true);
+        Q3ListViewItem *item2 = this->findItem(lastName, /*col*/ 0);
+        if(item2) {
+            item = item2;
         }
+    }
+    if(item) {
+        // issues signal, which calls slotSelectionChanged()
+        setSingleItem(item);
+        ensureItemVisible(item);
     }
 }
 
