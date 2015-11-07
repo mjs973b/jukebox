@@ -40,7 +40,7 @@ SearchPlaylist::SearchPlaylist(PlaylistCollection *collection,
 
 }
 
-bool SearchPlaylist::getPolicy(Playlist::Policy p) {
+bool SearchPlaylist::getPolicy(Playlist::Policy p) const {
     switch(p) {
     case PolicyCanModifyContent: return false;
     case PolicyCanRename:        return true;

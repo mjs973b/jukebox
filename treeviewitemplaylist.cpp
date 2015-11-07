@@ -39,7 +39,7 @@ TreeViewItemPlaylist::TreeViewItemPlaylist(PlaylistCollection *collection,
     m_columnType = static_cast<PlaylistItem::ColumnType>(*(component.columns().begin()));
 }
 
-bool TreeViewItemPlaylist::getPolicy(Playlist::Policy pol) {
+bool TreeViewItemPlaylist::getPolicy(Playlist::Policy pol) const {
 #if 1
     Q_UNUSED(pol);
     return false;

@@ -61,7 +61,7 @@ void HistoryPlaylist::createItems(const PlaylistItemList &siblings)
     Playlist::createItems<HistoryPlaylistItem, PlaylistItem>(siblings);
 }
 
-bool HistoryPlaylist::getPolicy(Playlist::Policy p) {
+bool HistoryPlaylist::getPolicy(Playlist::Policy p) const {
     switch(p) {
     case PolicyCanModifyContent: return false;
     case PolicyCanRename:        return false;

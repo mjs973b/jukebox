@@ -50,7 +50,7 @@ DynamicPlaylist::~DynamicPlaylist()
     lower();
 }
 
-bool DynamicPlaylist::getPolicy(Playlist::Policy p) {
+bool DynamicPlaylist::getPolicy(Playlist::Policy p) const {
     switch(p) {
     case PolicyCanModifyContent: return false;
     case PolicyCanRename:        return false;

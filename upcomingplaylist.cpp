@@ -137,7 +137,7 @@ QMap< PlaylistItem::Pointer, QPointer<Playlist> > &UpcomingPlaylist::playlistInd
     return m_playlistIndex;
 }
 
-bool UpcomingPlaylist::getPolicy(Playlist::Policy p) {
+bool UpcomingPlaylist::getPolicy(Playlist::Policy p) const {
     switch(p) {
     case PolicyCanModifyContent: return true;
     case PolicyCanRename:        return false;

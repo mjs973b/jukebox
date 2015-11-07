@@ -62,7 +62,7 @@ public:
      */
     virtual ~UpcomingPlaylist();
 
-    virtual int getType() { return Playlist::Type::Upcoming; }
+    virtual int getType() const { return Playlist::Type::Upcoming; }
 
     /**
      * This function initializes the upcoming playlist, so that you can create
@@ -104,7 +104,7 @@ public:
 
     bool active() const { return m_active; }
 
-    virtual bool getPolicy(Policy p);
+    virtual bool getPolicy(Policy p) const;
 
 private:
 

@@ -48,7 +48,7 @@ void FolderPlaylist::setFolder(const QString &s)
     QTimer::singleShot(0, this, SLOT(slotReload()));
 }
 
-bool FolderPlaylist::getPolicy(Playlist::Policy p) {
+bool FolderPlaylist::getPolicy(Playlist::Policy p) const {
     switch(p) {
     case PolicyCanModifyContent: return false;
     case PolicyCanRename:        return true;

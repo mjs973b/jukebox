@@ -31,11 +31,11 @@ public:
                          const PlaylistSearch &search = PlaylistSearch(),
                          const QString &name = QString());
 
-    virtual int getType() { return Playlist::Type::SystemSearch; }
+    virtual int getType() const { return Playlist::Type::SystemSearch; }
 
     virtual bool canEditSearchPattern() const { return false; }
 
-    virtual bool getPolicy(Policy p);
+    virtual bool getPolicy(Policy p) const;
 
     void retag(const QStringList &files, Playlist *donorPlaylist);
 

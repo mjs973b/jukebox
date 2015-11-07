@@ -37,11 +37,11 @@ public:
 
     virtual ~NormalPlaylist() { };
 
-    virtual int getType() { return Playlist::Type::Normal; }
+    virtual int getType() const { return Playlist::Type::Normal; }
 
     void read(QDataStream &s);
 
-    virtual bool getPolicy(Policy p);
+    virtual bool getPolicy(Policy p) const;
 };
 
 QDataStream &operator<<(QDataStream &s, const NormalPlaylist &p);

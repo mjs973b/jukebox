@@ -42,9 +42,9 @@ public:
 
     virtual ~DynamicPlaylist();
 
-    virtual int getType() { return Playlist::Type::Dynamic; }
+    virtual int getType() const { return Playlist::Type::Dynamic; }
 
-    virtual bool getPolicy(Policy p);
+    virtual bool getPolicy(Policy p) const;
 
     void setPlaylists(const PlaylistList &playlists);
 

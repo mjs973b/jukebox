@@ -28,12 +28,12 @@ public:
                    const QString &name = QString());
     virtual ~FolderPlaylist();
 
-    virtual int getType() { return Playlist::Type::Folder; }
+    virtual int getType() const { return Playlist::Type::Folder; }
 
     QString folder() const;
     void setFolder(const QString &s);
 
-    virtual bool getPolicy(Policy p);
+    virtual bool getPolicy(Policy p) const;
 
 public slots:
     virtual void slotReload();

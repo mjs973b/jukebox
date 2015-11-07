@@ -238,7 +238,7 @@ void CollectionList::slotDeleteItem(const KFileItem &item)
     delete lookup(item.url().path());
 }
 
-bool CollectionList::getPolicy(Playlist::Policy p) {
+bool CollectionList::getPolicy(Playlist::Policy p) const {
     switch(p) {
     case PolicyCanModifyContent: return true;
     case PolicyCanRename:        return false;

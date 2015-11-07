@@ -101,7 +101,7 @@ public:
      *
      * @return a unique integer for the type of Playlist object.
      */
-    virtual int getType() = 0;
+    virtual int getType() const = 0;
 
     /**
      * @return  the label for this playlist.
@@ -384,7 +384,7 @@ public:
     enum Policy { PolicyCanModifyContent, PolicyCanRename, PolicyCanDelete,
         PolicyCanReload, PolicyPromptToSave };
 
-    virtual bool getPolicy(Policy p) = 0;
+    virtual bool getPolicy(Policy p) const = 0;
 
     /**
      * Determine if tracks can be added, deleted or moved within this playlist by
