@@ -182,6 +182,14 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                     s >> sortColumn;
                     // restore sortColumn only for NormalPlaylist
                     if(playlist && playlist->getType() == Playlist::Type::Normal) {
+                        /* buggy versions of app would cache bad value here,
+                         * completely disabling sorting. So we modify
+                         * -1 or 16383 into 'no-sort-column-but-allowed'
+                         */
+                        if(sortColumn < 0 || sortColumn >= playlist->columns()) {
+                            // no-sort-column-but-user-can-choose
+                            sortColumn = playlist->columns()+1;
+                        }
                         playlist->setSorting(sortColumn);
                     }
                 }
