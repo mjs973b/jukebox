@@ -927,8 +927,7 @@ void Playlist::markItemSelected(PlaylistItem *item, bool selected)
 
 /* refers to track adds, deletes, moves */
 bool Playlist::isListReadOnly() const {
-    // FIXME: make getPolicy() const
-    bool bWritable = isContentMutable() && ((Playlist *)this)->getPolicy(PolicyCanModifyContent);
+    bool bWritable = isContentMutable() && getPolicy(PolicyCanModifyContent);
     return !bWritable;
 }
 

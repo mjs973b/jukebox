@@ -896,7 +896,7 @@ void PlaylistBox::refreshMenuState(QList<Playlist*> playlists)
     /* for multi-selection, all selected items must allow the operation
      * for the Menu item to get enabled.
      */
-    foreach(Playlist *p, playlists) {
+    foreach(const Playlist *p, playlists) {
         if(p) {
             // the canXYZ() methods are class policy, not mutable state
             bool isNormal = p->getType() == Playlist::Type::Normal;

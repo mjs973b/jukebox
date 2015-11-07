@@ -128,7 +128,7 @@ PlaylistCollection::~PlaylistCollection()
  */
 QString PlaylistCollection::name() const
 {
-    Playlist *pl = currentPlaylist();
+    const Playlist *pl = currentPlaylist();
 
     /* only report bModifed if the user can do something about it. DynamicPlaylist
      * and SearchPlaylist are not eligible for File|Save.
