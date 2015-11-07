@@ -856,7 +856,7 @@ void PlaylistBox::slotSelectionChanged()
 
 void PlaylistBox::slotDoSelectionChangeWork()
 {
-    kDebug() << "called";
+    //kDebug() << "called";
 
     // update m_selectedList
     updateLocalSelectionList();

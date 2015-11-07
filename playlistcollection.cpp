@@ -903,7 +903,7 @@ void PlaylistCollection::addNameToDict(const QString &name)
 
 void PlaylistCollection::addFileToDict(const QString &file)
 {
-    kDebug() << file;
+    //kDebug() << file;
     m_playlistFiles.insert(file);
 }
 
