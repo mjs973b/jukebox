@@ -387,6 +387,17 @@ public:
     virtual bool getPolicy(Policy p) = 0;
 
     /**
+     * Determine if tracks can be added, deleted or moved within this playlist by
+     * direct user action, including sorting. This flag is mutable. For more
+     * fine-grained reasons, call getPolicy(PolicyCanModifyContent) and
+     * isContentMutable(). This does not imply that the track metadata is
+     * also read-only.
+     *
+     * @return true if track position modification is allowed
+     */
+    virtual bool isListReadOnly() const;
+
+    /**
      * Determine if this playlist content can be modified by the app.
      * This is _state_ that can be changed programatically at any time.
      * This flag is completely distinct from canModifyContent(),

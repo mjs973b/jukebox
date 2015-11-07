@@ -134,14 +134,12 @@ QString PlaylistCollection::name() const
      * and SearchPlaylist are not eligible for File|Save.
      */
     bool bModified = pl->getPolicy(Playlist::PolicyPromptToSave) && pl->hasFileListChanged();
-    bool bReadonly = pl->getPolicy(Playlist::PolicyCanModifyContent) == false ||
-                     pl->isContentMutable() == false;
 
     /* prioritize Modified status over ReadOnly */
     QString mod;
     if(bModified) {
         mod = QString(i18nc("playlist status", "Modified"));
-    } else if(bReadonly) {
+    } else if(pl->isListReadOnly()) {
         mod = QString(i18nc("playlist status", "ReadOnly"));
     }
     if(mod.isEmpty()) {
@@ -411,8 +409,7 @@ void PlaylistCollection::open(const QStringList &fileList)
     Playlist *pl = visiblePlaylist();
     if(music_file_cnt >= 5 && pl->getType() != Playlist::Type::CollectionList) {
         int resp = KMessageBox::No;
-        if (pl->getPolicy(Playlist::PolicyCanModifyContent) &&
-            pl->isContentMutable()) {
+        if (!pl->isListReadOnly()) {
                 resp = KMessageBox::questionYesNo(
                     JuK::JuKInstance(),
                     i18n("Do you want to add these items to the current list?"));

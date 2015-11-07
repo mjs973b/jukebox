@@ -925,6 +925,13 @@ void Playlist::markItemSelected(PlaylistItem *item, bool selected)
         m_selectedCount--;
 }
 
+/* refers to track adds, deletes, moves */
+bool Playlist::isListReadOnly() const {
+    // FIXME: make getPolicy() const
+    bool bWritable = isContentMutable() && ((Playlist *)this)->getPolicy(PolicyCanModifyContent);
+    return !bWritable;
+}
+
 bool Playlist::isContentMutable() const {
     return m_bContentMutable;
 }
@@ -1322,8 +1329,7 @@ void Playlist::contentsDragEnterEvent(QDragEnterEvent *e)
         return;
     }
 
-    if(!this->getPolicy(Playlist::PolicyCanModifyContent) ||
-       !this->isContentMutable()) {
+    if(this->isListReadOnly()) {
         e->ignore();
         return;
     }
@@ -2561,7 +2567,7 @@ void Playlist::slotUpdateMenus() {
     int nRow = selectedItems().count();
 
     // use read/write status for this playlist
-    bool bMutable = this->getPolicy(Playlist::PolicyCanModifyContent) && this->isContentMutable();
+    bool bMutable = !this->isListReadOnly();
 
     bool bEnablePaste = false;
     if(bMutable) {

@@ -631,13 +631,7 @@ void PlaylistBox::decode(const QMimeData *s, Item *item)
         return;
     }
 
-    if (!pl->getPolicy(Playlist::PolicyCanModifyContent)) {
-        // it's a bug if this happens
-        kError() << "Attempt to drop on read-only target";
-        return;
-    }
-
-    if(!pl->isContentMutable()) {
+    if (pl->isListReadOnly()) {
         // it's a bug if this happens
         kError() << "Attempt to drop on read-only target";
         return;
@@ -706,12 +700,7 @@ void PlaylistBox::contentsDragMoveEvent(QDragMoveEvent *e)
     if(target) {
 
         Playlist *pl = target->playlist();
-        if(pl && !pl->getPolicy(Playlist::PolicyCanModifyContent)) {
-            e->setAccepted(false);
-            return;
-        }
-
-        if(pl && !pl->isContentMutable()) {
+        if(pl && pl->isListReadOnly()) {
             e->setAccepted(false);
             return;
         }
@@ -1005,7 +994,7 @@ void PlaylistBox::slotUpdateMenus()
     bool bEnablePaste = false;
     if (pl) {
         // determine read/write status for the selected playlist
-        bEnablePaste = pl->getPolicy(Playlist::PolicyCanModifyContent) && pl->isContentMutable();
+        bEnablePaste = !pl->isListReadOnly();
         if (bEnablePaste) {
             // looking for mime-type "text/uri-list"
             const QMimeData *mime = QApplication::clipboard()->mimeData();
