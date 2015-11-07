@@ -359,6 +359,9 @@ CollectionList::CollectionList(PlaylistCollection *collection) :
 
     setAllowDuplicates(false);
 
+    // allow user to choose sort column
+    setColumnSortEnabled(true);
+
     m_columnTags[PlaylistItem::ArtistColumn] = new TagCountDict;
     m_columnTags[PlaylistItem::AlbumColumn] = new TagCountDict;
     m_columnTags[PlaylistItem::GenreColumn] = new TagCountDict;

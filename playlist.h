@@ -556,6 +556,13 @@ public:
      */
     void setFileListLastModified(const QDateTime& t);
 
+    /**
+     * Specify whether the user is permitted to sort this playlist by column.
+     * Typically called from a derived Playlist constructor after all columns
+     * have been added to the table. The default value is false.
+     */
+    void setColumnSortEnabled(bool b);
+
 protected:
     /**
      * Remove \a items from the playlist and disk.  This will ignore items that

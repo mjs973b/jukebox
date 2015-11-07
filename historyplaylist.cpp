@@ -38,7 +38,6 @@ HistoryPlaylist::HistoryPlaylist(PlaylistCollection *collection) :
     m_timer->setSingleShot(true);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(slotCreateNewItem()));
 
-    setSorting(-1);
     // append column on right side
     m_timeColumnIndex = addColumn(i18n("Time"));
 }

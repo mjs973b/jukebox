@@ -24,6 +24,7 @@
 NormalPlaylist::NormalPlaylist(PlaylistCollection *collection, const QString& name) :
     Playlist(collection, name)
 {
+    setColumnSortEnabled(true);
 }
 
 NormalPlaylist::NormalPlaylist(PlaylistCollection *collection, 
@@ -31,18 +32,21 @@ NormalPlaylist::NormalPlaylist(PlaylistCollection *collection,
         const QString &name) :
     Playlist(collection, items, name)
 {
+    setColumnSortEnabled(true);
 }
 
 NormalPlaylist::NormalPlaylist(PlaylistCollection *collection, 
         const QFileInfo& playlistFile) :
     Playlist(collection, playlistFile)
 {
+    setColumnSortEnabled(true);
 }
 
 NormalPlaylist::NormalPlaylist(PlaylistCollection *collection,
         bool delaySetup) :
     Playlist(collection, delaySetup)
 {
+    setColumnSortEnabled(true);
 }
 
 bool NormalPlaylist::getPolicy(Playlist::Policy p) const {

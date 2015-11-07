@@ -36,7 +36,6 @@ UpcomingPlaylist::UpcomingPlaylist(PlaylistCollection *collection) :
 {
     setName(i18n("Play Queue"));
     setAllowDuplicates(true);
-    setSorting(-1);
 }
 
 UpcomingPlaylist::~UpcomingPlaylist()

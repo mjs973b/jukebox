@@ -712,6 +712,28 @@ void Playlist::setFileListLastModified(const QDateTime& t) {
     m_fileListLastModified = t;
 }
 
+void Playlist::setColumnSortEnabled(bool bEnable) {
+    /* we use the underlying Q3ListView to store this decision. At some
+     * point, we may need a class variable.
+     */
+
+    // this is cargo-cult value, haven't found where it comes from (mjs)
+    int magic = columns()+1;
+    // a value of -1 or 16383 means 'sorting is disabled'
+    int curSortCol = this->sortColumn();
+    bool bCurState = curSortCol >= 0 && curSortCol <= magic;
+
+    // if sorting state not changing, do not clobber sortColumn
+    if(bEnable != bCurState) {
+        if(bEnable) {
+            // sorting allowed, but currently no column specified
+            this->setSorting(magic);
+        } else {
+            this->setSorting(-1);
+        }
+    }
+}
+
 /* call initiated from File Menu. Ok to show dialog to user. If fileName
  * is not set, then invoke saveAs().
  */
