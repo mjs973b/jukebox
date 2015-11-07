@@ -253,6 +253,8 @@ void Cache::savePlaylists(const PlaylistList &playlists)
 {
     QString dirName = KGlobal::dirs()->saveLocation("appdata");
     QString playlistsFile = dirName + "playlists";
+
+    // KSaveFile uses temp-file-then-rename pattern
     KSaveFile f(playlistsFile);
 
     if(!f.open(QIODevice::WriteOnly)) {
@@ -284,12 +286,14 @@ void Cache::savePlaylists(const PlaylistList &playlists)
                 s << qint32(Playlist::Type::Folder)
                   << *static_cast<FolderPlaylist *>(*it);
             }
-            //else {
             else if(dynamic_cast<NormalPlaylist *>(*it)) {
                 s << qint32(Playlist::Type::Normal)
                   << *static_cast<NormalPlaylist *>(*it);
             }
-            // else error
+            else {
+                kError() << "Unrecognized playlist class";
+                continue;
+            }
             s << qint32((*it)->sortColumn());
         }
     }
@@ -301,8 +305,10 @@ void Cache::savePlaylists(const PlaylistList &playlists)
     fs << data;
     f.close();
 
-    if(!f.finalize())
+    // rename tempfile to desired name 
+    if(!f.finalize()) {
         kError() << "Error saving collection:" << f.errorString();
+    }
 }
 
 bool Cache::cacheFileExists() // static
