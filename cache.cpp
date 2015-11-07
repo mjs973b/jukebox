@@ -180,8 +180,10 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
                 if(version >= 2) {
                     qint32 sortColumn;
                     s >> sortColumn;
-                    if(playlist)
+                    // restore sortColumn only for NormalPlaylist
+                    if(playlist && playlist->getType() == Playlist::Type::Normal) {
                         playlist->setSorting(sortColumn);
+                    }
                 }
 
             } // while !s.atEnd()
