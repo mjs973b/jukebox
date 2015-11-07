@@ -229,7 +229,7 @@ void Cache::loadPlaylists(PlaylistCollection *collection) // static
         f.reset();
 
          while(!fs.atEnd()) {
-            NormalPlaylist *p = new NormalPlaylist(collection);
+            NormalPlaylist *p = new NormalPlaylist(collection, QString());
             fs >> *p;
         }
         break;

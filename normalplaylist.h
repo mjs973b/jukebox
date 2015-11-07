@@ -26,7 +26,7 @@ class NormalPlaylist : public Playlist
 {
     Q_OBJECT
 public:
-    NormalPlaylist(PlaylistCollection *collection, const QString& name = QString());
+    NormalPlaylist(PlaylistCollection *collection, const QString& name);
 
     NormalPlaylist(PlaylistCollection *collection, const PlaylistItemList &items,
              const QString &name);
