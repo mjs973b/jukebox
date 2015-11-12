@@ -1621,6 +1621,9 @@ void Playlist::read(QDataStream &s)
         after = createItem(FileHandle(file), after, false);
     }
 
+    // a playlist loaded from cache is marked dirty
+    m_bFileListChanged = true;
+
     m_blockDataChanged = false;
 
     dataChanged();
@@ -2093,6 +2096,33 @@ void Playlist::setup()
     slotInitialize();
 }
 
+/* read content of an m3u file. Blank lines are ignored.
+ * Items added to list are converted to canonical filenames.
+ */
+bool Playlist::readFile(const QFileInfo& src, QList<QString>& rows) const
+{
+    QFile file(src.filePath());
+    if(!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    QTextStream stream(&file);
+    QString parent = src.canonicalPath();
+    if(parent.size() > 0 && parent[parent.size()-1] != '/') {
+        parent += '/';
+    }
+    while(!stream.atEnd()) {
+        QString itemName = stream.readLine().trimmed();
+        if(!itemName.isEmpty()) {
+            if(itemName[0] != '/') {
+                itemName = QDir::cleanPath(parent + itemName);
+            }
+            rows.append(itemName);
+        }
+    }
+    file.close();
+    return true;
+}
+
 /* fileName must be an .m3u file */
 void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 {
@@ -2383,8 +2413,18 @@ void Playlist::importRecentPlaylistFile(const QFileInfo& fileInfo) {
             // clear the existing pl object and populate from m3u disk file
             pl->slotReload();
             return;
+        } else {
+            // compare disk file to cache so we correctly set modified flag
+            QList<QString> disk_files;
+            if(readFile(fileInfo, disk_files)) {
+                // track file names we got from cache
+                QList<QString> cached_files = pl->files();
+                // compare the two lists
+                if(disk_files == cached_files) {
+                    pl->m_bFileListChanged = false;
+                }
+            }
         }
-        // else the existing pl object is the latest one
 
     } else {
         // create new playlist and read file

@@ -651,6 +651,11 @@ private:
     void notifyUserColumnWidthModeChanged();
 
     /**
+     * Read an m3u file into list, converting to canonical file name.
+     */
+    bool readFile(const QFileInfo& src, QList<QString>& rows) const;
+
+    /**
      * Load the playlist from a file.  \a fileName should be the absolute path.
      * \a fileInfo should point to the same file as \a fileName.  This is a
      * little awkward API-wise, but keeps us from throwing away useful
