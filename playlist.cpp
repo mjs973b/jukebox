@@ -2126,11 +2126,12 @@ bool Playlist::readFile(const QFileInfo& src, QList<QString>& rows) const
 /* fileName must be an .m3u file */
 void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 {
-    QFile file(fileName);
-    if(!file.open(QIODevice::ReadOnly))
-        return;
+    Q_UNUSED(fileName);
 
-    QTextStream stream(&file);
+    QList<QString> list;
+    if(!readFile(fileInfo, list)) {
+        return;
+    }
 
     // Turn off non-explicit sorting.
     if(sortColumn() >= 0) {
@@ -2143,13 +2144,9 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 
     m_blockDataChanged = true;
 
-    while(!stream.atEnd()) {
-        QString itemName = stream.readLine().trimmed();
+    foreach(const QString& itemName, list) {
 
         QFileInfo item(itemName);
-
-        if(item.isRelative())
-            item.setFile(QDir::cleanPath(fileInfo.absolutePath() + '/' + itemName));
 
         if(item.exists() && item.isFile() && item.isReadable() &&
            MediaFiles::isMediaFile(item.fileName()))
@@ -2163,11 +2160,9 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 
     m_blockDataChanged = false;
 
-    file.close();
-
     // this playlist content matches the disk file
     m_bFileListChanged = false;
-    m_fileListLastModified = QFileInfo(file).lastModified();
+    m_fileListLastModified = fileInfo.lastModified();
 
     dataChanged();
 
