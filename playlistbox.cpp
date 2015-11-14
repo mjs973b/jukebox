@@ -169,15 +169,9 @@ PlaylistBox::PlaylistBox(PlayerManager *player, QWidget *parent, QStackedWidget 
 
 PlaylistBox::~PlaylistBox()
 {
-    PlaylistList l;
-    CollectionList *collection = CollectionList::instance();
-    for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
-        Item *item = static_cast<Item *>(i);
-        if(item->playlist() && item->playlist() != collection)
-            l.append(item->playlist());
-    }
+    // write 'playlists' cache file
+    slotSavePlaylistsToCache();
 
-    Cache::savePlaylists(l);
     saveConfig();
 
     // write playlists cache file
