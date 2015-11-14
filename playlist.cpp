@@ -2393,15 +2393,17 @@ void Playlist::importRecentPlaylistFile(const QFileInfo& fileInfo) {
     // check if this playlist already exists in collection
     Playlist *pl = m_collection->findPlaylistByFilename(fname);
     if(pl) {
-        /* we already have a playlist with this .m3u name. We intentionally
+        /* we already have a playlist with this .m3u name. We can
          * ignore the pl->isContentMutable() state, as pl->slotReload() knows
-         * how to handle that. If the user changes that .m3u file, it
-         * should be used.
+         * how to handle that. If the user changed the disk .m3u file since
+         * our cache was written, disk file should be used. Also if disk file
+         * is read-only.
          */
 
-        // check timestamps
-        if(fileInfo.lastModified() > pl->m_fileListLastModified) {
-            // this might happen if .m3u was modified outside of this app
+        // check timestamps and r/w status
+        bool bReload = (fileInfo.lastModified() > pl->m_fileListLastModified) ||
+            !fileInfo.isWritable();
+        if(bReload) {
             // clear the existing pl object and populate from m3u disk file
             pl->slotReload();
             return;
