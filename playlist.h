@@ -656,12 +656,15 @@ private:
     bool readFile(const QFileInfo& src, QList<QString>& rows) const;
 
     /**
-     * Load the playlist from a file.  \a fileName should be the absolute path.
-     * \a fileInfo should point to the same file as \a fileName.  This is a
-     * little awkward API-wise, but keeps us from throwing away useful
-     * information.
+     * Load the playlist from a list of file names.
      */
-    void loadFile(const QString &fileName, const QFileInfo &fileInfo);
+    void loadTableFromList(const QList<QString> &list);
+
+    /**
+     * Load the playlist from a file.
+     * @param src path to m3u file.
+     */
+    void loadTableFromFile(const QFileInfo &src);
 
     /**
      * Writes \a text to \a item in \a column.  This is used by the inline tag

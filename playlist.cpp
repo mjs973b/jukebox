@@ -473,7 +473,7 @@ Playlist::Playlist(PlaylistCollection *collection, const QFileInfo &playlistFile
     m_blockDataChanged(false)
 {
     setup();
-    loadFile(m_fileName, playlistFile);
+    loadTableFromFile(playlistFile);
     collection->setupPlaylist(this, iconName);
 }
 
@@ -1194,7 +1194,7 @@ void Playlist::slotReload()
 
     setContentMutable(true);
     clearItems(items());
-    loadFile(m_fileName, fileInfo);
+    loadTableFromFile(fileInfo);
     checkForReadOnlyM3uFile();
 }
 
@@ -2123,19 +2123,19 @@ bool Playlist::readFile(const QFileInfo& src, QList<QString>& rows) const
     return true;
 }
 
-/* fileName must be an .m3u file */
-void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
+/* populate table using file list. list has canonical file names, but we don't
+ * yet know if the files actually exist or not.
+ */
+void Playlist::loadTableFromList(const QList<QString>& list)
 {
-    Q_UNUSED(fileName);
-
-    QList<QString> list;
-    if(!readFile(fileInfo, list)) {
-        return;
-    }
-
     // Turn off non-explicit sorting.
     if(sortColumn() >= 0) {
         setSorting(columns() + 1);
+    }
+
+    // clear table rows
+    if(this->childCount() > 0) {
+        clearItems(items());
     }
 
     PlaylistItem *after = 0;
@@ -2159,11 +2159,30 @@ void Playlist::loadFile(const QString &fileName, const QFileInfo &fileInfo)
 
     // this playlist content matches the disk file
     m_bFileListChanged = false;
-    m_fileListLastModified = fileInfo.lastModified();
 
     dataChanged();
 
     m_disableColumnWidthUpdates = false;
+}
+
+/* populate table using src, which must identify an .m3u file. Assume that
+ * m_fileName is already set and is same file as passed in src.
+ * The playlist is in a mutable state on exit from this method.
+ */
+void Playlist::loadTableFromFile(const QFileInfo& src)
+{
+    QList<QString> list;
+
+    // populate list with abs. file names
+    if(!readFile(src, list)) {
+        return;
+    }
+
+    setContentMutable(true);
+
+    m_fileListLastModified = src.lastModified();
+
+    loadTableFromList(list);
 }
 
 /**
