@@ -2898,6 +2898,10 @@ void Playlist::slotPlayCurrent()
 ////////////////////////////////////////////////////////////////////////////////
 
 #if 0
+/* Playlist is now an abstract class, so these 2 serialization operators should
+ * be implemented by the derived class; we want the 2nd argument to be
+ * unambiguous.
+ */
 QDataStream &operator<<(QDataStream &s, const Playlist &p)
 {
     qDebug() << "Playlist::operator<<: Write " << p.name();
