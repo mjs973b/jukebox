@@ -2421,9 +2421,6 @@ void Playlist::importRecentPlaylistFile(const QFileInfo& fileInfo) {
     } else {
         // create new playlist and read file
         pl = new NormalPlaylist(m_collection, fileInfo);
-
-        // set the isContentMutable() flag
-        pl->checkForReadOnlyM3uFile();
     }
 }
 

@@ -40,6 +40,8 @@ NormalPlaylist::NormalPlaylist(PlaylistCollection *collection,
     Playlist(collection, playlistFile)
 {
     setColumnSortEnabled(true);
+    // set the isContentMutable() flag
+    checkForReadOnlyM3uFile();
 }
 
 NormalPlaylist::NormalPlaylist(PlaylistCollection *collection,
