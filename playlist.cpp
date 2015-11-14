@@ -524,14 +524,18 @@ Playlist::~Playlist()
         m_collection->removePlaylist(this);
 }
 
-/*
- * The label for this playlist, or a default if none set.
- * @see PlaylistInterface
+/* use filename to generate a default display name */
+static QString extractDefaultName(const QString& fname) {
+    return fname.section(QDir::separator(), -1).section('.', 0, -2);
+}
+
+/* Return The user-provided label for this playlist, or a generated value
+ * if none has been provided.
  */
 QString Playlist::name() const
 {
     if(m_playlistName.isEmpty())
-        return m_fileName.section(QDir::separator(), -1).section('.', 0, -2);
+        return extractDefaultName(m_fileName);
     else
         return m_playlistName;
 }
@@ -951,6 +955,18 @@ void Playlist::markItemSelected(PlaylistItem *item, bool selected)
 bool Playlist::isListReadOnly() const {
     bool bWritable = isContentMutable() && getPolicy(PolicyCanModifyContent);
     return !bWritable;
+}
+
+/* used to decide whether or not to cache this playlist */
+bool Playlist::isMatchToDiskFile() const {
+    QString pname = this->name();
+    QString fname = this->fileName();
+    if(fname.isEmpty() ||
+        hasFileListChanged() ||
+        pname != extractDefaultName(fname)) {
+        return false;
+    }
+    return true;
 }
 
 bool Playlist::isContentMutable() const {
@@ -1596,7 +1612,7 @@ void Playlist::read(QDataStream &s)
     s >> m_playlistName
       >> m_fileName;
 
-    kDebug() << m_fileName;
+    kDebug() << m_playlistName << m_fileName;
 
     // m_fileName is probably empty.
     if(m_playlistName.isEmpty())

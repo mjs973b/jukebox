@@ -398,6 +398,15 @@ public:
     virtual bool isListReadOnly() const;
 
     /**
+     * Check if critical info differs between RAM and source disk file.
+     * If there's no disk file, it obviously doesn't match. This is useful
+     * when deciding whether or not to cache this playlist.
+     *
+     * @return true if label and track list match the m3u disk file.
+     */
+    bool isMatchToDiskFile() const;
+
+    /**
      * Determine if this playlist content can be modified by the app.
      * This is _state_ that can be changed programatically at any time.
      * This flag is completely distinct from canModifyContent(),

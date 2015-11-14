@@ -504,25 +504,34 @@ void PlaylistBox::setDynamicListsFrozen(bool frozen)
 }
 
 /**
- * This writes the 'playlists' cache file in the kde4 dir.
+ * This writes the 'playlists' cache file in our app's kde4 dir.
  *
  * For the special playlists like History, Play Queue, Folder or Search,
  * this is the only place they are written to disk. The user's regular .m3u 
- * playlists are also saved, but it's not clear why since the data is 
- * immediately discarded after it is read at app startup.
+ * NormalPlaylist are saved only if label or track list differs from disk file,
+ * or it's outside a managed folder tree.
  */
 void PlaylistBox::slotSavePlaylistsToCache()
 {
     kDebug() << "Auto-saving playlists.\n";
 
-    PlaylistList list;
-    Playlist *pl;
-    CollectionList *collection = CollectionList::instance();
+    PlaylistCollection *coll = PlaylistCollection::instance();
+    QList<Playlist*> list;
+    // first level only (i.e. none of the stuff below CollectionList in Tree View)
     for(Q3ListViewItem *i = this->firstChild(); i; i = i->nextSibling()) {
         Item *item = static_cast<Item *>(i);
-        pl = item->playlist();
-        if(pl && pl != collection) {
-            list.append(pl);
+        Playlist *pl = item->playlist();
+        int plType = pl->getType();
+        if(pl) {
+            bool bSave = plType != Playlist::Type::CollectionList && (
+                         plType != Playlist::Type::Normal ||
+                         !pl->isMatchToDiskFile() ||
+                         !coll->isManagedFile(pl->fileName()));
+            if (bSave) {
+                list.append(pl);
+            } else {
+                kDebug() << "skip" << pl->name();
+            }
         }
     }
 

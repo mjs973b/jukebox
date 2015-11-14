@@ -211,6 +211,12 @@ public:
      */
     Playlist *findPlaylistByFilename(const QString &canonical) const;
 
+    /**
+     * @param fname  a absolute, canonical path to an .m3u file
+     * @return true if file resides in a managed folder
+     */
+     bool isManagedFile(const QString& fname) const;
+
 private:
     void readConfig();
     void saveConfig();

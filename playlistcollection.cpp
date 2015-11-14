@@ -955,6 +955,49 @@ Playlist *PlaylistCollection::findPlaylistByFilename(const QString &canonical) c
     return 0;
 }
 
+/**
+ * Determine if any item in haystack is a prefix of needle.
+ * The compare is case sensitive.
+ * @param needle is a canonical dir name
+ * @param haystack is a list of canonical dir names.
+ * @return true if match is found
+ */
+static bool isPrefixOf(const QString& needle, const QStringList& haystack)
+{
+    int needlelen = needle.size();
+    foreach(const QString& h, haystack) {
+        int hlen = h.size();
+        if(hlen <= needlelen && h == needle.left(hlen)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Return true if \p fname is a member of a managed folder.
+ * \p fname is absolute, canonical file name of an m3u file.
+ * The name comparison is case-sensitive.
+ */
+bool PlaylistCollection::isManagedFile(const QString& fname) const
+{
+    if(fname.isEmpty()) {
+        return false;
+    }
+    QString targetDir = QFileInfo(fname).dir().canonicalPath();
+    if(!targetDir.endsWith('/')) {
+        targetDir += '/';
+    }
+    // include these dirs
+    if(isPrefixOf(targetDir, m_folderList)) {
+        // but exclude these dirs
+        if(isPrefixOf(targetDir, m_excludedFolderList)) {
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 void PlaylistCollection::newItems(const KFileItemList &list) const
 {
     // Make fast-path for the normal case
